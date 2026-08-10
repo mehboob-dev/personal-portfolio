@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}About — Mehboob Meghani{% endblock %}
+{% block content %}
+<section class="page">
+  <div class="container">
+    <h1>About</h1>
+    <p class="lead">{{ content.intro }}</p>
+    {% for para in content.paragraphs %}
+    <p>{{ para }}</p>
+    {% endfor %}
+    <ul class="checklist">
+      {% for item in content.highlights %}
+      <li>{{ item }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endblock %}

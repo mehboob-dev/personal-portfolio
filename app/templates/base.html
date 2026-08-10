@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ site.site.title if site else 'Mehboob Meghani' }}{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <a class="brand" href="{{ url_for('public.home') }}">
+        <span class="brand-name">{{ site.site.title if site else 'Mehboob Meghani' }}</span>
+        <span class="brand-sub">Algorithmic Trading Systems Engineer</span>
+      </a>
+      <nav class="site-nav">
+        {% for item in (site.nav if site else []) %}
+        <a href="{{ item.href }}">{{ item.label }}</a>
+        {% endfor %}
+        {% if current_user.is_authenticated %}
+        <a class="nav-admin" href="{{ url_for('admin.dashboard') }}">Admin</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>© {{ site.site.year if site and site.site else 2026 }} Mehboob Meghani · Algorithmic Trading Systems Engineer</p>
+    </div>
+  </footer>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

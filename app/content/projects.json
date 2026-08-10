@@ -1,0 +1,23 @@
+{
+  "intro": "Selected projects. The portfolio and QR platform itself is one of them.",
+  "projects": [
+    {
+      "name": "Algorithmic Trading Engine",
+      "status": "Live — own use",
+      "description": "High-performance backtesting + live trading engine. 50 symbols, 3 years, 1-minute OHLCV, multiple strategies with modular exits, full pipeline in under 3 minutes.",
+      "tags": ["Python", "Memory-mapped data", "Shared indicators", "Backtesting"]
+    },
+    {
+      "name": "Dynamic QR & Lead Analytics Platform",
+      "status": "This site",
+      "description": "A generic QR redirect engine with mutable destinations, scan tracking, campaign management and a lead-capture funnel. Built for a printed visiting card that never goes stale.",
+      "tags": ["Flask", "MySQL", "QR codes", "Analytics"]
+    },
+    {
+      "name": "Expo Interactive Demo",
+      "status": "This site",
+      "description": "A mobile-first 5-screen demo that replays a historical trading setup end-to-end: benchmark → architecture → strategy → replay → connect.",
+      "tags": ["Lightweight Charts", "Vanilla JS", "JSON datasets"]
+    }
+  ]
+}

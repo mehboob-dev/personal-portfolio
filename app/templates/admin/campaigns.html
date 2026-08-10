@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block title %}Campaigns{% endblock %}
+{% block content %}
+<h1>Campaigns</h1>
+
+<form method="post" action="{{ url_for('admin.campaigns') }}" class="inline-form">
+  <input type="text" name="name" placeholder="Campaign name (e.g. Money Expo 2026)" required>
+  <input type="text" name="slug" placeholder="slug (optional, auto-generated)">
+  <button class="btn btn-primary" type="submit">Add campaign</button>
+</form>
+
+<table class="table">
+  <thead><tr><th>Name</th><th>Slug</th><th>QR codes</th><th>Created</th><th></th></tr></thead>
+  <tbody>
+    {% for c in campaigns %}
+    <tr>
+      <td>{{ c.name }}</td>
+      <td>{{ c.slug }}</td>
+      <td>{{ c.qr_codes.count() }}</td>
+      <td>{{ c.created_at.strftime('%Y-%m-%d') if c.created_at }}</td>
+      <td>
+        <form method="post" action="{{ url_for('admin.delete_campaign', cid=c.id) }}" onsubmit="return confirm('Delete campaign? Its QR codes remain.')">
+          <button class="btn btn-danger btn-sm" type="submit">Delete</button>
+        </form>
+      </td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">No campaigns yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

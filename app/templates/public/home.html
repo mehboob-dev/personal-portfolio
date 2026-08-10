@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Mehboob Meghani — Algorithmic Trading Systems Engineer{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="container">
+    <h1>{{ content.hero_headline }}</h1>
+    <p class="lead">{{ content.hero_sub }}</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="{{ content.cta_primary.href }}">{{ content.cta_primary.label }}</a>
+      <a class="btn" href="{{ content.cta_secondary.href }}">{{ content.cta_secondary.label }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="benchmark">
+  <div class="container">
+    <h2>{{ site.benchmark.headline if site else '' }}</h2>
+    <div class="stats-grid">
+      {% for stat in (site.benchmark.stats if site and site.benchmark else []) %}
+      <div class="stat">
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-label">{{ stat.label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <p class="benchmark-detail">{{ site.benchmark.detail if site and site.benchmark else '' }}</p>
+  </div>
+</section>
+
+<section class="pipeline">
+  <div class="container">
+    <h2>The pipeline</h2>
+    <ol class="pipeline-list">
+      {% for step in (site.engine.pipeline if site and site.engine else []) %}
+      <li>{{ step }}</li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+{% endblock %}

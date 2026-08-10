@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="stats-grid">
+  <div class="stat"><div class="stat-value">{{ total_scans }}</div><div class="stat-label">Total scans</div></div>
+  <div class="stat"><div class="stat-value">{{ unique_visitors }}</div><div class="stat-label">Unique visitors</div></div>
+  <div class="stat"><div class="stat-value">{{ qr_count }}</div><div class="stat-label">QR codes</div></div>
+  <div class="stat"><div class="stat-value">{{ campaigns_count }}</div><div class="stat-label">Campaigns</div></div>
+  <div class="stat"><div class="stat-value">{{ leads_count }}</div><div class="stat-label">Leads</div></div>
+</div>
+
+<h2>Last 14 days</h2>
+<table class="table">
+  <thead><tr><th>Date</th><th>Scans</th></tr></thead>
+  <tbody>
+    {% for date, count in daily %}
+    <tr><td>{{ date }}</td><td>{{ count }}</td></tr>
+    {% else %}
+    <tr><td colspan="2" class="muted">No scans yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="cols">
+  <div>
+    <h2>Device</h2>
+    <table class="table">
+      {% for label, count in device_breakdown %}
+      <tr><td>{{ label }}</td><td>{{ count }}</td></tr>
+      {% else %}
+      <tr><td colspan="2" class="muted">No data.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div>
+    <h2>Operating system</h2>
+    <table class="table">
+      {% for label, count in os_breakdown %}
+      <tr><td>{{ label }}</td><td>{{ count }}</td></tr>
+      {% else %}
+      <tr><td colspan="2" class="muted">No data.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+<h2>Top cities</h2>
+<table class="table">
+  <thead><tr><th>City</th><th>Scans</th></tr></thead>
+  <tbody>
+    {% for city, count in top_cities %}
+    <tr><td>{{ city }}</td><td>{{ count }}</td></tr>
+    {% else %}
+    <tr><td colspan="2" class="muted">City tracking is off by default.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>Recent scans</h2>
+<table class="table">
+  <thead><tr><th>Time</th><th>QR</th><th>Device</th><th>Browser</th><th>OS</th></tr></thead>
+  <tbody>
+    {% for scan in recent_scans %}
+    <tr>
+      <td>{{ scan.created_at.strftime('%Y-%m-%d %H:%M') if scan.created_at }}</td>
+      <td>{{ scan.qr_code.slug if scan.qr_code else '?' }}</td>
+      <td>{{ scan.device }}</td>
+      <td>{{ scan.browser }}</td>
+      <td>{{ scan.os }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5" class="muted">No scans yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

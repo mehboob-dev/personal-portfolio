@@ -1,0 +1,111 @@
+/* Expo demo — mobile-first, dark quant aesthetic */
+.expo-body { background: #05070c; }
+.expo-app {
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 20px 18px 80px;
+}
+.expo-step { display: none; }
+.expo-step.is-active { display: block; animation: fadein 0.25s ease; }
+@keyframes fadein { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; } }
+
+.expo-brand { font-size: 0.72rem; color: var(--muted); letter-spacing: 0.04em; margin-bottom: 18px; text-align: center; }
+.expo-step h1 { font-size: 1.6rem; text-align: center; line-height: 1.2; margin: 0 0 26px; }
+.expo-step h2 { font-size: 1.2rem; text-align: center; color: var(--accent); }
+.expo-sub { text-align: center; color: var(--muted); font-size: 0.9rem; }
+
+/* Benchmark */
+.bench-wrap { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 24px 18px; text-align: center; }
+.bench-title { letter-spacing: 0.14em; font-size: 0.8rem; color: var(--gold); margin-bottom: 18px; }
+.bench-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
+.bench-stat { display: flex; flex-direction: column; }
+.b-v { font-size: 1.4rem; font-weight: 700; color: var(--accent); }
+.b-l { font-size: 0.7rem; color: var(--muted); }
+.bench-extra { color: var(--muted); font-size: 0.8rem; margin-bottom: 18px; }
+
+/* Buttons */
+.expo-btn {
+  display: block;
+  width: 100%;
+  margin: 10px auto;
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid var(--accent);
+  background: var(--accent);
+  color: #04120c;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+.expo-btn:hover { opacity: 0.9; }
+.expo-btn.ghost { background: transparent; color: var(--accent); }
+.bench-cta .expo-btn { margin-bottom: 0; }
+
+/* Architecture */
+.arch-flow { display: flex; flex-direction: column; align-items: stretch; gap: 4px; margin: 18px 0; }
+.arch-node {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  text-align: left;
+}
+.arch-cards { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
+.arch-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; }
+.arch-card h3 { color: var(--accent); font-size: 0.95rem; }
+.arch-card p { color: var(--muted); font-size: 0.85rem; margin: 0; }
+
+/* Strategy list */
+.strat-list { display: flex; flex-direction: column; gap: 12px; margin: 20px 0; }
+.strat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text);
+}
+.strat-card h3 { color: var(--accent); margin: 0 0 6px; font-size: 1rem; }
+.strat-card p { color: var(--muted); font-size: 0.85rem; margin: 0; }
+.strat-card:hover { border-color: var(--accent); }
+
+/* Replay */
+#chart { width: 100%; height: 260px; margin: 16px 0 10px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; }
+#replay-log {
+  min-height: 90px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+#replay-log .sig { color: var(--gold); font-weight: 600; }
+.replay-controls { margin: 14px 0; }
+
+/* Outro */
+.outro-links { display: flex; flex-direction: column; gap: 10px; margin: 24px 0; }
+
+/* Dots nav */
+.expo-nav {
+  position: fixed;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--border);
+  cursor: pointer;
+}
+.dot.is-active { background: var(--accent); }

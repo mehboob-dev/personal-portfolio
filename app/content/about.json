@@ -1,0 +1,15 @@
+{
+  "intro": "I'm an algorithmic trading systems engineer. I design and build the infrastructure that makes systematic trading possible — data pipelines, strategy engines, backtesting, risk and execution.",
+  "paragraphs": [
+    "I work mainly with crypto markets. My systems are built to be performant and resource-efficient, and to behave identically whether replaying history or running against live data.",
+    "I also use the systems I build for my own trading. That means I'm on both sides: I build the software and I depend on it. Every design decision is tested against real market conditions.",
+    "Open to full-time opportunities, trading-system projects, and collaborations."
+  ],
+  "highlights": [
+    "Algorithmic trading systems",
+    "Real-time market data infrastructure",
+    "Strategy research & backtesting",
+    "Low-latency execution",
+    "Resource-efficient architecture"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "intro": "Experience across the full trading-system stack — with a focus on performance engineering.",
+  "roles": [
+    {
+      "title": "Independent Trading Systems Engineer",
+      "org": "Self-directed / Own systems",
+      "period": "Ongoing",
+      "points": [
+        "Built a performant algorithmic trading engine handling 50 symbols × 3 years × 1-minute OHLCV with multiple strategies and exit modules in under 3 minutes.",
+        "Memory-mapped data access, shared indicator calculation, optimized data structures.",
+        "Run the system against real crypto markets for my own trading."
+      ]
+    }
+  ],
+  "skills": {
+    "languages": ["Python", "C#", "C++"],
+    "data": ["NumPy", "Pandas", "Memory-mapped storage"],
+    "systems": ["FastAPI", "Flask", "WebSockets", "Real-time data feeds"],
+    "trading": ["Backtesting", "Strategy development", "Risk management", "Execution"]
+  }
+}

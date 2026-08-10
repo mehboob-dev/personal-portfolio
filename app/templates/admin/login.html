@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin login — Mehboob Meghani</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="login-body">
+  <main class="login-wrap">
+    <form method="post" action="{{ url_for('admin.login') }}" class="login-card">
+      <h1>Admin</h1>
+      <label>Username
+        <input type="text" name="username" autocomplete="username" required>
+      </label>
+      <label>Password
+        <input type="password" name="password" autocomplete="current-password" required>
+      </label>
+      <button class="btn btn-primary" type="submit">Sign in</button>
+      <p class="muted"><a href="{{ url_for('public.home') }}">← Back to site</a></p>
+    </form>
+  </main>
+</body>
+</html>

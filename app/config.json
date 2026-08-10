@@ -1,0 +1,92 @@
+{
+  "site": {
+    "title": "Mehboob Meghani",
+    "tagline": "Algorithmic Trading Systems Engineer",
+    "domain": "mehboob.itqantrades.com",
+    "canonical_url": "https://mehboob.itqantrades.com",
+    "year": 2026
+  },
+  "identity": {
+    "positioning": "I build performant trading systems for systematic trading — and I use what I build for my own crypto trading.",
+    "keywords": [
+      "algorithmic trading",
+      "quantitative development",
+      "trading systems",
+      "market data",
+      "backtesting",
+      "crypto"
+    ],
+    "links": {
+      "github": "https://github.com/mehboob-dev",
+      "linkedin": "https://www.linkedin.com/in/mehboob-meghani",
+      "email": "mehboob@mehboob.dev"
+    }
+  },
+  "benchmark": {
+    "headline": "High-performance algorithmic trading engine",
+    "stats": [
+      { "value": "50", "label": "Symbols" },
+      { "value": "3", "label": "Years" },
+      { "value": "1m", "label": "OHLCV data" },
+      { "value": "<3min", "label": "Full engine backtest" }
+    ],
+    "detail": "50 symbols × 3 years × 1-minute OHLCV, multiple strategies with multiple exit modules each, through the complete engine pipeline — under 3 minutes."
+  },
+  "engine": {
+    "pipeline": [
+      "Market Data",
+      "Indicators",
+      "Strategy Engine",
+      "Portfolio / Risk",
+      "Execution",
+      "Analytics"
+    ],
+    "architecture_highlights": [
+      {
+        "title": "Memory-mapped data",
+        "blurb": "Efficient access to large historical datasets without loading everything into conventional memory."
+      },
+      {
+        "title": "Optimized data structures",
+        "blurb": "Low overhead while processing millions of candles and events."
+      },
+      {
+        "title": "Shared indicators",
+        "blurb": "Calculated once, reused across strategies — no repeated work."
+      },
+      {
+        "title": "Strategy + exit architecture",
+        "blurb": "Multiple strategies and exit modules evaluate cleanly over the same data/indicator layer."
+      }
+    ]
+  },
+  "nav": [
+    { "label": "Home", "href": "/" },
+    { "label": "About", "href": "/about" },
+    { "label": "Experience", "href": "/experience" },
+    { "label": "Projects", "href": "/projects" },
+    { "label": "Trading Systems", "href": "/trading-systems" },
+    { "label": "Expo Demo", "href": "/expo" },
+    { "label": "Contact", "href": "/contact" }
+  ],
+  "expo": {
+    "hero": "I build algorithmic trading systems.",
+    "strategies": [
+      {
+        "id": "orb",
+        "name": "Opening Range Breakout",
+        "dataset": "BTCUSDT_1m_orb.json",
+        "description": "Breakout of the first 15-minute range on 1-minute BTCUSDT data.",
+        "or_high": 118240,
+        "or_low": 118050
+      }
+    ],
+    "steps": [
+      { "id": "benchmark", "title": "The Engine", "desc": "Full pipeline backtest at scale." },
+      { "id": "architecture", "title": "Why It's Fast", "desc": "Architecture decisions that make it performant." },
+      { "id": "strategy", "title": "Pick a Strategy", "desc": "Choose a real strategy to replay." },
+      { "id": "replay", "title": "Watch It Trade", "desc": "A historical setup unfolds step by step." },
+      { "id": "outro", "title": "Who I Am", "desc": "Contact and connect." }
+    ]
+  }
+}

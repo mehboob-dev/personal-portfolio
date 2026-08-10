@@ -1,0 +1,30 @@
+{% extends "admin/base.html" %}
+{% block title %}{{ 'Edit QR' if code else 'New QR' }}{% endblock %}
+{% block content %}
+<h1>{{ 'Edit QR code' if code else 'New QR code' }}</h1>
+
+<form method="post" class="contact-form">
+  <label>Slug (the part after /r/)
+    <input type="text" name="slug" value="{{ code.slug if code }}" placeholder="money-expo-card" required>
+  </label>
+  <label>Label
+    <input type="text" name="label" value="{{ code.label if code }}" placeholder="Visiting card — front">
+  </label>
+  <label>Destination URL
+    <input type="url" name="destination_url" value="{{ code.destination_url if code }}" placeholder="https://mehboob.itqantrades.com/expo" required>
+  </label>
+  <label>Campaign
+    <select name="campaign_id">
+      <option value="">— none —</option>
+      {% for c in campaigns %}
+      <option value="{{ c.id }}" {% if code and code.campaign_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+      {% endfor %}
+    </select>
+  </label>
+  <label class="checkbox">
+    <input type="checkbox" name="is_active" {% if not code or code.is_active %}checked{% endif %}> Active
+  </label>
+  <button class="btn btn-primary" type="submit">Save</button>
+  <a class="btn" href="{{ url_for('admin.qr_list') }}">Cancel</a>
+</form>
+{% endblock %}
