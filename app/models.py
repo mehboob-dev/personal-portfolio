@@ -21,6 +21,7 @@ class Campaign(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(120), nullable=False, unique=True)
     slug = db.Column(db.String(80), nullable=False, unique=True)
+    is_deleted = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=_utcnow)
 
     qr_codes = db.relationship("QrCode", back_populates="campaign", lazy="dynamic")
@@ -36,6 +37,7 @@ class QrCode(db.Model):
     # The mutable destination — this is what makes the printed card reusable.
     destination_url = db.Column(db.String(2000), nullable=False)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
+    is_deleted = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=_utcnow)
     updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
 
@@ -51,11 +53,18 @@ class Scan(db.Model):
     # Anonymized: store a hash of the IP, never the raw IP.
     ip_hash = db.Column(db.String(64), nullable=True)
     device = db.Column(db.String(40), nullable=True)
+    device_model = db.Column(db.String(60), nullable=True)
     browser = db.Column(db.String(60), nullable=True)
     os = db.Column(db.String(60), nullable=True)
+    app_source = db.Column(db.String(60), nullable=True)
+    language = db.Column(db.String(30), nullable=True)
     country = db.Column(db.String(80), nullable=True)
     city = db.Column(db.String(80), nullable=True)
     referrer = db.Column(db.String(500), nullable=True)
+    utm_source = db.Column(db.String(80), nullable=True)
+    utm_medium = db.Column(db.String(80), nullable=True)
+    utm_campaign = db.Column(db.String(80), nullable=True)
+    is_deleted = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=_utcnow, index=True)
 
     qr_code = db.relationship("QrCode", back_populates="scans")
@@ -69,6 +78,7 @@ class Lead(db.Model):
     email = db.Column(db.String(200), nullable=False)
     interest = db.Column(db.String(40), nullable=True)
     message = db.Column(db.Text, nullable=True)
+    is_deleted = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=_utcnow, index=True)
 
 

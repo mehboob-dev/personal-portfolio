@@ -5,7 +5,13 @@ from app.models import QrCode, Scan
 
 
 def test_redirect_records_scan(client, app, seeded):
-    res = client.get("/r/expo-card", headers={"User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15"})
+    res = client.get(
+        "/r/expo-card?utm_source=visiting_card&utm_campaign=dubai_2026",
+        headers={
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 WhatsApp/2.23.20.78",
+            "Accept-Language": "en-US,en;q=0.9",
+        },
+    )
     assert res.status_code == 302
     assert res.headers["Location"] == "https://example.com/expo"
 
@@ -14,6 +20,10 @@ def test_redirect_records_scan(client, app, seeded):
         assert scan is not None
         assert scan.qr_code_id == seeded
         assert scan.device == "mobile"
+        assert scan.app_source == "WhatsApp"
+        assert scan.language == "en-US"
+        assert scan.utm_source == "visiting_card"
+        assert scan.utm_campaign == "dubai_2026"
         assert scan.ip_hash is not None  # anonymized, never the raw IP
 
 

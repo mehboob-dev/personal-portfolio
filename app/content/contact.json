@@ -1,0 +1,19 @@
+{
+  "heading": "Direct Inquiries & Technical Contact",
+  "lead": "Reach out directly via email, phone, or submit a structured technical inquiry below.",
+  "success_message": "Inquiry recorded successfully. I will review and get back to you shortly.",
+  "labels": {
+    "name": "Your Name",
+    "email": "Email Address",
+    "interest": "Inquiry Focus",
+    "message": "Project / Technical Context",
+    "submit": "Submit Inquiry"
+  },
+  "interests": [
+    { "value": "quant-infra", "label": "Quantitative Infrastructure & Systems" },
+    { "value": "trading-engine", "label": "Trading Engine Architecture & Backtesting" },
+    { "value": "dotnet-cpp", "label": "High-Performance .NET / C++ Engineering" },
+    { "value": "collaboration", "label": "Technical Collaboration / General Inquiry" },
+    { "value": "other", "label": "Other" }
+  ]
+}

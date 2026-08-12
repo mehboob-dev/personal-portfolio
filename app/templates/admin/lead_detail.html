@@ -1,0 +1,110 @@
+{% extends "admin/base.html" %}
+{% block title %}Inquiry: {{ lead.name }}{% endblock %}
+{% block content %}
+<div class="admin-page-wrap">
+  <!-- Back navigation & Actions Header -->
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+    <a class="btn btn-sm btn-mono" href="{{ url_for('admin.leads', show='deleted' if lead.is_deleted else 'active') }}">
+      ← Back to Leads ({{ 'Trash' if lead.is_deleted else 'Active' }})
+    </a>
+
+    <div style="display: flex; gap: 8px;">
+      <a class="btn btn-sm btn-primary" href="mailto:{{ lead.email }}?subject=Re:%20Inquiry%20from%20Portfolio">
+        Reply via Email ✉
+      </a>
+      {% if lead.is_deleted %}
+      <!-- Recover -->
+      <form method="post" action="{{ url_for('admin.lead_restore', lid=lead.id) }}">
+        <button class="btn btn-sm" type="submit">Restore to Active</button>
+      </form>
+      <!-- Permanent Delete -->
+      <form method="post" action="{{ url_for('admin.lead_purge', lid=lead.id) }}" onsubmit="return confirm('PERMANENTLY delete inquiry from {{ lead.name }}? This cannot be undone.')">
+        <button class="btn btn-sm btn-danger" type="submit" style="background: var(--danger); color: #ffffff; border-color: var(--danger);">Delete Forever</button>
+      </form>
+      {% else %}
+      <!-- Move to Trash -->
+      <form method="post" action="{{ url_for('admin.lead_delete', lid=lead.id) }}" onsubmit="return confirm('Move this inquiry to trash?')">
+        <button class="btn btn-sm btn-danger" type="submit">Move to Trash</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Detail Dossier Card -->
+  <div class="card" style="padding: 28px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 24px;">
+    <!-- Meta Header -->
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 16px;">
+      <div>
+        <span class="mono muted" style="font-size: 0.78rem; text-transform: uppercase;">Inquiry #{{ lead.id }}</span>
+        <h1 style="font-size: 1.6rem; margin: 4px 0 0;">{{ lead.name }}</h1>
+      </div>
+      <div>
+        {% if lead.is_deleted %}
+        <span class="badge" style="color: var(--danger); border-color: var(--danger); font-size: 0.85rem; padding: 4px 10px;">
+          In Trash / Deleted
+        </span>
+        {% else %}
+        <span class="badge badge-signal" style="font-size: 0.85rem; padding: 4px 10px;">
+          Active Inquiry
+        </span>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Metadata Grid with split Date and Time -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; background: var(--bg-subtle); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+      <div>
+        <span class="mono muted" style="font-size: 0.75rem; text-transform: uppercase;">Email Address</span>
+        <div style="margin-top: 4px;">
+          <a href="mailto:{{ lead.email }}" class="mono" style="font-weight: 600; font-size: 0.95rem; color: var(--accent-primary);">
+            {{ lead.email }}
+          </a>
+        </div>
+      </div>
+
+      <div>
+        <span class="mono muted" style="font-size: 0.75rem; text-transform: uppercase;">Inquiry Topic</span>
+        <div style="margin-top: 4px;">
+          {% if lead.interest %}
+          <span class="badge badge-accent" style="font-size: 0.82rem;">{{ lead.interest }}</span>
+          {% else %}
+          <span class="muted">— Not specified —</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
+        <span class="mono muted" style="font-size: 0.75rem; text-transform: uppercase;">Date Received (UTC)</span>
+        <div class="mono" style="margin-top: 4px; font-weight: 600; font-size: 0.9rem; color: var(--text-primary);">
+          {{ lead.created_at.strftime('%Y-%m-%d') if lead.created_at else '—' }}
+        </div>
+      </div>
+
+      <div>
+        <span class="mono muted" style="font-size: 0.75rem; text-transform: uppercase;">Time Received (UTC)</span>
+        <div class="mono muted" style="margin-top: 4px; font-weight: 500; font-size: 0.9rem;">
+          {{ lead.created_at.strftime('%H:%M:%S') if lead.created_at else '—' }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Full Message Body -->
+    <div>
+      <div class="case-block-title" style="margin-bottom: 10px;">Full Message Body</div>
+      <div style="background: var(--bg-canvas); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); padding: 20px; font-size: 0.95rem; line-height: 1.7; color: var(--text-primary); white-space: pre-wrap; word-break: break-word; min-height: 140px;">
+        {{ lead.message if lead.message else '— (No message body was included with this submission) —' }}
+      </div>
+    </div>
+
+    <!-- Direct Reply Action Bar at Bottom -->
+    <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border-subtle); padding-top: 18px; margin-top: 8px;">
+      <a class="btn btn-sm" href="{{ url_for('admin.leads', show='deleted' if lead.is_deleted else 'active') }}">
+        ← Back to List
+      </a>
+      <a class="btn btn-primary btn-mono" href="mailto:{{ lead.email }}?subject=Re:%20Inquiry%20from%20Portfolio">
+        Send Email to {{ lead.email }} ✉
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

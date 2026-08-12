@@ -1,32 +1,251 @@
 {% extends "admin/base.html" %}
 {% block title %}Campaigns{% endblock %}
 {% block content %}
-<h1>Campaigns</h1>
+<div class="section-head" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+  <div>
+    <h1 style="font-size: 1.5rem; margin: 0 0 6px;">Campaign Management</h1>
+    <p class="muted" style="margin: 0; font-size: 0.88rem;">Group dynamic QR codes by physical print batches, events, or client campaigns.</p>
+  </div>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <button id="reset-tabulator-filters" class="btn btn-sm btn-mono" type="button">Reset Filters ✕</button>
+  </div>
+</div>
 
-<form method="post" action="{{ url_for('admin.campaigns') }}" class="inline-form">
-  <input type="text" name="name" placeholder="Campaign name (e.g. Money Expo 2026)" required>
-  <input type="text" name="slug" placeholder="slug (optional, auto-generated)">
-  <button class="btn btn-primary" type="submit">Add campaign</button>
-</form>
+<!-- Create Campaign Form -->
+<div class="card" style="margin-bottom: 28px; max-width: 680px;">
+  <div class="case-block-title">Create New Campaign</div>
+  <form method="post" style="display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end;">
+    <div style="flex: 1; min-width: 200px;">
+      <label for="camp-name" style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Campaign Name</label>
+      <input id="camp-name" class="form-control" type="text" name="name" placeholder="e.g. Dubai Money Expo 2026" required>
+    </div>
+    <div style="flex: 1; min-width: 180px;">
+      <label for="camp-slug" style="font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 4px;">Slug (Optional)</label>
+      <input id="camp-slug" class="form-control mono" type="text" name="slug" placeholder="dubai-expo-2026">
+    </div>
+    <button class="btn btn-primary" type="submit" style="height: 42px;">Add Campaign</button>
+  </form>
+</div>
 
-<table class="table">
-  <thead><tr><th>Name</th><th>Slug</th><th>QR codes</th><th>Created</th><th></th></tr></thead>
-  <tbody>
-    {% for c in campaigns %}
-    <tr>
-      <td>{{ c.name }}</td>
-      <td>{{ c.slug }}</td>
-      <td>{{ c.qr_codes.count() }}</td>
-      <td>{{ c.created_at.strftime('%Y-%m-%d') if c.created_at }}</td>
-      <td>
-        <form method="post" action="{{ url_for('admin.delete_campaign', cid=c.id) }}" onsubmit="return confirm('Delete campaign? Its QR codes remain.')">
-          <button class="btn btn-danger btn-sm" type="submit">Delete</button>
-        </form>
-      </td>
-    </tr>
+<!-- Status Filter Tabs: Active | Trash | All -->
+<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+  <div style="display: flex; gap: 6px;">
+    <a class="btn btn-sm {% if show == 'active' %}btn-primary{% endif %}" href="{{ url_for('admin.campaigns', show='active') }}">
+      Active Campaigns ({{ active_count }})
+    </a>
+    <a class="btn btn-sm {% if show == 'deleted' %}btn-primary{% endif %}" href="{{ url_for('admin.campaigns', show='deleted') }}" style="{% if show == 'deleted' %}background: var(--danger); border-color: var(--danger);{% endif %}">
+      Trash / Deleted ({{ deleted_count }})
+    </a>
+    <a class="btn btn-sm {% if show == 'all' %}btn-primary{% endif %}" href="{{ url_for('admin.campaigns', show='all') }}">
+      All Records ({{ all_count }})
+    </a>
+  </div>
+
+  <div class="mono muted" style="font-size: 0.78rem;">
+    Showing {{ campaigns|length }} {{ show }} campaigns
+  </div>
+</div>
+
+<!-- Multi-Select Bulk Actions Toolbar -->
+<div id="bulk-toolbar" style="display: none; background: var(--bg-subtle); border: 1px solid var(--accent-primary); border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span class="badge badge-accent" id="bulk-selected-count">0 selected</span>
+    <span class="muted" style="font-size: 0.85rem;">Apply action to all selected campaigns:</span>
+  </div>
+
+  <form id="bulk-form" method="post" action="{{ url_for('admin.campaigns_bulk') }}" style="display: flex; gap: 8px; align-items: center; margin: 0;">
+    <input type="hidden" name="action" id="bulk-action-input" value="">
+    <div id="bulk-hidden-ids"></div>
+
+    {% if show == 'deleted' %}
+    <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected campaigns from trash?')">
+      Restore Selected
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('purge', 'PERMANENTLY delete all selected campaigns? QR codes will be unassigned. This cannot be undone!')">
+      Delete Forever Selected
+    </button>
+    {% elif show == 'all' %}
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move selected campaigns to trash?')">
+      Trash Selected
+    </button>
+    <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected campaigns from trash?')">
+      Restore Selected
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" style="background: var(--danger); color: #ffffff;" onclick="submitBulk('purge', 'PERMANENTLY delete selected campaigns? This cannot be undone!')">
+      Delete Forever
+    </button>
     {% else %}
-    <tr><td colspan="5" class="muted">No campaigns yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move all selected campaigns to trash?')">
+      Trash Selected
+    </button>
+    {% endif %}
+    <button type="button" class="btn btn-sm btn-mono" onclick="deselectAllRows()">Cancel</button>
+  </form>
+</div>
+
+<!-- TABULATOR CAMPAIGNS TABLE -->
+<div id="campaigns-tabulator-table"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var tableData = [
+      {% for c in campaigns %}
+      {
+        id: {{ c.id }},
+        name: "{{ c.name|replace('"', '\\"') }}",
+        slug: "{{ c.slug|replace('"', '\\"') }}",
+        date_utc: "{{ c.created_at.strftime('%Y-%m-%d') if c.created_at else '' }}",
+        time_utc: "{{ c.created_at.strftime('%H:%M:%S') if c.created_at else '' }}",
+        is_deleted: {{ 'true' if c.is_deleted else 'false' }},
+        qr_count: {{ c.qr_codes.count() }},
+        restore_url: "{{ url_for('admin.restore_campaign', cid=c.id) }}",
+        delete_url: "{{ url_for('admin.delete_campaign', cid=c.id) }}",
+        purge_url: "{{ url_for('admin.purge_campaign', cid=c.id) }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    var table = new Tabulator("#campaigns-tabulator-table", {
+      data: tableData,
+      layout: "fitColumns",
+      pagination: "local",
+      paginationSize: 20,
+      paginationSizeSelector: [10, 20, 50, true],
+      placeholder: "No {{ show }} campaigns found.",
+      selectableRows: "highlight",
+      columns: [
+        {
+          formatter: "rowSelection",
+          titleFormatter: "rowSelection",
+          hozAlign: "center",
+          headerSort: false,
+          width: 45,
+          cellClick: function(e, cell){
+            e.stopPropagation();
+            cell.getRow().toggleSelect();
+          }
+        },
+        {
+          title: "Campaign Name",
+          field: "name",
+          headerFilter: "input",
+          formatter: function (cell) {
+            return '<strong>' + cell.getValue() + '</strong>';
+          }
+        },
+        {
+          title: "Slug",
+          field: "slug",
+          headerFilter: "input",
+          formatter: function (cell) {
+            return '<code class="mono">' + cell.getValue() + '</code>';
+          }
+        },
+        {
+          title: "Date (UTC)",
+          field: "date_utc",
+          headerFilter: "input",
+          width: 120,
+          formatter: function (cell) {
+            return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + (cell.getValue() || '—') + '</span>';
+          }
+        },
+        {
+          title: "Time (UTC)",
+          field: "time_utc",
+          headerFilter: "input",
+          width: 105,
+          formatter: function (cell) {
+            return '<span class="mono muted" style="font-size:0.78rem;">' + (cell.getValue() || '—') + '</span>';
+          }
+        },
+        {
+          title: "Status",
+          field: "is_deleted",
+          headerFilter: "select",
+          headerFilterParams: { values: {"": "All", "false": "Active", "true": "In Trash"} },
+          width: 100,
+          hozAlign: "center",
+          formatter: function (cell) {
+            return cell.getValue() ? '<span class="badge" style="color:var(--danger); border-color:var(--danger);">In Trash</span>' : '<span class="badge badge-signal">Active</span>';
+          }
+        },
+        {
+          title: "QR Codes",
+          field: "qr_count",
+          headerFilter: "number",
+          width: 100,
+          hozAlign: "center",
+          formatter: function (cell) {
+            return '<span class="mono" style="font-weight:700;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Actions",
+          headerSort: false,
+          hozAlign: "right",
+          width: 170,
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            var out = '<div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">';
+            if (row.is_deleted) {
+              out += '<form method="post" action="' + row.restore_url + '" style="display:inline; margin:0;"><button class="btn btn-sm" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Restore</button></form>';
+              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete campaign ' + row.name + '? QR codes will be unassigned.\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
+            } else {
+              out += '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move campaign ' + row.name + ' to trash?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Trash</button></form>';
+            }
+            out += '</div>';
+            return out;
+          }
+        }
+      ]
+    });
+
+    var bulkToolbar = document.getElementById('bulk-toolbar');
+    var bulkCount = document.getElementById('bulk-selected-count');
+    var bulkHiddenIds = document.getElementById('bulk-hidden-ids');
+    var bulkActionInput = document.getElementById('bulk-action-input');
+    var bulkForm = document.getElementById('bulk-form');
+
+    function updateBulkState() {
+      var selectedRows = table.getSelectedRows();
+      if (selectedRows.length > 0) {
+        bulkToolbar.style.display = 'flex';
+        bulkCount.textContent = selectedRows.length + ' selected';
+        bulkHiddenIds.innerHTML = '';
+        selectedRows.forEach(function (row) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'ids';
+          input.value = row.getData().id;
+          bulkHiddenIds.appendChild(input);
+        });
+      } else {
+        bulkToolbar.style.display = 'none';
+      }
+    }
+
+    table.on("rowSelectionChanged", function () {
+      updateBulkState();
+    });
+
+    window.deselectAllRows = function () {
+      table.deselectRow();
+      updateBulkState();
+    };
+
+    window.submitBulk = function (action, confirmMsg) {
+      if (confirmMsg && !confirm(confirmMsg)) return;
+      bulkActionInput.value = action;
+      bulkForm.submit();
+    };
+
+    var resetBtn = document.getElementById('reset-tabulator-filters');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        table.clearHeaderFilter();
+      });
+    }
+  });
+</script>
 {% endblock %}

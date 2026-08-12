@@ -1,23 +1,258 @@
 {% extends "admin/base.html" %}
-{% block title %}Leads{% endblock %}
+{% block title %}Leads & Inquiries{% endblock %}
 {% block content %}
-<h1>Leads</h1>
-<a class="btn" href="{{ url_for('admin.leads_csv') }}">Export CSV</a>
+<div class="section-head" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+  <div>
+    <h1 style="font-size: 1.5rem; margin: 0 0 6px;">Captured Inquiries & Leads</h1>
+    <p class="muted" style="margin: 0; font-size: 0.88rem;">Direct submissions from the portfolio contact interface.</p>
+  </div>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <button id="reset-tabulator-filters" class="btn btn-sm btn-mono" type="button">Reset Filters ✕</button>
+    <a class="btn btn-primary btn-mono" href="{{ url_for('admin.leads_csv', show=show) }}">Export CSV ({{ show|capitalize }}) ↓</a>
+  </div>
+</div>
 
-<table class="table">
-  <thead><tr><th>Date</th><th>Name</th><th>Email</th><th>Interest</th><th>Message</th></tr></thead>
-  <tbody>
-    {% for lead in leads %}
-    <tr>
-      <td>{{ lead.created_at.strftime('%Y-%m-%d %H:%M') if lead.created_at }}</td>
-      <td>{{ lead.name }}</td>
-      <td><a href="mailto:{{ lead.email }}">{{ lead.email }}</a></td>
-      <td>{{ lead.interest or '—' }}</td>
-      <td>{{ lead.message or '—' }}</td>
-    </tr>
+<!-- Filter Tabs: Active (Default) | Trash / Deleted | All -->
+<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+  <div style="display: flex; gap: 6px;">
+    <a class="btn btn-sm {% if show == 'active' %}btn-primary{% endif %}" href="{{ url_for('admin.leads', show='active') }}">
+      Active Inquiries ({{ active_count }})
+    </a>
+    <a class="btn btn-sm {% if show == 'deleted' %}btn-primary{% endif %}" href="{{ url_for('admin.leads', show='deleted') }}" style="{% if show == 'deleted' %}background: var(--danger); border-color: var(--danger);{% endif %}">
+      Trash / Deleted ({{ deleted_count }})
+    </a>
+    <a class="btn btn-sm {% if show == 'all' %}btn-primary{% endif %}" href="{{ url_for('admin.leads', show='all') }}">
+      All Records ({{ all_count }})
+    </a>
+  </div>
+
+  <div class="mono muted" style="font-size: 0.78rem;">
+    Showing {{ leads|length }} {{ show }} inquiries
+  </div>
+</div>
+
+<!-- Multi-Select Bulk Actions Toolbar -->
+<div id="bulk-toolbar" style="display: none; background: var(--bg-subtle); border: 1px solid var(--accent-primary); border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span class="badge badge-accent" id="bulk-selected-count">0 selected</span>
+    <span class="muted" style="font-size: 0.85rem;">Apply action to all selected inquiries:</span>
+  </div>
+
+  <form id="bulk-form" method="post" action="{{ url_for('admin.leads_bulk') }}" style="display: flex; gap: 8px; align-items: center; margin: 0;">
+    <input type="hidden" name="action" id="bulk-action-input" value="">
+    <div id="bulk-hidden-ids"></div>
+
+    {% if show == 'deleted' %}
+    <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected inquiries from trash?')">
+      Restore Selected
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('purge', 'PERMANENTLY delete all selected inquiries? This cannot be undone!')">
+      Delete Forever Selected
+    </button>
+    {% elif show == 'all' %}
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move selected inquiries to trash?')">
+      Trash Selected
+    </button>
+    <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected inquiries from trash?')">
+      Restore Selected
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" style="background: var(--danger); color: #ffffff;" onclick="submitBulk('purge', 'PERMANENTLY delete selected inquiries? This cannot be undone!')">
+      Delete Forever
+    </button>
     {% else %}
-    <tr><td colspan="5" class="muted">No leads yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move all selected inquiries to trash?')">
+      Trash Selected
+    </button>
+    {% endif %}
+    <button type="button" class="btn btn-sm btn-mono" onclick="deselectAllRows()">Cancel</button>
+  </form>
+</div>
+
+<!-- TABULATOR LEADS TABLE -->
+<div id="leads-tabulator-table"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var tableData = [
+      {% for lead in leads %}
+      {
+        id: {{ lead.id }},
+        name: "{{ lead.name|replace('"', '\\"') }}",
+        email: "{{ lead.email|replace('"', '\\"') }}",
+        interest: "{{ (lead.interest or '')|replace('"', '\\"') }}",
+        message: "{{ (lead.message or '')|replace('\r', ' ')|replace('\n', ' ')|replace('"', '\\"') }}",
+        date_utc: "{{ lead.created_at.strftime('%Y-%m-%d') if lead.created_at else '' }}",
+        time_utc: "{{ lead.created_at.strftime('%H:%M:%S') if lead.created_at else '' }}",
+        is_deleted: {{ 'true' if lead.is_deleted else 'false' }},
+        detail_url: "{{ url_for('admin.lead_detail', lid=lead.id) }}",
+        restore_url: "{{ url_for('admin.lead_restore', lid=lead.id) }}",
+        delete_url: "{{ url_for('admin.lead_delete', lid=lead.id) }}",
+        purge_url: "{{ url_for('admin.lead_purge', lid=lead.id) }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    var table = new Tabulator("#leads-tabulator-table", {
+      data: tableData,
+      layout: "fitColumns",
+      pagination: "local",
+      paginationSize: 20,
+      paginationSizeSelector: [10, 20, 50, 100, true],
+      placeholder: "No {{ show }} inquiries found.",
+      selectableRows: "highlight",
+      rowClick: function (e, row) {
+        if (e.target.closest('a, button, form, input, select, .tabulator-cell:first-child')) {
+          return;
+        }
+        var data = row.getData();
+        if (data.detail_url) {
+          window.location.href = data.detail_url;
+        }
+      },
+      columns: [
+        {
+          formatter: "rowSelection",
+          titleFormatter: "rowSelection",
+          hozAlign: "center",
+          headerSort: false,
+          width: 45,
+          cellClick: function(e, cell){
+            e.stopPropagation();
+            cell.getRow().toggleSelect();
+          }
+        },
+        {
+          title: "Date (UTC)",
+          field: "date_utc",
+          headerFilter: "input",
+          width: 110,
+          formatter: function (cell) {
+            return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + (cell.getValue() || '—') + '</span>';
+          }
+        },
+        {
+          title: "Time (UTC)",
+          field: "time_utc",
+          headerFilter: "input",
+          width: 95,
+          formatter: function (cell) {
+            return '<span class="mono muted" style="font-size:0.78rem;">' + (cell.getValue() || '—') + '</span>';
+          }
+        },
+        {
+          title: "Name",
+          field: "name",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            return '<a href="' + row.detail_url + '" style="font-weight:700; color:var(--text-primary);">' + cell.getValue() + '</a>';
+          }
+        },
+        {
+          title: "Email Address",
+          field: "email",
+          headerFilter: "input",
+          formatter: function (cell) {
+            return '<a href="mailto:' + cell.getValue() + '" class="mono" style="font-size:0.82rem;">' + cell.getValue() + '</a>';
+          }
+        },
+        {
+          title: "Inquiry Focus",
+          field: "interest",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var val = cell.getValue();
+            return val ? '<span class="badge badge-accent">' + val + '</span>' : '<span class="muted">—</span>';
+          }
+        },
+        {
+          title: "Message Preview (Click for Full)",
+          field: "message",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            var val = cell.getValue() || '—';
+            return '<a href="' + row.detail_url + '" style="color:var(--text-secondary); text-decoration:none; display:block; max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:0.85rem;">' + val + '</a>';
+          }
+        },
+        {
+          title: "Status",
+          field: "is_deleted",
+          headerFilter: "select",
+          headerFilterParams: { values: {"": "All", "false": "Active", "true": "In Trash"} },
+          width: 95,
+          hozAlign: "center",
+          formatter: function (cell) {
+            return cell.getValue() ? '<span class="badge" style="color:var(--danger); border-color:var(--danger);">In Trash</span>' : '<span class="badge badge-signal">Active</span>';
+          }
+        },
+        {
+          title: "Actions",
+          headerSort: false,
+          hozAlign: "right",
+          width: 160,
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            var out = '<div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">';
+            out += '<a class="btn btn-sm btn-mono" href="' + row.detail_url + '" style="padding: 2px 6px; font-size: 0.75rem;">View →</a>';
+            if (row.is_deleted) {
+              out += '<form method="post" action="' + row.restore_url + '" style="display:inline; margin:0;"><button class="btn btn-sm" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Restore</button></form>';
+              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete inquiry from ' + row.name + '?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
+            } else {
+              out += '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move inquiry from ' + row.name + ' to trash?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Trash</button></form>';
+            }
+            out += '</div>';
+            return out;
+          }
+        }
+      ]
+    });
+
+    var bulkToolbar = document.getElementById('bulk-toolbar');
+    var bulkCount = document.getElementById('bulk-selected-count');
+    var bulkHiddenIds = document.getElementById('bulk-hidden-ids');
+    var bulkActionInput = document.getElementById('bulk-action-input');
+    var bulkForm = document.getElementById('bulk-form');
+
+    function updateBulkState() {
+      var selectedRows = table.getSelectedRows();
+      if (selectedRows.length > 0) {
+        bulkToolbar.style.display = 'flex';
+        bulkCount.textContent = selectedRows.length + ' selected';
+        bulkHiddenIds.innerHTML = '';
+        selectedRows.forEach(function (row) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'ids';
+          input.value = row.getData().id;
+          bulkHiddenIds.appendChild(input);
+        });
+      } else {
+        bulkToolbar.style.display = 'none';
+      }
+    }
+
+    table.on("rowSelectionChanged", function () {
+      updateBulkState();
+    });
+
+    window.deselectAllRows = function () {
+      table.deselectRow();
+      updateBulkState();
+    };
+
+    window.submitBulk = function (action, confirmMsg) {
+      if (confirmMsg && !confirm(confirmMsg)) return;
+      bulkActionInput.value = action;
+      bulkForm.submit();
+    };
+
+    var resetBtn = document.getElementById('reset-tabulator-filters');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        table.clearHeaderFilter();
+      });
+    }
+  });
+</script>
 {% endblock %}

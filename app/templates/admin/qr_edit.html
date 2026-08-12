@@ -1,30 +1,76 @@
 {% extends "admin/base.html" %}
-{% block title %}{{ 'Edit QR' if code else 'New QR' }}{% endblock %}
+{% block title %}{{ 'Edit QR Code' if code else 'New QR Code' }}{% endblock %}
 {% block content %}
-<h1>{{ 'Edit QR code' if code else 'New QR code' }}</h1>
+<div class="section-head" style="margin-bottom: 24px;">
+  <h1 style="font-size: 1.5rem; margin: 0 0 6px;">{{ 'Edit QR Code: /r/' + code.slug if code else 'New Dynamic QR Code' }}</h1>
+  <p class="muted" style="margin: 0; font-size: 0.88rem;">Configure mutable destination routing, campaign grouping, and active status.</p>
+</div>
 
-<form method="post" class="contact-form">
-  <label>Slug (the part after /r/)
-    <input type="text" name="slug" value="{{ code.slug if code }}" placeholder="money-expo-card" required>
-  </label>
-  <label>Label
-    <input type="text" name="label" value="{{ code.label if code }}" placeholder="Visiting card — front">
-  </label>
-  <label>Destination URL
-    <input type="url" name="destination_url" value="{{ code.destination_url if code }}" placeholder="https://mehboob.itqantrades.com/expo" required>
-  </label>
-  <label>Campaign
-    <select name="campaign_id">
-      <option value="">— none —</option>
-      {% for c in campaigns %}
-      <option value="{{ c.id }}" {% if code and code.campaign_id == c.id %}selected{% endif %}>{{ c.name }}</option>
-      {% endfor %}
-    </select>
-  </label>
-  <label class="checkbox">
-    <input type="checkbox" name="is_active" {% if not code or code.is_active %}checked{% endif %}> Active
-  </label>
-  <button class="btn btn-primary" type="submit">Save</button>
-  <a class="btn" href="{{ url_for('admin.qr_list') }}">Cancel</a>
-</form>
+<div style="display: grid; grid-template-columns: {% if code %}1.4fr 1fr{% else %}1fr{% endif %}; gap: 32px; max-width: 900px;">
+  <!-- Form -->
+  <div class="card">
+    <form method="post">
+      <div class="form-group">
+        <label for="qr-slug">Slug (Redirect Path: <code>/r/&lt;slug&gt;</code>)</label>
+        <input id="qr-slug" class="form-control mono" type="text" name="slug" value="{{ code.slug if code }}" placeholder="visiting-card-2026" required>
+      </div>
+
+      <div class="form-group">
+        <label for="qr-label">Administrative Label</label>
+        <input id="qr-label" class="form-control" type="text" name="label" value="{{ code.label if code }}" placeholder="Visiting Card — Front Side">
+      </div>
+
+      <div class="form-group">
+        <label for="qr-dest">Destination URL (Where scans redirect to)</label>
+        <input id="qr-dest" class="form-control mono" type="url" name="destination_url" value="{{ code.destination_url if code }}" placeholder="https://mehboob.itqantrades.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="qr-camp">Campaign Association</label>
+        <select id="qr-camp" class="form-control" name="campaign_id">
+          <option value="">— Unassigned —</option>
+          {% for c in campaigns %}
+          <option value="{{ c.id }}" {% if code and code.campaign_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; margin-top: 8px;">
+        <input id="qr-active" type="checkbox" name="is_active" {% if not code or code.is_active %}checked{% endif %}>
+        <label for="qr-active" style="cursor: pointer; margin: 0;">Active (Permit 302 redirects)</label>
+      </div>
+
+      <div style="display: flex; gap: 10px; margin-top: 24px;">
+        <button class="btn btn-primary" type="submit">Save QR Code</button>
+        <a class="btn" href="{{ url_for('admin.qr_list') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- QR Live Preview Card (When Editing) -->
+  {% if code %}
+  <div class="card" style="display: flex; flex-direction: column; align-items: center; text-align: center; gap: 16px; background: var(--bg-subtle);">
+    <div class="case-block-title" style="align-self: flex-start; margin: 0;">Live QR Code</div>
+    <div style="background: #ffffff; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm);">
+      <img src="{{ url_for('admin.qr_png', qid=code.id) }}" alt="QR Code Preview for {{ code.slug }}" width="180" height="180" style="display: block;">
+    </div>
+    
+    <div style="display: flex; flex-direction: column; gap: 4px;">
+      <span class="mono" style="font-size: 0.8rem; color: var(--text-muted);">Redirect Target:</span>
+      <span class="mono" style="font-size: 0.85rem; font-weight: 600; color: var(--accent-primary); word-break: break-all;">
+        {{ request.host_url }}r/{{ code.slug }}
+      </span>
+    </div>
+
+    <div style="display: flex; gap: 8px; width: 100%;">
+      <a class="btn btn-sm btn-mono" href="{{ url_for('admin.qr_png', qid=code.id, download=1) }}" download style="flex: 1;">
+        Download PNG ↓
+      </a>
+      <a class="btn btn-sm" href="{{ url_for('qr.redirect_slug', slug=code.slug) }}" target="_blank" style="flex: 1;">
+        Test Scan ↗
+      </a>
+    </div>
+  </div>
+  {% endif %}
+</div>
 {% endblock %}

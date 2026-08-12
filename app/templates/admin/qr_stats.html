@@ -1,0 +1,456 @@
+{% extends "admin/base.html" %}
+{% block title %}Analytics: /r/{{ code.slug }}{% endblock %}
+{% block content %}
+<div class="admin-page-wrap">
+  <!-- Back navigation & Actions Header -->
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 24px;">
+    <a class="btn btn-sm btn-mono" href="{{ url_for('admin.qr_list', show='deleted' if code.is_deleted else 'active') }}">
+      ← Back to QR Codes ({{ 'Trash' if code.is_deleted else 'Active' }})
+    </a>
+
+    <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+      <a class="btn btn-sm btn-primary btn-mono" href="{{ url_for('admin.qr_scans_csv', qid=code.id, show=show) }}">
+        Export Scans CSV ({{ show|capitalize }}) ↓
+      </a>
+      <a class="btn btn-sm btn-mono" href="{{ url_for('admin.qr_png', qid=code.id, download=1) }}" download>
+        Download PNG ↓
+      </a>
+      <a class="btn btn-sm" href="{{ url_for('admin.qr_edit', qid=code.id) }}">
+        Edit Configuration ↗
+      </a>
+      {% if code.is_deleted %}
+      <form method="post" action="{{ url_for('admin.qr_restore', qid=code.id) }}" style="display: inline;">
+        <button class="btn btn-sm" type="submit">Restore from Trash</button>
+      </form>
+      {% else %}
+      <form method="post" action="{{ url_for('admin.qr_delete', qid=code.id) }}" onsubmit="return confirm('Move QR /r/{{ code.slug }} to trash?')" style="display: inline;">
+        <button class="btn btn-sm btn-danger" type="submit">Trash</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- QR Identity Overview Dossier -->
+  <div class="card" style="margin-bottom: 28px; display: flex; gap: 24px; align-items: center; flex-wrap: wrap;">
+    <!-- Large Crisp QR Code -->
+    <a href="{{ url_for('admin.qr_png', qid=code.id) }}" target="_blank" title="View full size PNG" style="background: #ffffff; padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm); flex-shrink: 0; display: block;">
+      <img src="{{ url_for('admin.qr_png', qid=code.id) }}" alt="QR Code for {{ code.slug }}" width="130" height="130" style="display: block;">
+    </a>
+
+    <!-- Metadata details -->
+    <div style="flex: 1; min-width: 260px; display: flex; flex-direction: column; gap: 8px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+        <h1 class="mono" style="font-size: 1.6rem; margin: 0; color: var(--accent-primary);">
+          /r/{{ code.slug }}
+        </h1>
+        <div>
+          {% if code.is_deleted %}
+          <span class="badge" style="color: var(--danger); border-color: var(--danger);">In Trash</span>
+          {% elif code.is_active %}
+          <span class="badge badge-signal">Active Redirect</span>
+          {% else %}
+          <span class="badge">Paused</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div style="font-size: 1.05rem; font-weight: 600; color: var(--text-primary);">
+        {{ code.label if code.label else '— (No Label) —' }}
+      </div>
+
+      <div class="mono muted" style="font-size: 0.82rem; word-break: break-all;">
+        <span style="font-weight: 600; color: var(--text-secondary);">Redirect Target:</span>
+        <a href="{{ code.destination_url }}" target="_blank" rel="noopener" style="color: var(--text-secondary);">
+          {{ code.destination_url }} ↗
+        </a>
+      </div>
+
+      <div style="display: flex; gap: 14px; font-size: 0.8rem; margin-top: 4px; flex-wrap: wrap;">
+        <span class="muted">Campaign: <strong>{{ code.campaign.name if code.campaign else 'Unassigned' }}</strong></span>
+        <span class="muted">Endpoint URL: <code class="mono">{{ request.host_url }}r/{{ code.slug }}</code></span>
+        <span class="muted">Created: <strong class="mono">{{ code.created_at.strftime('%Y-%m-%d %H:%M') if code.created_at }}</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4 Specific Metrics for THIS QR Code -->
+  <div class="admin-stats-grid">
+    <div class="admin-stat-card">
+      <div class="admin-stat-head">
+        <span class="admin-stat-label">Active Lifetime Scans</span>
+        <span class="admin-stat-icon">📊</span>
+      </div>
+      <div class="admin-stat-value">{{ total_scans }}</div>
+      <div class="admin-stat-footer">
+        <span class="admin-stat-scope">Verified Hits</span>
+        <span class="admin-stat-arrow">This QR</span>
+      </div>
+    </div>
+
+    <div class="admin-stat-card">
+      <div class="admin-stat-head">
+        <span class="admin-stat-label">Unique Visitors</span>
+        <span class="admin-stat-icon">🛡️</span>
+      </div>
+      <div class="admin-stat-value">{{ unique_visitors }}</div>
+      <div class="admin-stat-footer">
+        <span class="admin-stat-scope">Distinct SHA-256 IPs</span>
+        <span class="badge" style="font-size: 0.68rem; padding: 1px 6px;">Privacy Preserved</span>
+      </div>
+    </div>
+
+    <div class="admin-stat-card">
+      <div class="admin-stat-head">
+        <span class="admin-stat-label">Target Routing</span>
+        <span class="admin-stat-icon">⚡</span>
+      </div>
+      <div class="admin-stat-value" style="font-size: 1.5rem; text-transform: uppercase;">
+        {{ 'Active' if code.is_active else 'Paused' }}
+      </div>
+      <div class="admin-stat-footer">
+        <span class="admin-stat-scope">Mutable Target</span>
+        <span class="mono" style="font-size: 0.75rem;">302 Redirect</span>
+      </div>
+    </div>
+
+    <div class="admin-stat-card">
+      <div class="admin-stat-head">
+        <span class="admin-stat-label">Campaign Group</span>
+        <span class="admin-stat-icon">🏷️</span>
+      </div>
+      <div class="admin-stat-value" style="font-size: 1.4rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        {{ code.campaign.name if code.campaign else 'None' }}
+      </div>
+      <div class="admin-stat-footer">
+        <span class="admin-stat-scope">Grouping Tag</span>
+        <span class="admin-stat-arrow">Batch</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts & Platform Breakdown Grid -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px;">
+    <!-- Daily Scan Activity for this QR (Last 14 Days) -->
+    <div class="card">
+      <div class="case-block-title">Daily Scans (Last 14 Days)</div>
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr><th>Date (UTC)</th><th style="text-align: right;">Scans</th></tr>
+          </thead>
+          <tbody>
+            {% for date, count in daily %}
+            <tr>
+              <td class="mono">{{ date }}</td>
+              <td class="mono" style="text-align: right; font-weight: 700; color: var(--accent-primary);">{{ count }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2" class="muted" style="text-align: center;">No scans recorded in the last 14 days.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Scanner / In-App & Platform Breakdown -->
+    <div class="card">
+      <div class="case-block-title">App Source & Hardware Breakdown</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Scanner / App Source</h4>
+          <table class="table">
+            <tbody>
+              {% for label, count in app_breakdown %}
+              <tr>
+                <td><strong>{{ label }}</strong></td>
+                <td class="mono" style="text-align: right; font-weight: 600;">{{ count }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="2" class="muted">No data</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Operating System</h4>
+          <table class="table">
+            <tbody>
+              {% for label, count in os_breakdown %}
+              <tr>
+                <td>{{ label }}</td>
+                <td class="mono" style="text-align: right; font-weight: 600;">{{ count }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="2" class="muted">No data</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Filter Tabs for Scans: Active | Trash | All -->
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 16px;">
+    <div style="display: flex; gap: 6px;">
+      <a class="btn btn-sm {% if show == 'active' %}btn-primary{% endif %}" href="{{ url_for('admin.qr_stats', qid=code.id, show='active') }}">
+        Active Scans ({{ active_count }})
+      </a>
+      <a class="btn btn-sm {% if show == 'deleted' %}btn-primary{% endif %}" href="{{ url_for('admin.qr_stats', qid=code.id, show='deleted') }}" style="{% if show == 'deleted' %}background: var(--danger); border-color: var(--danger);{% endif %}">
+        Trash / Deleted ({{ deleted_count }})
+      </a>
+      <a class="btn btn-sm {% if show == 'all' %}btn-primary{% endif %}" href="{{ url_for('admin.qr_stats', qid=code.id, show='all') }}">
+        All Scans ({{ all_count }})
+      </a>
+    </div>
+
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <button id="reset-tabulator-filters" class="btn btn-sm btn-mono" type="button">Reset Filters ✕</button>
+      <span class="mono muted" style="font-size: 0.78rem;">Showing {{ scans|length }} {{ show }} scans</span>
+    </div>
+  </div>
+
+  <!-- Multi-Select Bulk Actions Toolbar for Scans -->
+  <div id="bulk-toolbar" style="display: none; background: var(--bg-subtle); border: 1px solid var(--accent-primary); border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <span class="badge badge-accent" id="bulk-selected-count">0 selected</span>
+      <span class="muted" style="font-size: 0.85rem;">Apply action to all selected scan records:</span>
+    </div>
+
+    <form id="bulk-form" method="post" action="{{ url_for('admin.scans_bulk') }}" style="display: flex; gap: 8px; align-items: center; margin: 0;">
+      <input type="hidden" name="action" id="bulk-action-input" value="">
+      <div id="bulk-hidden-ids"></div>
+
+      {% if show == 'deleted' %}
+      <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected scan records from trash?')">
+        Restore Selected
+      </button>
+      <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('purge', 'PERMANENTLY delete all selected scan logs? This cannot be undone!')">
+        Delete Forever Selected
+      </button>
+      {% elif show == 'all' %}
+      <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move selected scan records to trash?')">
+        Trash Selected
+      </button>
+      <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected scan records from trash?')">
+        Restore Selected
+      </button>
+      <button type="button" class="btn btn-sm btn-danger" style="background: var(--danger); color: #ffffff;" onclick="submitBulk('purge', 'PERMANENTLY delete selected scan records? This cannot be undone!')">
+        Delete Forever
+      </button>
+      {% else %}
+      <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move all selected scan records to trash?')">
+        Trash Selected
+      </button>
+      {% endif %}
+      <button type="button" class="btn btn-sm btn-mono" onclick="deselectAllRows()">Cancel</button>
+    </form>
+  </div>
+
+  <!-- TABULATOR SCANS TABLE -->
+  <div id="scans-tabulator-table"></div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var tableData = [
+      {% for scan in scans %}
+      {
+        id: {{ scan.id }},
+        date_utc: "{{ scan.created_at.strftime('%Y-%m-%d') if scan.created_at else '' }}",
+        time_utc: "{{ scan.created_at.strftime('%H:%M:%S') if scan.created_at else '' }}",
+        app_source: "{{ (scan.app_source or 'Direct / Browser')|replace('"', '\\"') }}",
+        device_model: "{{ (scan.device_model or scan.device|capitalize or 'Unknown')|replace('"', '\\"') }}",
+        device: "{{ (scan.device or '')|replace('"', '\\"') }}",
+        browser: "{{ (scan.browser or 'Unknown')|replace('"', '\\"') }}",
+        os: "{{ (scan.os or 'Unknown')|replace('"', '\\"') }}",
+        language: "{{ (scan.language or '—')|replace('"', '\\"') }}",
+        location: "{{ (scan.city ~ ', ' ~ scan.country if scan.city and scan.country else scan.country or scan.city or '—')|replace('"', '\\"') }}",
+        utm: "{{ (scan.utm_source ~ ' / ' ~ scan.utm_campaign if scan.utm_source and scan.utm_campaign else scan.utm_source or scan.utm_campaign or scan.referrer or '—')|replace('"', '\\"') }}",
+        is_deleted: {{ 'true' if scan.is_deleted else 'false' }},
+        ip_hash: "{{ (scan.ip_hash or '')[:10] }}…",
+        full_ip_hash: "{{ scan.ip_hash or '' }}",
+        restore_url: "{{ url_for('admin.scan_restore', sid=scan.id) }}",
+        delete_url: "{{ url_for('admin.scan_delete', sid=scan.id) }}",
+        purge_url: "{{ url_for('admin.scan_purge', sid=scan.id) }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    var table = new Tabulator("#scans-tabulator-table", {
+      data: tableData,
+      layout: "fitColumns",
+      pagination: "local",
+      paginationSize: 25,
+      paginationSizeSelector: [10, 25, 50, 100, true],
+      placeholder: "No {{ show }} scan events recorded for this QR code.",
+      selectableRows: "highlight",
+      columns: [
+        {
+          formatter: "rowSelection",
+          titleFormatter: "rowSelection",
+          hozAlign: "center",
+          headerSort: false,
+          width: 45,
+          cellClick: function(e, cell){
+            e.stopPropagation();
+            cell.getRow().toggleSelect();
+          }
+        },
+        {
+          title: "Date (UTC)",
+          field: "date_utc",
+          headerFilter: "input",
+          width: 110,
+          formatter: function (cell) {
+            return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Time (UTC)",
+          field: "time_utc",
+          headerFilter: "input",
+          width: 95,
+          formatter: function (cell) {
+            return '<span class="mono muted" style="font-size:0.78rem;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Scanner / App",
+          field: "app_source",
+          headerFilter: "input",
+          formatter: function (cell) {
+            return '<span class="badge badge-accent" style="font-weight:600;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Device & Model",
+          field: "device_model",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            return '<div style="display:flex; flex-direction:column; gap:2px;"><strong>' + cell.getValue() + '</strong><span class="mono muted" style="font-size:0.7rem;">' + row.device + '</span></div>';
+          }
+        },
+        {
+          title: "Browser",
+          field: "browser",
+          headerFilter: "input",
+          formatter: function (cell) {
+            return '<span style="font-size:0.84rem;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "OS",
+          field: "os",
+          headerFilter: "input",
+          formatter: function (cell) {
+            return '<span style="font-size:0.84rem;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Language",
+          field: "language",
+          headerFilter: "input",
+          width: 85,
+          formatter: function (cell) {
+            return '<span class="mono" style="font-size:0.78rem;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Location",
+          field: "location",
+          headerFilter: "input",
+          formatter: function (cell) {
+            return '<span style="font-size:0.82rem;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Campaign / UTM",
+          field: "utm",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var val = cell.getValue();
+            return val !== '—' ? '<span class="badge">' + val + '</span>' : '<span class="muted">—</span>';
+          }
+        },
+        {
+          title: "Status",
+          field: "is_deleted",
+          headerFilter: "select",
+          headerFilterParams: { values: {"": "All", "false": "Active", "true": "In Trash"} },
+          width: 90,
+          hozAlign: "center",
+          formatter: function (cell) {
+            return cell.getValue() ? '<span class="badge" style="color:var(--danger); border-color:var(--danger);">In Trash</span>' : '<span class="badge badge-signal">Active</span>';
+          }
+        },
+        {
+          title: "Actions",
+          headerSort: false,
+          hozAlign: "right",
+          width: 140,
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            var out = '<div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">';
+            if (row.is_deleted) {
+              out += '<form method="post" action="' + row.restore_url + '" style="display:inline; margin:0;"><button class="btn btn-sm" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Restore</button></form>';
+              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete scan log?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
+            } else {
+              out += '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move scan log to trash?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Trash</button></form>';
+            }
+            out += '</div>';
+            return out;
+          }
+        }
+      ]
+    });
+
+    var bulkToolbar = document.getElementById('bulk-toolbar');
+    var bulkCount = document.getElementById('bulk-selected-count');
+    var bulkHiddenIds = document.getElementById('bulk-hidden-ids');
+    var bulkActionInput = document.getElementById('bulk-action-input');
+    var bulkForm = document.getElementById('bulk-form');
+
+    function updateBulkState() {
+      var selectedRows = table.getSelectedRows();
+      if (selectedRows.length > 0) {
+        bulkToolbar.style.display = 'flex';
+        bulkCount.textContent = selectedRows.length + ' selected';
+        bulkHiddenIds.innerHTML = '';
+        selectedRows.forEach(function (row) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'ids';
+          input.value = row.getData().id;
+          bulkHiddenIds.appendChild(input);
+        });
+      } else {
+        bulkToolbar.style.display = 'none';
+      }
+    }
+
+    table.on("rowSelectionChanged", function () {
+      updateBulkState();
+    });
+
+    window.deselectAllRows = function () {
+      table.deselectRow();
+      updateBulkState();
+    };
+
+    window.submitBulk = function (action, confirmMsg) {
+      if (confirmMsg && !confirm(confirmMsg)) return;
+      bulkActionInput.value = action;
+      bulkForm.submit();
+    };
+
+    var resetBtn = document.getElementById('reset-tabulator-filters');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        table.clearHeaderFilter();
+      });
+    }
+  });
+</script>
+{% endblock %}

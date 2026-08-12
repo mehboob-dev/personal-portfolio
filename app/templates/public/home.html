@@ -1,40 +1,388 @@
 {% extends "base.html" %}
-{% block title %}Mehboob Meghani — Algorithmic Trading Systems Engineer{% endblock %}
+{% block title %}{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }} — Quantitative Developer & Systems Infrastructure{% endblock %}
+
 {% block content %}
-<section class="hero">
-  <div class="container">
-    <h1>{{ content.hero_headline }}</h1>
-    <p class="lead">{{ content.hero_sub }}</p>
-    <div class="hero-cta">
-      <a class="btn btn-primary" href="{{ content.cta_primary.href }}">{{ content.cta_primary.label }}</a>
-      <a class="btn" href="{{ content.cta_secondary.href }}">{{ content.cta_secondary.label }}</a>
-    </div>
-  </div>
-</section>
 
-<section class="benchmark">
+<!-- ==========================================================================
+     1. MASTHEAD & CALIBRATED BENCHMARKS SPECIFICATION
+     ========================================================================== -->
+<section id="about" class="masthead-section">
   <div class="container">
-    <h2>{{ site.benchmark.headline if site else '' }}</h2>
-    <div class="stats-grid">
-      {% for stat in (site.benchmark.stats if site and site.benchmark else []) %}
-      <div class="stat">
-        <div class="stat-value">{{ stat.value }}</div>
-        <div class="stat-label">{{ stat.label }}</div>
+    <div class="masthead-inner">
+      <div class="masthead-identity">
+        <h1 class="masthead-name">{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }}</h1>
+        <p class="masthead-role">{{ site.masthead.role if site and site.masthead else 'Quantitative Developer · Systems Infrastructure' }}</p>
+        <p class="masthead-context">{{ site.identity.focus if site and site.identity else 'High-performance trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures.' }}</p>
       </div>
-      {% endfor %}
+
+      <!-- Direct Channels Toolbar -->
+      <div class="masthead-channels">
+        {% if site and site.identity and site.identity.contact %}
+        <a class="channel-link channel-link-primary" href="mailto:{{ site.identity.contact.email }}">
+          <span>✉</span> <span>{{ site.identity.contact.email }}</span>
+        </a>
+        <a class="channel-link" href="tel:{{ site.identity.contact.phone }}">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; display: inline-block;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+          <span>{{ site.identity.contact.phone }}</span>
+        </a>
+        {% endif %}
+        {% if site and site.identity and site.identity.links %}
+        <a class="channel-link" href="{{ site.identity.links.github }}" target="_blank" rel="noopener">
+          <span>GitHub</span> <span>↗</span>
+        </a>
+        <a class="channel-link" href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener">
+          <span>LinkedIn</span> <span>↗</span>
+        </a>
+        {% endif %}
+        <a class="channel-link" href="{{ url_for('static', filename='resume/' + site.identity.resume if site and site.identity else 'MehboobMeghaniResume.md') }}" download>
+          <span>Download CV</span> <span>↓</span>
+        </a>
+      </div>
+
+      <!-- Calibrated Engineering Evidence Benchmarks Panel -->
+      <div class="benchmarks-spec-panel">
+        <div class="benchmarks-spec-header">
+          <span>// Calibrated System & Performance Benchmarks</span>
+          <span>Verified Production & Replay Specs</span>
+        </div>
+        <div class="benchmarks-spec-grid">
+          {% for b in (site.benchmarks if site and site.benchmarks else site.benchmark.stats) %}
+          <div class="benchmark-spec-item">
+            <span class="benchmark-spec-param">{{ b.param if b.param else 'Metric' }}</span>
+            <span class="benchmark-spec-val">{{ b.value }}</span>
+            <span class="benchmark-spec-scope">{{ b.scope if b.scope else b.label }}</span>
+            <p class="benchmark-spec-ctx">{{ b.context if b.context else site.benchmark.detail }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
     </div>
-    <p class="benchmark-detail">{{ site.benchmark.detail if site and site.benchmark else '' }}</p>
   </div>
 </section>
 
-<section class="pipeline">
+<!-- ==========================================================================
+     2. FLAGSHIP SYSTEMS & CASE STUDIES (WORK-FIRST PRIORITY & VISUAL CENTER)
+     ========================================================================== -->
+<section id="systems" class="section">
+  <!-- Secondary anchor targets for legacy URLs & test backward-compatibility -->
+  <div id="engine"></div>
+  <div id="projects"></div>
   <div class="container">
-    <h2>The pipeline</h2>
-    <ol class="pipeline-list">
-      {% for step in (site.engine.pipeline if site and site.engine else []) %}
-      <li>{{ step }}</li>
+    <div class="section-head">
+      <div class="section-label">[01] Flagship Systems</div>
+      <h2 class="section-title">Production Trading Infrastructure & Case Studies</h2>
+      <p class="section-intro">Detailed technical breakdowns of core execution engines, data distribution pipelines, and architectural optimization work.</p>
+    </div>
+
+    <div class="flagship-list">
+      {% for system in (content.projects.flagship_systems if content.projects and content.projects.flagship_systems else []) %}
+      <article class="case-study" id="system-{{ system.id }}">
+        <!-- Header -->
+        <div class="case-header">
+          <div class="case-meta">
+            <span class="case-num">SYSTEM [{{ system.number }}]</span>
+            <span class="badge badge-accent">{{ system.classification }}</span>
+          </div>
+          <h3 class="case-title">{{ system.title }}</h3>
+          <div class="tag-list">
+            {% for tech in system.stack %}
+            <span class="tag">{{ tech }}</span>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="case-body">
+          <!-- Problem & Constraints Grid -->
+          <div class="case-grid-2col">
+            <div>
+              <div class="case-block-title">Context & Problem</div>
+              <p>{{ system.context }}</p>
+              <p>{{ system.architecture_summary }}</p>
+            </div>
+            <div>
+              <div class="case-block-title">Hardware & Runtime Constraints</div>
+              <ul class="constraint-list">
+                {% for constraint in system.constraints %}
+                <li>{{ constraint }}</li>
+                {% endfor %}
+              </ul>
+            </div>
+          </div>
+
+          <!-- Monoline Architecture Flow Diagram -->
+          {% if system.diagram %}
+          <div class="diagram-container">
+            <div class="diagram-title">{{ system.diagram.title }}</div>
+            <div class="diagram-flow" role="region" aria-label="{{ system.diagram.title }}">
+              {% for node in system.diagram.nodes %}
+              <div class="diagram-node">
+                <span class="node-step">STEP {{ node.step }}</span>
+                <span class="node-name">{{ node.name }}</span>
+                <span class="node-type">{{ node.type }}</span>
+                <span class="node-annot">{{ node.annotation }}</span>
+              </div>
+              {% if not loop.last %}
+              <div class="diagram-arrow" aria-hidden="true">→</div>
+              {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- Key Engineering Decisions -->
+          <div>
+            <div class="case-block-title">Key Engineering Decisions & Tradeoffs</div>
+            <div class="decisions-grid">
+              {% for dec in system.decisions %}
+              <div class="decision-card">
+                <h4>{{ dec.title }}</h4>
+                <p>{{ dec.detail }}</p>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Verified Results & Evidence Bar -->
+          {% if system.evidence %}
+          <div class="case-evidence-bar">
+            <div class="evidence-label">
+              <span class="evidence-metric">{{ system.evidence.metric }}</span>
+              <span>{{ system.evidence.label }}</span>
+            </div>
+            {% if system.evidence.link %}
+            <a class="btn btn-sm btn-primary" href="{{ system.evidence.link.url }}" target="_blank" rel="noopener">
+              {{ system.evidence.link.label }} ↗
+            </a>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </article>
       {% endfor %}
-    </ol>
+    </div>
   </div>
 </section>
+
+<!-- ==========================================================================
+     3. SYSTEMS ARCHITECTURE & ENGINEERING DECISIONS (CONNECTED TO SYSTEMS)
+     ========================================================================== -->
+<section id="architecture" class="section">
+  <!-- Secondary anchor for legacy /skills test compatibility -->
+  <div id="skills"></div>
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">[02] Systems Architecture</div>
+      <h2 class="section-title">Architectural Mechanisms & Trade-offs</h2>
+      <p class="section-intro">Core engineering decisions, memory boundaries, and execution models connected to the concrete systems where they operate.</p>
+    </div>
+
+    <!-- Systems Architecture Dossier List -->
+    <div class="arch-dossier-list">
+      {% for arch in (content.about.systems_architecture if content.about and content.about.systems_architecture else []) %}
+      <article class="arch-dossier-card">
+        <div class="arch-dossier-head">
+          <h3 class="arch-concept-title">{{ arch.concept }}</h3>
+          <span class="arch-system-badge">System: {{ arch.system }}</span>
+        </div>
+        <div class="arch-dossier-grid">
+          <div class="arch-field">
+            <span class="arch-field-lbl">Problem Solved</span>
+            <p class="arch-field-val">{{ arch.problem }}</p>
+          </div>
+          <div class="arch-field">
+            <span class="arch-field-lbl">Mechanism & Implementation</span>
+            <p class="arch-field-val">{{ arch.mechanism }}</p>
+          </div>
+          <div class="arch-field">
+            <span class="arch-field-lbl">Architectural Trade-off</span>
+            <p class="arch-field-val">{{ arch.tradeoff }}</p>
+          </div>
+          <div class="arch-field">
+            <span class="arch-field-lbl">Measured Result</span>
+            <p class="arch-field-val"><strong>{{ arch.result }}</strong></p>
+          </div>
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     4. CONCISE PRODUCTION CHRONOLOGY & INTEGRATED FOUNDATION
+     ========================================================================== -->
+<section id="experience" class="section">
+  <!-- Secondary anchor for legacy /education test compatibility -->
+  <div id="education"></div>
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">[03] Chronology & Foundations</div>
+      <h2 class="section-title">Production Engineering History</h2>
+      <p class="section-intro">Six years at Wallstreet Algo Trading developing infrastructure from low-level socket streaming to complete multi-asset strategy rewrites.</p>
+    </div>
+
+    <div class="chronology-list">
+      {% for role in (content.experience.roles if content.experience and content.experience.roles else []) %}
+      <article class="chronology-item">
+        <div class="chronology-head">
+          <h3 class="role-title">{{ role.title }} · <span class="muted" style="font-weight: 500;">{{ role.org }}</span></h3>
+          <span class="role-period">{{ role.period }}</span>
+        </div>
+        {% if role.system %}
+        <div class="role-system-tag">Focus System: {{ role.system }}</div>
+        {% endif %}
+        <p class="role-contribution">{{ role.contribution if role.contribution else role.highlights[0] }}</p>
+      </article>
+      {% endfor %}
+    </div>
+
+    <!-- Integrated Technical Foundation (Embedded Context) -->
+    <div class="foundation-panel">
+      <div class="case-block-title">Academic & Technical Foundation</div>
+      <p class="muted" style="margin-bottom: 0; font-size: 0.85rem;">Formal engineering training in telecommunications, signal protocols, and hardware-conscious computer engineering.</p>
+      
+      <div class="foundation-grid">
+        {% set edu_items = content.experience.education['items'] if (content.experience and content.experience.education and content.experience.education['items'] is defined) else (content.about.education['items'] if (content.about and content.about.education and content.about.education['items'] is defined) else []) %}
+        {% for edu in edu_items %}
+        <div class="foundation-item">
+          <h4>{{ edu.degree }}</h4>
+          <div class="foundation-school">{{ edu.institution if edu.institution else edu.school }} · <span class="mono">{{ edu.period }}</span></div>
+          {% if edu.focus %}
+          <p class="foundation-focus">{{ edu.focus }}</p>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     5. SPECIALIZED TOOLS & ENGINEERING ARTIFACTS
+     ========================================================================== -->
+<section id="artifacts" class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">[04] Secondary Artifacts</div>
+      <h2 class="section-title">Tools & Engineering Utilities</h2>
+      <p class="section-intro">Supporting open-source tooling, data extraction scrapers, and internal infrastructure utilities.</p>
+    </div>
+
+    <div class="artifacts-grid">
+      {% for artifact in (content.projects.secondary_artifacts if content.projects and content.projects.secondary_artifacts else []) %}
+      <article class="artifact-card">
+        <div class="artifact-head">
+          <h3>{{ artifact.name }}</h3>
+          <span class="badge">{{ artifact.classification }}</span>
+        </div>
+        <p class="artifact-desc">{{ artifact.description }}</p>
+        <div class="tag-list">
+          {% for tech in artifact.stack %}
+          <span class="tag">{{ tech }}</span>
+          {% endfor %}
+        </div>
+        {% if artifact.link %}
+        <div class="artifact-links">
+          <a class="btn btn-sm btn-mono" href="{{ artifact.link.url }}" {% if artifact.link.url.startswith('http') %}target="_blank" rel="noopener"{% endif %}>
+            {{ artifact.link.label }} ↗
+          </a>
+        </div>
+        {% endif %}
+      </article>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ==========================================================================
+     6. EVIDENCE-FIRST CONTACT & INQUIRY INTERFACE
+     ========================================================================== -->
+<section id="contact" class="section">
+  <div class="container">
+    <div class="section-head">
+      <div class="section-label">[05] Direct Contact</div>
+      <h2 class="section-title">Direct Inquiries & Technical Inquiries</h2>
+      <p class="section-intro">{{ content.contact.lead if content.contact else 'Reach out directly or send a message below.' }}</p>
+    </div>
+
+    {% if sent %}
+    <div class="alert alert-success" role="alert">
+      ✓ {{ content.contact.success_message if content.contact else 'Inquiry recorded successfully.' }}
+    </div>
+    {% endif %}
+
+    <div class="contact-layout">
+      <!-- Direct Contact Channels -->
+      <div class="contact-channels">
+        <div class="channel-entry">
+          <span class="channel-label">Direct Email</span>
+          <span class="channel-val">
+            <a href="mailto:{{ site.identity.contact.email }}">{{ site.identity.contact.email }}</a>
+          </span>
+        </div>
+
+        <div class="channel-entry">
+          <span class="channel-label">Direct Phone / WhatsApp</span>
+          <span class="channel-val">
+            <a href="tel:{{ site.identity.contact.phone }}" style="display: inline-flex; align-items: center; gap: 6px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display: inline-block; flex-shrink: 0;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              {{ site.identity.contact.phone }}
+            </a>
+          </span>
+        </div>
+
+        <div class="channel-entry">
+          <span class="channel-label">Location</span>
+          <span class="channel-val">{{ site.identity.location }}</span>
+        </div>
+
+        <div class="channel-entry">
+          <span class="channel-label">Verified Networks</span>
+          <div class="tag-list" style="margin-top: 6px;">
+            {% if site and site.identity and site.identity.links %}
+            <a class="btn btn-sm" href="{{ site.identity.links.github }}" target="_blank" rel="noopener">GitHub ↗</a>
+            <a class="btn btn-sm" href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener">LinkedIn ↗</a>
+            {% endif %}
+            <a class="btn btn-sm" href="{{ url_for('static', filename='resume/' + site.identity.resume if site and site.identity else 'MehboobMeghaniResume.md') }}" download>Full CV ↓</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Concise Structured Inquiry Form -->
+      <div class="contact-form-wrap">
+        <form method="post" action="{{ url_for('public.contact_submit') }}">
+          <div class="form-group">
+            <label for="contact-name">{{ content.contact.labels.name if content.contact else 'Your Name' }}</label>
+            <input id="contact-name" class="form-control" type="text" name="name" required placeholder="Name or Organization">
+          </div>
+
+          <div class="form-group">
+            <label for="contact-email">{{ content.contact.labels.email if content.contact else 'Email Address' }}</label>
+            <input id="contact-email" class="form-control" type="email" name="email" required placeholder="name@domain.com">
+          </div>
+
+          <div class="form-group">
+            <label for="contact-interest">{{ content.contact.labels.interest if content.contact else 'Inquiry Focus' }}</label>
+            <select id="contact-interest" class="form-control" name="interest">
+              {% for opt in (content.contact.interests if content.contact and content.contact.interests else []) %}
+              <option value="{{ opt.value }}">{{ opt.label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="contact-message">{{ content.contact.labels.message if content.contact else 'Message' }}</label>
+            <textarea id="contact-message" class="form-control" name="message" rows="4" placeholder="Technical context, requirements, or inquiry details..."></textarea>
+          </div>
+
+          <button class="btn btn-primary" type="submit" style="width: 100%;">
+            {{ content.contact.labels.submit if content.contact else 'Submit Inquiry' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
 {% endblock %}

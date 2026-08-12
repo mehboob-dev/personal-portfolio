@@ -1,11 +1,12 @@
 # mehboob-portfolio
 
-Personal portfolio + trading-engine showcase + **dynamic QR manager** for Mehboob Meghani.
+Personal portfolio for **Mehboob Meghani** — Quant Developer (C#, .NET, C++ interop).
+Purely personal: CV-driven content, plus the **dynamic QR manager + scan analytics** admin.
 
-Public repo. Everything non-secret is configurable via JSON — see `app/config.json` and `app/content/*.json`.
+Public repo. Everything about me is JSON-configurable — see `app/config.json` and `app/content/*.json`.
 
 ## Stack
-Flask (WSGI) · Jinja2 · SQLAlchemy · SQLite (dev) / MySQL (prod) · HTMX-free vanilla JS · Lightweight Charts · `uv`
+Flask (WSGI) · Jinja2 · SQLAlchemy · SQLite (dev) / MySQL (prod) · Vanilla JS · `uv`
 
 ## Quick start
 
@@ -16,16 +17,18 @@ uv run flask --app wsgi:app run
 ```
 
 Then:
-- Public site: http://localhost:5000/
-- Expo demo: http://localhost:5000/expo
+- Public site: http://localhost:5000/ (single scrolling page)
 - Admin: http://localhost:5000/admin (user/pass from `secrets.json`)
 
 ## Config
 
-- `app/config.json` — site identity, benchmark stats, nav, engine pipeline, expo strategies.
-- `app/content/*.json` — page copy (home, about, experience, projects, trading_systems).
-- `data/*.json` — expo replay datasets.
+Everything is JSON-configurable — no hard-coded personal copy:
+- `app/config.json` — site identity, hero (typed roles, ticker symbols, CTAs), benchmark stats, engine pipeline, anchor nav, `site.expo_url`.
+- `app/content/*.json` — page copy (about incl. skills matrix + education, experience, projects with links, contact). Source: `MehboobMeghaniResume.md`.
+- `app/static/resume/MehboobMeghaniResume.md` — the downloadable CV.
 - `secrets.json` — **gitignored**; copy `secrets.example.json` → `secrets.json`. Holds `DATABASE_URL`, `SECRET_KEY`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`. All secrets live here, not in code or env files.
+
+> The interactive expo demo lives on the Itqan Trades site (`https://itqantrades.com/expo`) — the portfolio links out to it via `config.json → site.expo_url`.
 
 ## QR manager
 

@@ -1,4 +1,6 @@
-"""Public pages for the portfolio (KISS). All copy comes from content/*.json."""
+"""Public pages for the portfolio (KISS). Single scrolling page driven by
+config.json + content/*.json. Legacy /about, /experience, etc. redirect to
+the matching section anchors."""
 
 from flask import Blueprint, redirect, render_template, request, url_for
 
@@ -8,46 +10,53 @@ from .models import Lead
 
 bp = Blueprint("public", __name__)
 
+# Legacy paths → section anchors on the single page.
+_ANCHORS = {
+    "about": "#about",
+    "experience": "#experience",
+    "projects": "#projects",
+    "trading-systems": "#engine",
+    "contact": "#contact",
+}
+
 
 @bp.get("/")
 def home():
     return render_template(
-        "public/home.html", content=get_content("home") or {}
+        "public/home.html",
+        content={
+            "about": get_content("about") or {},
+            "experience": get_content("experience") or {},
+            "projects": get_content("projects") or {},
+            "contact": get_content("contact") or {},
+        },
+        sent=request.args.get("sent"),
     )
 
 
 @bp.get("/about")
 def about():
-    return render_template(
-        "public/about.html", content=get_content("about") or {}
-    )
+    return redirect(url_for("public.home", _anchor="about"))
 
 
 @bp.get("/experience")
 def experience():
-    return render_template(
-        "public/experience.html", content=get_content("experience") or {}
-    )
+    return redirect(url_for("public.home", _anchor="experience"))
 
 
 @bp.get("/projects")
 def projects():
-    return render_template(
-        "public/projects.html", content=get_content("projects") or {}
-    )
+    return redirect(url_for("public.home", _anchor="projects"))
 
 
 @bp.get("/trading-systems")
 def trading_systems():
-    return render_template(
-        "public/trading_systems.html",
-        content=get_content("trading_systems") or {},
-    )
+    return redirect(url_for("public.home", _anchor="engine"))
 
 
 @bp.get("/contact")
 def contact():
-    return render_template("public/contact.html", sent=request.args.get("sent"))
+    return redirect(url_for("public.home", _anchor="contact"))
 
 
 @bp.post("/contact")
@@ -59,5 +68,5 @@ def contact_submit():
     if name and email:
         db.session.add(Lead(name=name, email=email, interest=interest or None, message=message or None))
         db.session.commit()
-        return redirect(url_for("public.contact", sent=1))
-    return redirect(url_for("public.contact"))
+        return redirect(url_for("public.home", sent=1, _anchor="contact"))
+    return redirect(url_for("public.home", _anchor="contact"))

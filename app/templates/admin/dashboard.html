@@ -1,78 +1,325 @@
 {% extends "admin/base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<h1>Dashboard</h1>
-
-<div class="stats-grid">
-  <div class="stat"><div class="stat-value">{{ total_scans }}</div><div class="stat-label">Total scans</div></div>
-  <div class="stat"><div class="stat-value">{{ unique_visitors }}</div><div class="stat-label">Unique visitors</div></div>
-  <div class="stat"><div class="stat-value">{{ qr_count }}</div><div class="stat-label">QR codes</div></div>
-  <div class="stat"><div class="stat-value">{{ campaigns_count }}</div><div class="stat-label">Campaigns</div></div>
-  <div class="stat"><div class="stat-value">{{ leads_count }}</div><div class="stat-label">Leads</div></div>
+<div class="section-head" style="margin-bottom: 24px;">
+  <h1 style="font-size: 1.6rem; margin: 0 0 6px;">Portfolio Operations & Telemetry</h1>
+  <p class="muted" style="margin: 0; font-size: 0.88rem;">Real-time intelligence from dynamic QR endpoints and direct contact inquiries.</p>
 </div>
 
-<h2>Last 14 days</h2>
-<table class="table">
-  <thead><tr><th>Date</th><th>Scans</th></tr></thead>
-  <tbody>
-    {% for date, count in daily %}
-    <tr><td>{{ date }}</td><td>{{ count }}</td></tr>
-    {% else %}
-    <tr><td colspan="2" class="muted">No scans yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+<!-- 5 Primary Metric Cards Grid -->
+<div class="admin-stats-grid">
+  <!-- Card 1: Total Scans -->
+  <a href="{{ url_for('admin.qr_list') }}" class="admin-stat-card">
+    <div class="admin-stat-head">
+      <span class="admin-stat-label">Total Scans</span>
+      <span class="admin-stat-icon">📊</span>
+    </div>
+    <div class="admin-stat-value">{{ total_scans }}</div>
+    <div class="admin-stat-footer">
+      <span class="admin-stat-scope">Lifetime Redirects</span>
+      <span class="admin-stat-arrow">Manage →</span>
+    </div>
+  </a>
 
-<div class="cols">
-  <div>
-    <h2>Device</h2>
-    <table class="table">
-      {% for label, count in device_breakdown %}
-      <tr><td>{{ label }}</td><td>{{ count }}</td></tr>
-      {% else %}
-      <tr><td colspan="2" class="muted">No data.</td></tr>
-      {% endfor %}
-    </table>
+  <!-- Card 2: Unique Visitors -->
+  <div class="admin-stat-card">
+    <div class="admin-stat-head">
+      <span class="admin-stat-label">Unique Visitors</span>
+      <span class="admin-stat-icon">🛡️</span>
+    </div>
+    <div class="admin-stat-value">{{ unique_visitors }}</div>
+    <div class="admin-stat-footer">
+      <span class="admin-stat-scope">Hashed IP Identifiers</span>
+      <span class="badge" style="font-size: 0.68rem; padding: 1px 6px;">Privacy First</span>
+    </div>
   </div>
-  <div>
-    <h2>Operating system</h2>
-    <table class="table">
-      {% for label, count in os_breakdown %}
-      <tr><td>{{ label }}</td><td>{{ count }}</td></tr>
-      {% else %}
-      <tr><td colspan="2" class="muted">No data.</td></tr>
-      {% endfor %}
-    </table>
+
+  <!-- Card 3: Active QR Codes -->
+  <a href="{{ url_for('admin.qr_list') }}" class="admin-stat-card">
+    <div class="admin-stat-head">
+      <span class="admin-stat-label">Active QR Codes</span>
+      <span class="admin-stat-icon">⚡</span>
+    </div>
+    <div class="admin-stat-value">{{ qr_count }}</div>
+    <div class="admin-stat-footer">
+      <span class="admin-stat-scope">Mutable Endpoints</span>
+      <span class="admin-stat-arrow">Configure →</span>
+    </div>
+  </a>
+
+  <!-- Card 4: Campaigns -->
+  <a href="{{ url_for('admin.campaigns') }}" class="admin-stat-card">
+    <div class="admin-stat-head">
+      <span class="admin-stat-label">Campaigns</span>
+      <span class="admin-stat-icon">🏷️</span>
+    </div>
+    <div class="admin-stat-value">{{ campaigns_count }}</div>
+    <div class="admin-stat-footer">
+      <span class="admin-stat-scope">Grouping Tags</span>
+      <span class="admin-stat-arrow">View All →</span>
+    </div>
+  </a>
+
+  <!-- Card 5: Leads Captured -->
+  <a href="{{ url_for('admin.leads') }}" class="admin-stat-card">
+    <div class="admin-stat-head">
+      <span class="admin-stat-label">Leads Captured</span>
+      <span class="admin-stat-icon">📬</span>
+    </div>
+    <div class="admin-stat-value">{{ leads_count }}</div>
+    <div class="admin-stat-footer">
+      <span class="admin-stat-scope">Contact Inquiries</span>
+      <span class="admin-stat-arrow">Review →</span>
+    </div>
+  </a>
+</div>
+
+<!-- Charts & Breakdown Grid -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px;">
+  <!-- Daily Scan Activity (Last 14 Days) -->
+  <div class="card">
+    <div class="case-block-title">Scan Activity Timeline (Last 14 Days)</div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr><th>Date (UTC)</th><th style="text-align: right;">Scans</th></tr>
+        </thead>
+        <tbody>
+          {% for date, count in daily %}
+          <tr>
+            <td class="mono">{{ date }}</td>
+            <td class="mono" style="text-align: right; font-weight: 600; color: var(--accent-primary);">{{ count }}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="2" class="muted" style="text-align: center;">No scans recorded in the last 14 days.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Device & OS Breakdown -->
+  <div class="card">
+    <div class="case-block-title">Client Platform Breakdown</div>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+      <div>
+        <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Device Type</h4>
+        <table class="table">
+          <tbody>
+            {% for label, count in device_breakdown %}
+            <tr>
+              <td>{{ label }}</td>
+              <td class="mono" style="text-align: right; font-weight: 600;">{{ count }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2" class="muted">No data</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Operating System</h4>
+        <table class="table">
+          <tbody>
+            {% for label, count in os_breakdown %}
+            <tr>
+              <td>{{ label }}</td>
+              <td class="mono" style="text-align: right; font-weight: 600;">{{ count }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2" class="muted">No data</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
-<h2>Top cities</h2>
-<table class="table">
-  <thead><tr><th>City</th><th>Scans</th></tr></thead>
-  <tbody>
-    {% for city, count in top_cities %}
-    <tr><td>{{ city }}</td><td>{{ count }}</td></tr>
-    {% else %}
-    <tr><td colspan="2" class="muted">City tracking is off by default.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+<!-- Multi-Select Bulk Actions Toolbar for Dashboard Scans -->
+<div id="bulk-toolbar" style="display: none; background: var(--bg-subtle); border: 1px solid var(--accent-primary); border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span class="badge badge-accent" id="bulk-selected-count">0 selected</span>
+    <span class="muted" style="font-size: 0.85rem;">Apply action to all selected scan records:</span>
+  </div>
 
-<h2>Recent scans</h2>
-<table class="table">
-  <thead><tr><th>Time</th><th>QR</th><th>Device</th><th>Browser</th><th>OS</th></tr></thead>
-  <tbody>
-    {% for scan in recent_scans %}
-    <tr>
-      <td>{{ scan.created_at.strftime('%Y-%m-%d %H:%M') if scan.created_at }}</td>
-      <td>{{ scan.qr_code.slug if scan.qr_code else '?' }}</td>
-      <td>{{ scan.device }}</td>
-      <td>{{ scan.browser }}</td>
-      <td>{{ scan.os }}</td>
-    </tr>
-    {% else %}
-    <tr><td colspan="5" class="muted">No scans yet.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+  <form id="bulk-form" method="post" action="{{ url_for('admin.scans_bulk') }}" style="display: flex; gap: 8px; align-items: center; margin: 0;">
+    <input type="hidden" name="action" id="bulk-action-input" value="trash">
+    <div id="bulk-hidden-ids"></div>
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move selected scan records to trash?')">
+      Trash Selected
+    </button>
+    <button type="button" class="btn btn-sm btn-mono" onclick="deselectAllRows()">Cancel</button>
+  </form>
+</div>
+
+<!-- Recent Scans Tabulator Table -->
+<div class="card" style="padding: 0; overflow: hidden;">
+  <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-subtle); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
+    <div>
+      <div class="case-block-title" style="margin:0 0 2px;">Recent Scan Stream (Last 15 Records)</div>
+      <p class="muted" style="margin:0; font-size:0.78rem;">Click any QR slug to view its dedicated analytics dashboard.</p>
+    </div>
+    <button id="reset-tabulator-filters" class="btn btn-sm btn-mono" type="button">Reset Filters ✕</button>
+  </div>
+  <div id="dashboard-scans-table"></div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var tableData = [
+      {% for scan in recent_scans %}
+      {
+        id: {{ scan.id }},
+        date_utc: "{{ scan.created_at.strftime('%Y-%m-%d') if scan.created_at else '' }}",
+        time_utc: "{{ scan.created_at.strftime('%H:%M:%S') if scan.created_at else '' }}",
+        qr_slug: "{{ scan.qr_code.slug if scan.qr_code else '?' }}",
+        stats_url: "{{ url_for('admin.qr_stats', qid=scan.qr_code.id) if scan.qr_code else '#' }}",
+        app_source: "{{ (scan.app_source or 'Direct / Browser')|replace('"', '\\"') }}",
+        device_model: "{{ (scan.device_model or scan.device|capitalize or 'Unknown')|replace('"', '\\"') }}",
+        browser: "{{ (scan.browser or 'Unknown')|replace('"', '\\"') }}",
+        os: "{{ (scan.os or 'Unknown')|replace('"', '\\"') }}",
+        delete_url: "{{ url_for('admin.scan_delete', sid=scan.id) }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    var table = new Tabulator("#dashboard-scans-table", {
+      data: tableData,
+      layout: "fitColumns",
+      pagination: "local",
+      paginationSize: 15,
+      placeholder: "No scan events recorded yet.",
+      selectableRows: "highlight",
+      rowClick: function (e, row) {
+        if (e.target.closest('a, button, form, input, select, .tabulator-cell:first-child')) {
+          return;
+        }
+        var data = row.getData();
+        if (data.stats_url && data.stats_url !== '#') {
+          window.location.href = data.stats_url;
+        }
+      },
+      columns: [
+        {
+          formatter: "rowSelection",
+          titleFormatter: "rowSelection",
+          hozAlign: "center",
+          headerSort: false,
+          width: 45,
+          cellClick: function(e, cell){
+            e.stopPropagation();
+            cell.getRow().toggleSelect();
+          }
+        },
+        {
+          title: "Date (UTC)",
+          field: "date_utc",
+          headerFilter: "input",
+          width: 115,
+          formatter: function (cell) {
+            return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Time (UTC)",
+          field: "time_utc",
+          headerFilter: "input",
+          width: 100,
+          formatter: function (cell) {
+            return '<span class="mono muted" style="font-size:0.78rem;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "QR Slug",
+          field: "qr_slug",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            return '<a href="' + row.stats_url + '" class="mono" style="font-weight:700; color:var(--accent-primary);">/r/' + cell.getValue() + '</a>';
+          }
+        },
+        {
+          title: "Scanner / App",
+          field: "app_source",
+          headerFilter: "input",
+          formatter: function (cell) {
+            return '<span class="badge badge-accent">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Device & Model",
+          field: "device_model",
+          headerFilter: "input"
+        },
+        {
+          title: "Browser",
+          field: "browser",
+          headerFilter: "input"
+        },
+        {
+          title: "Operating System",
+          field: "os",
+          headerFilter: "input"
+        },
+        {
+          title: "Action",
+          headerSort: false,
+          hozAlign: "right",
+          width: 90,
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            return '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move scan record to trash?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding:2px 6px; font-size:0.75rem;">Trash</button></form>';
+          }
+        }
+      ]
+    });
+
+    var bulkToolbar = document.getElementById('bulk-toolbar');
+    var bulkCount = document.getElementById('bulk-selected-count');
+    var bulkHiddenIds = document.getElementById('bulk-hidden-ids');
+    var bulkActionInput = document.getElementById('bulk-action-input');
+    var bulkForm = document.getElementById('bulk-form');
+
+    function updateBulkState() {
+      var selectedRows = table.getSelectedRows();
+      if (selectedRows.length > 0) {
+        bulkToolbar.style.display = 'flex';
+        bulkCount.textContent = selectedRows.length + ' selected';
+        bulkHiddenIds.innerHTML = '';
+        selectedRows.forEach(function (row) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'ids';
+          input.value = row.getData().id;
+          bulkHiddenIds.appendChild(input);
+        });
+      } else {
+        bulkToolbar.style.display = 'none';
+      }
+    }
+
+    table.on("rowSelectionChanged", function () {
+      updateBulkState();
+    });
+
+    window.deselectAllRows = function () {
+      table.deselectRow();
+      updateBulkState();
+    };
+
+    window.submitBulk = function (action, confirmMsg) {
+      if (confirmMsg && !confirm(confirmMsg)) return;
+      bulkActionInput.value = action;
+      bulkForm.submit();
+    };
+
+    var resetBtn = document.getElementById('reset-tabulator-filters');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        table.clearHeaderFilter();
+      });
+    }
+  });
+</script>
 {% endblock %}

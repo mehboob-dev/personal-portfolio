@@ -16,7 +16,7 @@ bp = Blueprint("qr", __name__)
 
 @bp.get("/r/<slug>")
 def redirect_slug(slug: str):
-    code = db.session.get(QrCode, slug) or QrCode.query.filter_by(slug=slug).first()
+    code = QrCode.query.filter_by(slug=slug, is_deleted=False).first()
     if code is None:
         abort(404)
 
@@ -30,16 +30,57 @@ def redirect_slug(slug: str):
 def _record_scan(code: QrCode) -> None:
     """Best-effort scan capture. Never raises — a broken scan shouldn't 500."""
     try:
+        raw_ip = (
+            request.headers.get("X-Forwarded-For", "").split(",")[0].strip()
+            if request.headers.get("X-Forwarded-For")
+            else (request.headers.get("CF-Connecting-IP") or request.remote_addr or "")
+        )
         ua = parse_user_agent(request.headers.get("User-Agent", ""))
+        
+        # Geolocation headers (Cloudflare, Vercel, AWS CloudFront, Nginx)
+        country = (
+            request.headers.get("CF-IPCountry")
+            or request.headers.get("X-Vercel-IP-Country")
+            or request.headers.get("X-Country-Code")
+            or None
+        )
+        city = (
+            request.headers.get("CF-IPCity")
+            or request.headers.get("X-Vercel-IP-City")
+            or request.headers.get("X-City-Name")
+            or None
+        )
+
+        # Mark local test IP explicitly
+        if not country and raw_ip in ("127.0.0.1", "::1", "localhost"):
+            country = "Local Dev"
+            city = "Localhost"
+
+        lang = request.headers.get("Accept-Language", "").split(",")[0].strip()[:30] or None
+
+        # UTM parameters (fallback to assigned campaign name if not in URL)
+        utm_source = (request.args.get("utm_source") or "")[:80] or None
+        utm_medium = (request.args.get("utm_medium") or "")[:80] or None
+        utm_campaign = (
+            (request.args.get("utm_campaign") or "")[:80]
+            or (code.campaign.name if code.campaign else None)
+        )
+
         scan = Scan(
             qr_code_id=code.id,
-            ip_hash=anonymize_ip(request.headers.get("X-Forwarded-For", "").split(",")[0].strip() if request.headers.get("X-Forwarded-For") else request.remote_addr),
+            ip_hash=anonymize_ip(raw_ip),
             device=ua["device"],
+            device_model=ua.get("device_model"),
             browser=ua["browser"],
             os=ua["os"],
+            app_source=ua.get("app_source", "Direct / Browser"),
+            language=lang,
+            country=country,
+            city=city,
             referrer=(request.referrer or "")[:500] or None,
-            # country/city intentionally empty: geo lookup is optional/off by default.
-            # Wire a geo service here later if needed (see DOCS/qr-manager.md).
+            utm_source=utm_source,
+            utm_medium=utm_medium,
+            utm_campaign=utm_campaign,
         )
         db.session.add(scan)
         db.session.commit()

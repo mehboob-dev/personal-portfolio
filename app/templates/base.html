@@ -1,38 +1,108 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="systems-light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{{ site.site.title if site else 'Mehboob Meghani' }}{% endblock %}</title>
+  <title>{% block title %}{{ site.site.title if site and site.site else 'Mehboob Meghani' }} — Quantitative Developer & Systems Infrastructure{% endblock %}</title>
+  <meta name="description" content="High-performance quantitative trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures by M. Mehboob Meghani.">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
 <body>
   <header class="site-header">
     <div class="container">
       <a class="brand" href="{{ url_for('public.home') }}">
-        <span class="brand-name">{{ site.site.title if site else 'Mehboob Meghani' }}</span>
-        <span class="brand-sub">Algorithmic Trading Systems Engineer</span>
+        <span class="brand-mark" aria-hidden="true">MM</span>
+        <div class="brand-text">
+          <span class="brand-name">{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }}</span>
+          <span class="brand-sub">{{ site.identity.location if site and site.identity else 'Mumbai, India' }}</span>
+        </div>
       </a>
-      <nav class="site-nav">
-        {% for item in (site.nav if site else []) %}
-        <a href="{{ item.href }}">{{ item.label }}</a>
-        {% endfor %}
-        {% if current_user.is_authenticated %}
-        <a class="nav-admin" href="{{ url_for('admin.dashboard') }}">Admin</a>
-        {% endif %}
-      </nav>
+
+      <button id="mobile-toggle" class="mobile-nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        ☰
+      </button>
+
+      <div class="header-controls">
+        <nav id="site-nav" class="site-nav">
+          <a href="#systems"><span class="nav-num">01</span>Systems</a>
+          <a href="#architecture"><span class="nav-num">02</span>Architecture</a>
+          <a href="#experience"><span class="nav-num">03</span>Chronology</a>
+          <a href="#artifacts"><span class="nav-num">04</span>Artifacts</a>
+          <a href="#contact"><span class="nav-num">05</span>Contact</a>
+          {% if current_user.is_authenticated %}
+          <a class="nav-admin" href="{{ url_for('admin.dashboard') }}">Admin</a>
+          {% endif %}
+          <a class="nav-cv-btn" href="{{ url_for('static', filename='resume/' + site.identity.resume if site and site.identity else 'MehboobMeghaniResume.md') }}" download>
+            <span>CV</span> <span>↓</span>
+          </a>
+        </nav>
+
+        <div class="theme-controls">
+          <select id="theme-select" class="theme-select" aria-label="Select Theme">
+            <option value="systems-light">Systems Light</option>
+            <option value="monochrome">Monochrome</option>
+            <option value="quant-dark">Quant Dark</option>
+            <option value="warm-monograph">Warm Monograph</option>
+          </select>
+          <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Toggle Dark Mode" style="display:none;">
+            🌙 Dark
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
-  <main>
+  <main id="main-content">
     {% block content %}{% endblock %}
   </main>
 
+  {% block footer %}
   <footer class="site-footer">
     <div class="container">
-      <p>© {{ site.site.year if site and site.site else 2026 }} Mehboob Meghani · Algorithmic Trading Systems Engineer</p>
+      <div class="footer-inner">
+        <div>
+          © {{ site.site.year if site and site.site else 2026 }} {{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }} · Quantitative Infrastructure & Systems
+        </div>
+        <div class="footer-links">
+          <a href="#systems">Top ↑</a>
+          {% if site and site.identity and site.identity.links %}
+          <a href="{{ site.identity.links.github }}" target="_blank" rel="noopener">GitHub ↗</a>
+          <a href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener">LinkedIn ↗</a>
+          {% endif %}
+          {% if current_user.is_authenticated %}
+          <a href="{{ url_for('admin.dashboard') }}">Admin</a>
+          {% else %}
+          <a href="{{ url_for('admin.login') }}">Admin Login</a>
+          {% endif %}
+        </div>
+      </div>
     </div>
   </footer>
+  {% endblock %}
+
+  <script>
+    // Mobile navigation toggle
+    (function () {
+      var btn = document.getElementById('mobile-toggle');
+      var nav = document.getElementById('site-nav');
+      if (btn && nav) {
+        btn.addEventListener('click', function () {
+          var open = nav.classList.toggle('open');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          btn.textContent = open ? '✕' : '☰';
+        });
+        nav.querySelectorAll('a').forEach(function (link) {
+          link.addEventListener('click', function () {
+            nav.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+            btn.textContent = '☰';
+          });
+        });
+      }
+    })();
+  </script>
 
   {% block scripts %}{% endblock %}
 </body>

@@ -1,27 +1,54 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="systems-light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}Admin{% endblock %} — QR Manager</title>
+  <title>{% block title %}Dashboard{% endblock %} — Dynamic QR & Lead Admin</title>
+  <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+  <script src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
+  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
 <body>
   <header class="admin-header">
-    <div class="container">
-      <a class="brand" href="{{ url_for('admin.dashboard') }}">QR Manager</a>
-      <nav class="site-nav">
-        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
-        <a href="{{ url_for('admin.campaigns') }}">Campaigns</a>
-        <a href="{{ url_for('admin.qr_list') }}">QR Codes</a>
-        <a href="{{ url_for('admin.leads') }}">Leads</a>
-        <a href="{{ url_for('admin.logout') }}">Logout</a>
-      </nav>
+    <div class="container-fluid">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <a class="brand" href="{{ url_for('admin.dashboard') }}">
+          <span class="brand-mark" aria-hidden="true">MM</span>
+          <div class="brand-text">
+            <span class="brand-name">QR & Lead Manager</span>
+            <span class="brand-sub">Internal Admin Console</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="header-controls">
+        <nav class="site-nav" style="display: flex;">
+          <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('admin.campaigns') }}">Campaigns</a>
+          <a href="{{ url_for('admin.qr_list') }}">QR Codes</a>
+          <a href="{{ url_for('admin.leads') }}">Leads</a>
+          <a href="{{ url_for('public.home') }}" target="_blank" rel="noopener">View Site ↗</a>
+          <a href="{{ url_for('admin.logout') }}" style="color: var(--danger);">Logout</a>
+        </nav>
+
+        <div class="theme-controls">
+          <select id="theme-select" class="theme-select" aria-label="Select Theme">
+            <option value="systems-light">Systems Light</option>
+            <option value="monochrome">Monochrome</option>
+            <option value="quant-dark">Quant Dark</option>
+            <option value="warm-monograph">Warm Monograph</option>
+          </select>
+          <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Toggle Dark Mode" style="display:none;">
+            🌙 Dark
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 
   <main class="admin-main">
-    <div class="container">
+    <div class="container-fluid">
       {% block content %}{% endblock %}
     </div>
   </main>

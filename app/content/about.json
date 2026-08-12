@@ -1,15 +1,68 @@
 {
-  "intro": "I'm an algorithmic trading systems engineer. I design and build the infrastructure that makes systematic trading possible — data pipelines, strategy engines, backtesting, risk and execution.",
-  "paragraphs": [
-    "I work mainly with crypto markets. My systems are built to be performant and resource-efficient, and to behave identically whether replaying history or running against live data.",
-    "I also use the systems I build for my own trading. That means I'm on both sides: I build the software and I depend on it. Every design decision is tested against real market conditions.",
-    "Open to full-time opportunities, trading-system projects, and collaborations."
+  "heading": "Systems Architecture & Engineering Decisions",
+  "intro": "Architectural mechanisms, trade-offs, and design boundaries implemented across production trading and distribution systems.",
+  "systems_architecture": [
+    {
+      "concept": "Zero-Copy Memory-Mapped Files & Blittable Value Types",
+      "system": "High-Throughput Strategy & Backtesting Engine",
+      "problem": "Processing 50 instruments across 3 years of 1-minute OHLCV candles (millions of data points) in managed heap objects triggered severe Garbage Collector gen-2 collection pauses and memory bloat.",
+      "mechanism": "Directly maps multi-gigabyte historical market datasets into the virtual address space using sequential blittable value structs without allocating objects on the .NET managed heap.",
+      "tradeoff": "Requires strict byte alignment, deterministic unmanaged boundary handling, and bounds checking in place of runtime GC safety.",
+      "result": "~80% reduction in process memory footprint and full 50-symbol pipeline backtest execution in <3 minutes."
+    },
+    {
+      "concept": "Deterministic Managed (.NET) / Unmanaged (C++) Interop Boundary",
+      "system": "Production Strategy & Model Execution Core",
+      "problem": "Translating high-frequency quantitative mathematical models into real-time execution required high computational speed while preserving modular strategy orchestration in C#.",
+      "mechanism": "Engineered P/Invoke interfaces passing pinned memory buffers and blittable pointers between C++ numerical routines and the .NET runtime.",
+      "tradeoff": "Eliminated runtime marshalling overhead and memory copies at the cost of requiring explicit lifecycle management for pinned memory blocks.",
+      "result": "Near-native execution speed for vector operations while retaining flexible C# strategy composition."
+    },
+    {
+      "concept": "Lock-Free Ring Buffering & Fan-Out Streaming Pipeline",
+      "system": "Low-Latency Market Data Distribution Pipeline",
+      "problem": "Handling sudden exchange market volatility spikes without dropping price packets or blocking the primary ingestion socket thread during concurrent client fan-out.",
+      "mechanism": "Kernel TCP socket listener writes incoming tick and quote packets into an in-memory lock-free ring buffer, which worker threads dequeue and broadcast via SignalR hubs and WebSockets.",
+      "tradeoff": "Fixed-size circular ring buffers prevent memory spikes during network stalls, requiring deterministic overflow policies under extreme backpressure.",
+      "result": "Verified sub-10ms distribution latency across hundreds of concurrent client endpoints with zero thread contention."
+    },
+    {
+      "concept": "Dynamic Session-Aware Cloud Resource Scheduling",
+      "system": "Distributed Cloud Trading Infrastructure",
+      "problem": "Static, always-on multi-asset cloud server provisioning resulted in high infrastructure costs and idle compute during off-market hours.",
+      "mechanism": "Designed a dynamic migration and provisioning scheduler that scales cloud resources up or down based on active market session hours (Indian, FX, Crypto) and strategy compute intensity.",
+      "tradeoff": "Added scheduling orchestration logic and session warm-up phases in exchange for dramatic reduction in idle runtime cost.",
+      "result": "98.8% operational cost reduction while maintaining high execution reliability and support responsiveness."
+    }
   ],
-  "highlights": [
-    "Algorithmic trading systems",
-    "Real-time market data infrastructure",
-    "Strategy research & backtesting",
-    "Low-latency execution",
-    "Resource-efficient architecture"
-  ]
+  "skills": [
+    {
+      "category": "Languages & Core Runtimes",
+      "items": ["C# (.NET)", "C++ (Unmanaged Interop)", "Python", "C", "SQL"]
+    },
+    {
+      "category": "Systems & Distribution",
+      "items": ["Memory-Mapped Files", "Blittable Structs", "Multithreading", "TCP Sockets", "SignalR", "Apache Kafka"]
+    },
+    {
+      "category": "Architecture & Engineering",
+      "items": ["Real-Time Systems", "Code Profiling & GC Tuning", "Backtesting Pipelines", "Risk Modeling", "API Design"]
+    }
+  ],
+  "education": {
+    "heading": "Technical Foundation",
+    "intro": "Engineering foundations in electronics, communication, and computer systems.",
+    "items": [
+      {
+        "degree": "Bachelor of Engineering — Electronics & Telecommunication",
+        "school": "M. H. Saboo Siddik College of Engineering, Mumbai",
+        "period": "2020 – 2023"
+      },
+      {
+        "degree": "Diploma in Computer Engineering",
+        "school": "M. H. Saboo Siddik Polytechnic, Mumbai",
+        "period": "2016 – 2020"
+      }
+    ]
+  }
 }

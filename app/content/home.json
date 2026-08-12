@@ -1,6 +1,6 @@
 {
-  "hero_headline": "I build algorithmic trading systems.",
-  "hero_sub": "Market data → strategy → risk → execution → analytics. Engineered to be fast and reliable.",
+  "hero_headline": "I build high-performance trading systems.",
+  "hero_sub": "Quant developer specializing in C#, .NET and C++ interop for market data, strategy, risk and execution — engineered to be fast and reliable.",
   "cta_primary": { "label": "Explore the engine", "href": "/trading-systems" },
-  "cta_secondary": { "label": "Run the expo demo", "href": "/expo" }
+  "cta_secondary": { "label": "Watch the engine demo", "href": "https://itqantrades.com/expo" }
 }

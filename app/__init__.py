@@ -35,6 +35,35 @@ def _resolve_db_url(url: str) -> str:
     return url
 
 
+def _sync_admin_from_secrets() -> None:
+    """Ensure the AdminUser in DB matches current secrets.json credentials."""
+    try:
+        from .models import AdminUser
+
+        secrets = _load_secrets()
+        username = secrets.get("ADMIN_USERNAME", "admin")
+        password = secrets.get("ADMIN_PASSWORD", "change-me-strong")
+
+        user = AdminUser.query.filter_by(username=username).first()
+        if user:
+            if not user.check_password(password):
+                user.set_password(password)
+                db.session.commit()
+        else:
+            first_user = AdminUser.query.first()
+            if first_user:
+                first_user.username = username
+                first_user.set_password(password)
+                db.session.commit()
+            else:
+                new_user = AdminUser(username=username)
+                new_user.set_password(password)
+                db.session.add(new_user)
+                db.session.commit()
+    except Exception:
+        db.session.rollback()
+
+
 def create_app(config: dict | None = None) -> Flask:
     app = Flask(__name__)
     app.config["JSON_AS_ASCII"] = False
@@ -62,14 +91,20 @@ def create_app(config: dict | None = None) -> Flask:
     def load_user(user_id):
         return db.session.get(models.AdminUser, int(user_id))
 
+    # Auto-sync admin credentials from secrets.json on startup
+    with app.app_context():
+        try:
+            db.create_all()
+            _sync_admin_from_secrets()
+        except Exception:
+            pass
+
     # Blueprints (flat, KISS)
     from .admin import bp as admin_bp
-    from .expo import bp as expo_bp
     from .public import bp as public_bp
     from .qr import bp as qr_bp
 
     app.register_blueprint(public_bp)
-    app.register_blueprint(expo_bp)
     app.register_blueprint(qr_bp)
     app.register_blueprint(admin_bp)
 
@@ -78,40 +113,21 @@ def create_app(config: dict | None = None) -> Flask:
     def init_db():
         import click
 
-        from .models import AdminUser
-
         db.create_all()
+        _sync_admin_from_secrets()
         secrets = _load_secrets()
         username = secrets.get("ADMIN_USERNAME", "admin")
-        password = secrets.get("ADMIN_PASSWORD", "change-me-strong")
-        if not AdminUser.query.filter_by(username=username).first():
-            user = AdminUser(username=username)
-            user.set_password(password)
-            db.session.add(user)
-            db.session.commit()
-            click.echo(f"Created admin user '{username}'.")
-        else:
-            click.echo(f"Admin user '{username}' already exists.")
-        click.echo("Database ready.")
+        click.echo(f"Database ready. Admin user '{username}' synced with secrets.json.")
 
     # CLI: `flask seed` (alias) creates the admin user from secrets.json
     @app.cli.command("seed")
     def seed_admin():
         import click
 
-        from .models import AdminUser
-
+        _sync_admin_from_secrets()
         secrets = _load_secrets()
         username = secrets.get("ADMIN_USERNAME", "admin")
-        password = secrets.get("ADMIN_PASSWORD", "change-me-strong")
-        if AdminUser.query.filter_by(username=username).first():
-            click.echo(f"Admin user '{username}' already exists.")
-            return
-        user = AdminUser(username=username)
-        user.set_password(password)
-        db.session.add(user)
-        db.session.commit()
-        click.echo(f"Created admin user '{username}'.")
+        click.echo(f"Admin user '{username}' synced with secrets.json.")
 
     # Inject site config + nav into every template
     @app.context_processor

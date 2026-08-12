@@ -1,21 +1,66 @@
 {
-  "intro": "Experience across the full trading-system stack — with a focus on performance engineering.",
+  "heading": "Production Chronology",
+  "intro": "Six-year engineering progression at Wallstreet Algo Trading, from data verification pipelines to full multi-asset trading engine rewrites.",
   "roles": [
     {
-      "title": "Independent Trading Systems Engineer",
-      "org": "Self-directed / Own systems",
-      "period": "Ongoing",
-      "points": [
-        "Built a performant algorithmic trading engine handling 50 symbols × 3 years × 1-minute OHLCV with multiple strategies and exit modules in under 3 minutes.",
-        "Memory-mapped data access, shared indicator calculation, optimized data structures.",
-        "Run the system against real crypto markets for my own trading."
-      ]
+      "title": "Quantitative Developer",
+      "org": "Wallstreet Algo Trading Private Limited",
+      "period": "Nov 2023 – Present",
+      "system": "Multi-Asset Trading Engine & Low-Latency Core",
+      "contribution": "Led the architectural rewrite of the firm’s core trading stack to support multi-asset expansion into Indian, Crypto, and FX markets. Engineered memory-mapped file buffers and blittable structs in C# and unmanaged C++, reducing memory usage by ~80%. Integrated SignalR streaming for real-time dashboard data broadcast."
+    },
+    {
+      "title": "Stock Market Analyst for Strategies",
+      "org": "Wallstreet Algo Trading Private Limited",
+      "period": "Jul 2022 – Nov 2023",
+      "system": "Quantitative Strategy Research & Analytics",
+      "contribution": "Developed automated time-feature extraction and pivot modeling pipelines comparing symbols against benchmark indices to support quantitative strategy research and pattern detection."
+    },
+    {
+      "title": "Cloud Architect Engineer",
+      "org": "Wallstreet Algo Trading Private Limited",
+      "period": "May 2022 – Jul 2022",
+      "system": "Dynamic Cloud Trading Infrastructure",
+      "contribution": "Designed and deployed a dynamic migration system for cloud-based trading execution, reducing operational infrastructure costs by 98.8% while improving support efficiency and deployment reliability."
+    },
+    {
+      "title": "Market Data Streamer",
+      "org": "Wallstreet Algo Trading Private Limited",
+      "period": "Mar 2022 – Apr 2022",
+      "system": "Low-Latency Market Data Distribution Pipeline",
+      "contribution": "Engineered low-level socket streaming infrastructure delivering real-time stock market tick and quote feeds to hundreds of client endpoints with verified <10ms delay."
+    },
+    {
+      "title": "Software Engineer & Developer",
+      "org": "Wallstreet Algo Trading Private Limited",
+      "period": "May 2020 – Jan 2022",
+      "system": "Market Scanning & Historical Data Ingestion",
+      "contribution": "Constructed automated pipelines to download, verify, clean, and validate historical datasets (tick, quotes, fundamentals, EOD, minute, ETF) and developed Python/C# market scanners with complex multi-condition filters for NYSE equities."
+    },
+    {
+      "title": "Engineering Intern",
+      "org": "Wallstreet Algo Trading Private Limited",
+      "period": "Nov 2019 – May 2020",
+      "system": "Internal Tooling & Code Profiling",
+      "contribution": "Assisted in the development, profiling, and debugging of in-house quantitative trading tools and data parsing utilities in C# and Python."
     }
   ],
-  "skills": {
-    "languages": ["Python", "C#", "C++"],
-    "data": ["NumPy", "Pandas", "Memory-mapped storage"],
-    "systems": ["FastAPI", "Flask", "WebSockets", "Real-time data feeds"],
-    "trading": ["Backtesting", "Strategy development", "Risk management", "Execution"]
+  "education": {
+    "heading": "Integrated Technical Foundation",
+    "intro": "Formal engineering background in hardware, telecommunications, and low-level computing.",
+    "items": [
+      {
+        "degree": "Bachelor of Engineering — Electronics & Telecommunication",
+        "institution": "M. H. Saboo Siddik College of Engineering, Mumbai",
+        "period": "2020 – 2023",
+        "focus": "Signal processing, telecommunication protocols, digital electronics, and computer networks."
+      },
+      {
+        "degree": "Diploma in Computer Engineering",
+        "institution": "M. H. Saboo Siddik Polytechnic, Mumbai",
+        "period": "2016 – 2020",
+        "focus": "Computer architecture, data structures, low-level programming, operating systems, and OOP."
+      }
+    ]
   }
 }

@@ -1,38 +1,305 @@
 {% extends "admin/base.html" %}
 {% block title %}QR Codes{% endblock %}
 {% block content %}
-<h1>QR Codes</h1>
-<p class="muted">
-  Each QR has a <em>mutable destination</em> — edit it any time and the printed QR keeps working.
-  The scan URL is <code>{{ request.host_url }}r/&lt;slug&gt;</code>.
-</p>
+<div class="section-head" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+  <div>
+    <h1 style="font-size: 1.5rem; margin: 0 0 6px;">Dynamic QR Codes</h1>
+    <p class="muted" style="margin: 0; font-size: 0.88rem;">
+      Each QR code routes through a <strong>mutable redirect URL</strong> (<code>{{ request.host_url }}r/&lt;slug&gt;</code>). Destinations can be updated anytime without reprinting cards.
+    </p>
+  </div>
+  <div style="display: flex; gap: 10px; align-items: center;">
+    <button id="reset-tabulator-filters" class="btn btn-sm btn-mono" type="button">Reset Filters ✕</button>
+    <a class="btn btn-primary" href="{{ url_for('admin.qr_new') }}">+ New QR Code</a>
+  </div>
+</div>
 
-<a class="btn btn-primary" href="{{ url_for('admin.qr_new') }}">New QR code</a>
+<!-- STATUS TABS: Active (Default) | Trash | All -->
+<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
+  <div style="display: flex; gap: 6px;">
+    <a class="btn btn-sm {% if show == 'active' %}btn-primary{% endif %}" href="{{ url_for('admin.qr_list', show='active') }}">
+      Active QR Codes ({{ active_count }})
+    </a>
+    <a class="btn btn-sm {% if show == 'deleted' %}btn-primary{% endif %}" href="{{ url_for('admin.qr_list', show='deleted') }}" style="{% if show == 'deleted' %}background: var(--danger); border-color: var(--danger);{% endif %}">
+      Trash / Deleted ({{ deleted_count }})
+    </a>
+    <a class="btn btn-sm {% if show == 'all' %}btn-primary{% endif %}" href="{{ url_for('admin.qr_list', show='all') }}">
+      All Records ({{ all_count }})
+    </a>
+  </div>
 
-<table class="table">
-  <thead>
-    <tr><th>Slug</th><th>Label</th><th>Campaign</th><th>Destination</th><th>Active</th><th>Scans</th><th></th></tr>
-  </thead>
-  <tbody>
-    {% for code in codes %}
-    <tr>
-      <td><code>{{ code.slug }}</code></td>
-      <td>{{ code.label }}</td>
-      <td>{{ code.campaign.name if code.campaign else '—' }}</td>
-      <td class="cell-dest"><code>{{ code.destination_url }}</code></td>
-      <td>{{ 'Yes' if code.is_active else 'No' }}</td>
-      <td>{{ code.scans.count() }}</td>
-      <td class="cell-actions">
-        <a class="btn btn-sm" href="{{ url_for('admin.qr_edit', qid=code.id) }}">Edit</a>
-        <a class="btn btn-sm" href="{{ url_for('admin.qr_png', qid=code.id) }}">PNG</a>
-        <form method="post" action="{{ url_for('admin.qr_delete', qid=code.id) }}" onsubmit="return confirm('Delete this QR code? Its scan history goes too.')">
-          <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-        </form>
-      </td>
-    </tr>
+  <div id="table-record-count" class="mono muted" style="font-size: 0.78rem;">
+    Showing {{ codes|length }} {{ show }} QR codes
+  </div>
+</div>
+
+<!-- MULTI-SELECT BULK ACTIONS TOOLBAR -->
+<div id="bulk-toolbar" style="display: none; background: var(--bg-subtle); border: 1px solid var(--accent-primary); border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+  <div style="display: flex; align-items: center; gap: 10px;">
+    <span class="badge badge-accent" id="bulk-selected-count">0 selected</span>
+    <span class="muted" style="font-size: 0.85rem;">Apply action to all selected items:</span>
+  </div>
+
+  <form id="bulk-form" method="post" action="{{ url_for('admin.qr_bulk') }}" style="display: flex; gap: 8px; align-items: center; margin: 0;">
+    <input type="hidden" name="action" id="bulk-action-input" value="">
+    <div id="bulk-hidden-ids"></div>
+
+    {% if show == 'deleted' %}
+    <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected QR codes from trash?')">
+      Restore Selected
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('purge', 'PERMANENTLY delete all selected QR codes and their scans? This cannot be undone!')">
+      Delete Forever Selected
+    </button>
+    {% elif show == 'all' %}
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move selected QR codes to trash?')">
+      Trash Selected
+    </button>
+    <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected QR codes from trash?')">
+      Restore Selected
+    </button>
+    <button type="button" class="btn btn-sm btn-danger" style="background: var(--danger); color: #ffffff;" onclick="submitBulk('purge', 'PERMANENTLY delete selected QR codes? This cannot be undone!')">
+      Delete Forever
+    </button>
     {% else %}
-    <tr><td colspan="7" class="muted">No QR codes yet.</td></tr>
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move all selected QR codes to trash? Redirects will stop until restored.')">
+      Trash Selected
+    </button>
+    {% endif %}
+    <button type="button" class="btn btn-sm btn-mono" onclick="deselectAllRows()">Cancel</button>
+  </form>
+</div>
+
+<!-- TABULATOR TABLE CONTAINER -->
+<div id="qr-tabulator-table"></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    var tableData = [
+      {% for code in codes %}
+      {
+        id: {{ code.id }},
+        slug: "{{ code.slug }}",
+        label: "{{ (code.label or '')|replace('"', '\\"') }}",
+        campaign: "{{ (code.campaign.name if code.campaign else '')|replace('"', '\\"') }}",
+        destination_url: "{{ code.destination_url|replace('"', '\\"') }}",
+        date_utc: "{{ code.created_at.strftime('%Y-%m-%d') if code.created_at else '' }}",
+        time_utc: "{{ code.created_at.strftime('%H:%M:%S') if code.created_at else '' }}",
+        is_active: {{ 'true' if code.is_active else 'false' }},
+        is_deleted: {{ 'true' if code.is_deleted else 'false' }},
+        scans_count: {{ code.scans.count() }},
+        png_url: "{{ url_for('admin.qr_png', qid=code.id) }}",
+        download_url: "{{ url_for('admin.qr_png', qid=code.id, download=1) }}",
+        stats_url: "{{ url_for('admin.qr_stats', qid=code.id) }}",
+        edit_url: "{{ url_for('admin.qr_edit', qid=code.id) }}",
+        delete_url: "{{ url_for('admin.qr_delete', qid=code.id) }}",
+        restore_url: "{{ url_for('admin.qr_restore', qid=code.id) }}",
+        purge_url: "{{ url_for('admin.qr_purge', qid=code.id) }}",
+        redirect_test_url: "{{ url_for('qr.redirect_slug', slug=code.slug) }}",
+        host_url: "{{ request.host_url }}"
+      }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    var campaignOptions = {"": "All Campaigns"};
+    {% for c in campaigns %}
+    campaignOptions["{{ c.name|replace('"', '\\"') }}"] = "{{ c.name|replace('"', '\\"') }}";
     {% endfor %}
-  </tbody>
-</table>
+
+    var table = new Tabulator("#qr-tabulator-table", {
+      data: tableData,
+      layout: "fitColumns",
+      pagination: "local",
+      paginationSize: 20,
+      paginationSizeSelector: [10, 20, 50, 100, true],
+      placeholder: "No {{ show }} QR codes found.",
+      selectableRows: "highlight",
+      rowClick: function (e, row) {
+        if (e.target.closest('a, button, form, input, select, .tabulator-cell:first-child')) {
+          return;
+        }
+        var data = row.getData();
+        if (data.stats_url) {
+          window.location.href = data.stats_url;
+        }
+      },
+      columns: [
+        {
+          formatter: "rowSelection",
+          titleFormatter: "rowSelection",
+          hozAlign: "center",
+          headerSort: false,
+          width: 45,
+          cellClick: function(e, cell){
+            e.stopPropagation();
+            cell.getRow().toggleSelect();
+          }
+        },
+        {
+          title: "QR Code",
+          field: "png_url",
+          headerSort: false,
+          width: 120,
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            return '<div style="display: flex; align-items: center; gap: 8px;">' +
+              '<a href="' + row.png_url + '" target="_blank" title="Preview QR" style="display: block;">' +
+                '<img src="' + row.png_url + '" width="36" height="36" style="background:#fff; padding:2px; border:1px solid var(--border-subtle); border-radius:4px; display:block;">' +
+              '</a>' +
+              '<a class="btn btn-sm btn-mono" href="' + row.download_url + '" download style="padding: 2px 6px; font-size: 0.72rem;">PNG ↓</a>' +
+            '</div>';
+          }
+        },
+        {
+          title: "Slug",
+          field: "slug",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            return '<div style="display: flex; flex-direction: column; gap: 2px;">' +
+              '<a href="' + row.stats_url + '" class="mono" style="font-weight:700; color:var(--accent-primary); font-size:0.92rem;">/r/' + row.slug + '</a>' +
+              '<a href="' + row.redirect_test_url + '" target="_blank" class="muted mono" style="font-size:0.72rem;">' + row.host_url + 'r/' + row.slug + ' ↗</a>' +
+            '</div>';
+          }
+        },
+        {
+          title: "Label",
+          field: "label",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var val = cell.getValue();
+            return val ? '<strong>' + val + '</strong>' : '<span class="muted">—</span>';
+          }
+        },
+        {
+          title: "Campaign",
+          field: "campaign",
+          headerFilter: "select",
+          headerFilterParams: { values: campaignOptions },
+          formatter: function (cell) {
+            var val = cell.getValue();
+            return val ? '<span class="badge">' + val + '</span>' : '<span class="muted">—</span>';
+          }
+        },
+        {
+          title: "Destination URL",
+          field: "destination_url",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var val = cell.getValue();
+            return '<a href="' + val + '" target="_blank" rel="noopener" class="mono muted" style="font-size:0.78rem; word-break:break-all;">' + val + '</a>';
+          }
+        },
+        {
+          title: "Date (UTC)",
+          field: "date_utc",
+          headerFilter: "input",
+          width: 110,
+          formatter: function(cell) {
+            return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + (cell.getValue() || '—') + '</span>';
+          }
+        },
+        {
+          title: "Time (UTC)",
+          field: "time_utc",
+          headerFilter: "input",
+          width: 95,
+          formatter: function(cell) {
+            return '<span class="mono muted" style="font-size:0.78rem;">' + (cell.getValue() || '—') + '</span>';
+          }
+        },
+        {
+          title: "Status",
+          field: "is_active",
+          headerFilter: "select",
+          headerFilterParams: { values: {"": "All", "true": "Active", "false": "Paused"} },
+          width: 95,
+          hozAlign: "center",
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            if (row.is_deleted) return '<span class="badge" style="color:var(--danger); border-color:var(--danger);">In Trash</span>';
+            return row.is_active ? '<span class="badge badge-signal">Active</span>' : '<span class="badge">Paused</span>';
+          }
+        },
+        {
+          title: "Scans",
+          field: "scans_count",
+          headerFilter: "number",
+          width: 80,
+          hozAlign: "center",
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            return '<a href="' + row.stats_url + '" class="mono" style="font-weight:700; color:inherit; text-decoration:underline;">' + cell.getValue() + '</a>';
+          }
+        },
+        {
+          title: "Actions",
+          headerSort: false,
+          hozAlign: "right",
+          width: 170,
+          formatter: function (cell) {
+            var row = cell.getRow().getData();
+            var out = '<div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">';
+            out += '<a class="btn btn-sm btn-mono" href="' + row.stats_url + '" style="padding: 2px 6px; font-size: 0.75rem;">Stats 📊</a>';
+            if (row.is_deleted) {
+              out += '<form method="post" action="' + row.restore_url + '" style="display:inline; margin:0;"><button class="btn btn-sm" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Restore</button></form>';
+              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete QR code /r/' + row.slug + '? This cannot be undone.\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
+            } else {
+              out += '<a class="btn btn-sm" href="' + row.edit_url + '" style="padding: 2px 6px; font-size: 0.75rem;">Edit</a>';
+              out += '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move QR code /r/' + row.slug + ' to trash?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Trash</button></form>';
+            }
+            out += '</div>';
+            return out;
+          }
+        }
+      ]
+    });
+
+    var bulkToolbar = document.getElementById('bulk-toolbar');
+    var bulkCount = document.getElementById('bulk-selected-count');
+    var bulkHiddenIds = document.getElementById('bulk-hidden-ids');
+    var bulkActionInput = document.getElementById('bulk-action-input');
+    var bulkForm = document.getElementById('bulk-form');
+
+    function updateBulkState() {
+      var selectedRows = table.getSelectedRows();
+      if (selectedRows.length > 0) {
+        bulkToolbar.style.display = 'flex';
+        bulkCount.textContent = selectedRows.length + ' selected';
+        bulkHiddenIds.innerHTML = '';
+        selectedRows.forEach(function (row) {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'ids';
+          input.value = row.getData().id;
+          bulkHiddenIds.appendChild(input);
+        });
+      } else {
+        bulkToolbar.style.display = 'none';
+      }
+    }
+
+    table.on("rowSelectionChanged", function () {
+      updateBulkState();
+    });
+
+    window.deselectAllRows = function () {
+      table.deselectRow();
+      updateBulkState();
+    };
+
+    window.submitBulk = function (action, confirmMsg) {
+      if (confirmMsg && !confirm(confirmMsg)) return;
+      bulkActionInput.value = action;
+      bulkForm.submit();
+    };
+
+    var resetBtn = document.getElementById('reset-tabulator-filters');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', function () {
+        table.clearHeaderFilter();
+      });
+    }
+  });
+</script>
 {% endblock %}
