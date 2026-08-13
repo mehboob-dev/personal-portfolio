@@ -14,8 +14,8 @@ APP_DIR = Path(__file__).resolve().parent
 # --- JSON config / content -------------------------------------------------
 
 def load_json(name: str, base_dir: Path | None = None) -> dict:
-    """Load a JSON file relative to the app dir (base_dir overrides for tests)."""
-    path = (base_dir or APP_DIR) / name
+    """Load a JSON file relative to the data dir (base_dir overrides for tests)."""
+    path = (base_dir or (APP_DIR.parent / "data")) / name
     with path.open("r", encoding="utf-8") as fh:
         return json.load(fh)
 

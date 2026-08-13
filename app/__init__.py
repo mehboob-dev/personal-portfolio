@@ -13,11 +13,11 @@ APP_DIR = Path(__file__).resolve().parent
 
 def _load_secrets() -> dict:
     """Secrets live in a gitignored JSON file (user: no .env, only JSON)."""
-    secrets_path = APP_DIR.parent / "secrets.json"
+    secrets_path = APP_DIR.parent / "data" / "secrets.json"
     if secrets_path.exists():
         return json.loads(secrets_path.read_text(encoding="utf-8"))
     # Fall back to a checked-in example so the app runs on a fresh clone.
-    example = APP_DIR.parent / "secrets.example.json"
+    example = APP_DIR.parent / "data" / "secrets.example.json"
     if example.exists():
         return json.loads(example.read_text(encoding="utf-8"))
     return {}
@@ -133,7 +133,7 @@ def create_app(config: dict | None = None) -> Flask:
     @app.context_processor
     def inject_config():
         cfg = {}
-        cfg_path = APP_DIR / "config.json"
+        cfg_path = APP_DIR.parent / "data" / "config.json"
         if cfg_path.exists():
             cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
         return {"site": cfg, "current_user": current_user}

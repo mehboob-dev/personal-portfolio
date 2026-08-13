@@ -78,6 +78,9 @@
     <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move all selected campaigns to trash?')">
       Trash Selected
     </button>
+    <button type="button" class="btn btn-sm btn-danger" style="background: var(--danger); color: #ffffff;" onclick="submitBulk('purge', 'PERMANENTLY delete all selected campaigns? QR codes will be unassigned. This cannot be undone!')">
+      Delete Forever Selected
+    </button>
     {% endif %}
     <button type="button" class="btn btn-sm btn-mono" onclick="deselectAllRows()">Cancel</button>
   </form>
@@ -105,9 +108,161 @@
       {% endfor %}
     ];
 
+    function statusMatchFilter(headerValue, rowValue) {
+      if (headerValue === undefined || headerValue === null || headerValue === "") return true;
+      var expectedBool = headerValue === "In Trash";
+      return rowValue === expectedBool;
+    }
+
+    function advancedNumericFilterFunc(headerValue, rowValue) {
+      if (!headerValue || headerValue.value === undefined || headerValue.value === null || headerValue.value === "") return true;
+      if (rowValue === null || rowValue === undefined) return false;
+      var val = parseFloat(String(rowValue).replace(/,/g, "").trim());
+      var target = parseFloat(headerValue.value);
+      if (isNaN(val) || isNaN(target)) return false;
+      switch(headerValue.operator) {
+        case "gt": return val > target;
+        case "gte": return val >= target;
+        case "lt": return val < target;
+        case "lte": return val <= target;
+        case "eq": return val === target;
+        case "neq": return val !== target;
+        default: return true;
+      }
+    }
+
+    function advancedDateFilterFunc(headerValue, rowValue) {
+      if (!headerValue || !headerValue.value) return true;
+      if (!rowValue) return false;
+      var rowDateStr = String(rowValue).split("T")[0].split(" ")[0];
+      var targetDateStr = headerValue.value;
+      switch(headerValue.operator) {
+        case "on": return rowDateStr === targetDateStr;
+        case "not_on": return rowDateStr !== targetDateStr;
+        case "before": return rowDateStr < targetDateStr;
+        case "after": return rowDateStr > targetDateStr;
+        default: return true;
+      }
+    }
+
+    function customDropdownFilter(values) {
+      return function(cell, onRendered, success, cancel, editorParams) {
+        var select = document.createElement("select");
+        select.style.padding = "4px";
+        select.style.background = "var(--bg-canvas)";
+        select.style.border = "1px solid var(--border-subtle)";
+        select.style.color = "var(--text-primary)";
+        select.style.borderRadius = "var(--radius-xs)";
+        select.style.fontFamily = "var(--font-mono)";
+        select.style.fontSize = "0.75rem";
+        var allOpt = document.createElement("option");
+        allOpt.value = ""; allOpt.text = "All";
+        select.appendChild(allOpt);
+        values.forEach(function(val) {
+          var opt = document.createElement("option");
+          opt.value = val; opt.text = val;
+          select.appendChild(opt);
+        });
+        select.addEventListener("change", function() { success(select.value); });
+        onRendered(function() { select.value = cell.getValue() || ""; });
+        return select;
+      };
+    }
+
+    function customNumericFilterEditor(cell, onRendered, success, cancel, editorParams) {
+      var container = document.createElement("div");
+      container.className = "custom-header-filter-container";
+      var select = document.createElement("select");
+      select.style.padding = "2px 4px";
+      select.style.background = "var(--bg-canvas)";
+      select.style.border = "1px solid var(--border-subtle)";
+      select.style.color = "var(--text-primary)";
+      select.style.borderRadius = "var(--radius-xs)";
+      select.style.fontFamily = "var(--font-mono)";
+      select.style.fontSize = "0.7rem";
+      var ops = [
+        { value: "gte", text: "≥ (Greater or Equal)" },
+        { value: "gt", text: "> (Greater)" },
+        { value: "lte", text: "≤ (Less or Equal)" },
+        { value: "lt", text: "< (Less)" },
+        { value: "eq", text: "= (Equal)" },
+        { value: "neq", text: "≠ (Not Equal)" }
+      ];
+      ops.forEach(function(op) {
+        var opt = document.createElement("option");
+        opt.value = op.value; opt.text = op.text;
+        select.appendChild(opt);
+      });
+      var input = document.createElement("input");
+      input.type = "text"; input.placeholder = "value";
+      input.style.padding = "2px 4px";
+      input.style.background = "var(--bg-canvas)";
+      input.style.border = "1px solid var(--border-subtle)";
+      input.style.color = "var(--text-primary)";
+      input.style.borderRadius = "var(--radius-xs)";
+      input.style.fontFamily = "var(--font-mono)";
+      input.style.fontSize = "0.75rem";
+      container.appendChild(select);
+      container.appendChild(input);
+      function triggerChange() { success({ operator: select.value, value: input.value }); }
+      select.addEventListener("change", triggerChange);
+      input.addEventListener("input", triggerChange);
+      onRendered(function() {
+        var val = cell.getValue();
+        if (val && typeof val === "object") { select.value = val.operator || "gte"; input.value = val.value || ""; }
+        else { select.value = "gte"; input.value = ""; }
+      });
+      return container;
+    }
+
+    function customDateFilterEditor(cell, onRendered, success, cancel, editorParams) {
+      var container = document.createElement("div");
+      container.className = "custom-header-filter-container";
+      var select = document.createElement("select");
+      select.style.padding = "2px 4px";
+      select.style.background = "var(--bg-canvas)";
+      select.style.border = "1px solid var(--border-subtle)";
+      select.style.color = "var(--text-primary)";
+      select.style.borderRadius = "var(--radius-xs)";
+      select.style.fontFamily = "var(--font-mono)";
+      select.style.fontSize = "0.7rem";
+      var ops = [
+        { value: "on", text: "on (equal)" },
+        { value: "before", text: "before" },
+        { value: "after", text: "after" },
+        { value: "not_on", text: "not on" }
+      ];
+      ops.forEach(function(op) {
+        var opt = document.createElement("option");
+        opt.value = op.value; opt.text = op.text;
+        select.appendChild(opt);
+      });
+      var input = document.createElement("input");
+      input.type = "date";
+      input.style.padding = "2px 4px";
+      input.style.background = "var(--bg-canvas)";
+      input.style.border = "1px solid var(--border-subtle)";
+      input.style.color = "var(--text-primary)";
+      input.style.borderRadius = "var(--radius-xs)";
+      input.style.fontFamily = "var(--font-mono)";
+      input.style.fontSize = "0.75rem";
+      container.appendChild(select);
+      container.appendChild(input);
+      function triggerChange() { success({ operator: select.value, value: input.value }); }
+      select.addEventListener("change", triggerChange);
+      input.addEventListener("change", triggerChange);
+      onRendered(function() {
+        var val = cell.getValue();
+        if (val && typeof val === "object") { select.value = val.operator || "on"; input.value = val.value || ""; }
+        else { select.value = "on"; input.value = ""; }
+      });
+      return container;
+    }
+
     var table = new Tabulator("#campaigns-tabulator-table", {
       data: tableData,
       layout: "fitColumns",
+      resizableColumnFit: true,
       pagination: "local",
       paginationSize: 20,
       paginationSizeSelector: [10, 20, 50, true],
@@ -119,7 +274,7 @@
           titleFormatter: "rowSelection",
           hozAlign: "center",
           headerSort: false,
-          width: 45,
+          width: 60,
           cellClick: function(e, cell){
             e.stopPropagation();
             cell.getRow().toggleSelect();
@@ -144,8 +299,9 @@
         {
           title: "Date (UTC)",
           field: "date_utc",
-          headerFilter: "input",
-          width: 120,
+          headerFilter: customDateFilterEditor,
+          headerFilterFunc: advancedDateFilterFunc,
+          width: 180,
           formatter: function (cell) {
             return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + (cell.getValue() || '—') + '</span>';
           }
@@ -162,8 +318,8 @@
         {
           title: "Status",
           field: "is_deleted",
-          headerFilter: "select",
-          headerFilterParams: { values: {"": "All", "false": "Active", "true": "In Trash"} },
+          headerFilter: customDropdownFilter(["Active", "In Trash"]),
+          headerFilterFunc: statusMatchFilter,
           width: 100,
           hozAlign: "center",
           formatter: function (cell) {
@@ -173,7 +329,8 @@
         {
           title: "QR Codes",
           field: "qr_count",
-          headerFilter: "number",
+          headerFilter: customNumericFilterEditor,
+          headerFilterFunc: advancedNumericFilterFunc,
           width: 100,
           hozAlign: "center",
           formatter: function (cell) {
@@ -184,7 +341,7 @@
           title: "Actions",
           headerSort: false,
           hozAlign: "right",
-          width: 170,
+          width: 140,
           formatter: function (cell) {
             var row = cell.getRow().getData();
             var out = '<div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">';
@@ -193,6 +350,7 @@
               out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete campaign ' + row.name + '? QR codes will be unassigned.\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
             } else {
               out += '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move campaign ' + row.name + ' to trash?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Trash</button></form>';
+              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete campaign ' + row.name + '? QR codes will be unassigned.\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
             }
             out += '</div>';
             return out;
@@ -200,6 +358,7 @@
         }
       ]
     });
+
 
     var bulkToolbar = document.getElementById('bulk-toolbar');
     var bulkCount = document.getElementById('bulk-selected-count');

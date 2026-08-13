@@ -5,10 +5,54 @@
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-/* --- 1. DEFAULT LIGHT THEME: Systems Engineering --- */
+/* --- 0. DEFAULT LIGHT THEME: Only Light (White Canvas & Minimal Accent) --- */
 :root,
-[data-theme="systems-light"],
+[data-theme="only-light"],
 [data-theme="light"] {
+  --bg-canvas: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f8fafc;
+  --bg-inset: #e2e8f0;
+  --border-subtle: #cbd5e1;
+  --border-strong: #94a3b8;
+  --border-focus: #0f766e;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  
+  --accent-primary: #0f766e;       /* Deep Cyan / Teal */
+  --accent-ink: #ffffff;
+  --accent-subtle: rgba(15, 118, 110, 0.08);
+  --accent-border: rgba(15, 118, 110, 0.25);
+  --accent-signal: #059669;       /* Emerald */
+  
+  --gold: #b45309;
+  --danger: #be123c;
+  
+  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+
+  /* Legacy variables for admin and backward-compatibility */
+  --bg: var(--bg-canvas);
+  --bg-soft: var(--bg-subtle);
+  --card: var(--bg-surface);
+  --border: var(--border-subtle);
+  --text: var(--text-primary);
+  --muted: var(--text-muted);
+  --accent: var(--accent-primary);
+  --radius: var(--radius-md);
+}
+
+/* --- 1. CURATED LIGHT THEME: Systems Engineering --- */
+[data-theme="systems-light"] {
   --bg-canvas: #f8fafc;
   --bg-surface: #ffffff;
   --bg-subtle: #f1f5f9;
@@ -488,6 +532,9 @@ code, kbd, samp, pre {
   padding: 64px 0;
   border-bottom: 1px solid var(--border-subtle);
 }
+section:nth-of-type(even) {
+  background-color: var(--bg-surface-elevated);
+}
 
 .section-head {
   margin-bottom: 32px;
@@ -803,10 +850,15 @@ textarea.form-control {
 .tabulator .tabulator-header .tabulator-col {
   background-color: var(--bg-subtle) !important;
   border-right: 1px solid var(--border-subtle) !important;
+  vertical-align: top !important;
 }
 
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
   padding: 8px 10px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: flex-start !important;
 }
 
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable:hover {
@@ -825,6 +877,60 @@ textarea.form-control {
   margin-top: 4px !important;
   width: 100% !important;
   box-sizing: border-box !important;
+}
+
+/* Two-line vertical filter layout - works across all Tabulator tables */
+.tabulator .tabulator-header .tabulator-col {
+  height: auto !important;
+}
+.tabulator .tabulator-header .tabulator-col .tabulator-header-filter {
+  height: auto !important;
+  overflow: visible !important;
+}
+.custom-header-filter-container {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 4px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  align-items: stretch !important;
+}
+.custom-header-filter-container select,
+.custom-header-filter-container input {
+  display: block !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 !important;
+}
+
+/* Tabulator List Editor Popup styling */
+.tabulator-edit-list {
+  background-color: var(--bg-surface) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: var(--radius-sm) !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.76rem !important;
+  box-shadow: var(--shadow-md) !important;
+  color: var(--text-primary) !important;
+  max-height: 250px !important;
+  overflow-y: auto !important;
+}
+
+.tabulator-edit-list .tabulator-edit-list-item {
+  padding: 5px 10px !important;
+  color: var(--text-secondary) !important;
+  transition: background-color 100ms ease, color 100ms ease !important;
+}
+
+.tabulator-edit-list .tabulator-edit-list-item:hover {
+  background-color: var(--bg-surface-elevated) !important;
+  color: var(--text-primary) !important;
+}
+
+.tabulator-edit-list .tabulator-edit-list-item.tabulator-edit-list-item-selected {
+  background-color: var(--accent-primary) !important;
+  color: #ffffff !important;
+  font-weight: 700 !important;
 }
 
 .tabulator .tabulator-header .tabulator-col input:focus,
@@ -893,4 +999,73 @@ textarea.form-control {
 
 .tabulator .tabulator-footer .tabulator-page:hover:not(.disabled) {
   background-color: var(--bg-inset) !important;
+}
+
+/* --- Theme Swatches --- */
+.theme-swatches {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.theme-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border-subtle);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+}
+.theme-swatch:hover {
+  transform: scale(1.15);
+}
+.theme-swatch.is-active {
+  transform: scale(1.25);
+  border-color: var(--gold-primary) !important;
+  box-shadow: 0 0 0 2px var(--gold-primary), 0 0 8px var(--gold-glow) !important;
+}
+.theme-swatch.only-light { background: #ffffff; border-color: #cbd5e1; }
+.theme-swatch.systems-light { background: #f1f5f9; }
+.theme-swatch.monochrome { background: #18181b; }
+.theme-swatch.quant-dark { background: #d4af37; }
+.theme-swatch.warm-monograph { background: #f2eee6; }
+
+/* Custom Tabulator Checkbox Styling */
+.tabulator input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border-strong) !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--bg-surface) !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.15s ease;
+  vertical-align: middle;
+}
+
+.tabulator input[type="checkbox"]:hover {
+  border-color: var(--gold-primary, var(--accent-primary)) !important;
+  box-shadow: 0 0 0 3px var(--gold-glow, var(--accent-subtle)) !important;
+}
+
+.tabulator input[type="checkbox"]:checked {
+  background: var(--gold-primary, var(--accent-primary)) !important;
+  border-color: var(--gold-primary, var(--accent-primary)) !important;
+}
+
+.tabulator input[type="checkbox"]:checked::after {
+  content: "";
+  display: block;
+  width: 5px;
+  height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
 }

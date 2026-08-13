@@ -187,6 +187,7 @@
     var table = new Tabulator("#dashboard-scans-table", {
       data: tableData,
       layout: "fitColumns",
+      resizableColumnFit: true,
       pagination: "local",
       paginationSize: 15,
       placeholder: "No scan events recorded yet.",
@@ -206,7 +207,7 @@
           titleFormatter: "rowSelection",
           hozAlign: "center",
           headerSort: false,
-          width: 45,
+          width: 60,
           cellClick: function(e, cell){
             e.stopPropagation();
             cell.getRow().toggleSelect();

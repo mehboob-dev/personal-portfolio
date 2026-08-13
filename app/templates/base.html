@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="systems-light">
+<html lang="en" data-theme="only-light">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -40,12 +40,13 @@
         </nav>
 
         <div class="theme-controls">
-          <select id="theme-select" class="theme-select" aria-label="Select Theme">
-            <option value="systems-light">Systems Light</option>
-            <option value="monochrome">Monochrome</option>
-            <option value="quant-dark">Quant Dark</option>
-            <option value="warm-monograph">Warm Monograph</option>
-          </select>
+          <div class="theme-swatches" id="theme-swatches">
+            <button class="theme-swatch only-light" data-theme-val="only-light" title="Only Light" aria-label="Only Light Theme"></button>
+            <button class="theme-swatch systems-light" data-theme-val="systems-light" title="Systems Light" aria-label="Systems Light Theme"></button>
+            <button class="theme-swatch monochrome" data-theme-val="monochrome" title="Monochrome" aria-label="Monochrome Theme"></button>
+            <button class="theme-swatch quant-dark" data-theme-val="quant-dark" title="Quant Dark" aria-label="Quant Dark Theme"></button>
+            <button class="theme-swatch warm-monograph" data-theme-val="warm-monograph" title="Warm Monograph" aria-label="Warm Monograph Theme"></button>
+          </div>
           <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Toggle Dark Mode" style="display:none;">
             🌙 Dark
           </button>

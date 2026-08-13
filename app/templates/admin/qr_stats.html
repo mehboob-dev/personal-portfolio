@@ -242,6 +242,9 @@
       <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move all selected scan records to trash?')">
         Trash Selected
       </button>
+      <button type="button" class="btn btn-sm btn-danger" style="background: var(--danger); color: #ffffff;" onclick="submitBulk('purge', 'PERMANENTLY delete all selected scan logs? This cannot be undone!')">
+        Delete Forever Selected
+      </button>
       {% endif %}
       <button type="button" class="btn btn-sm btn-mono" onclick="deselectAllRows()">Cancel</button>
     </form>
@@ -277,9 +280,108 @@
       {% endfor %}
     ];
 
+    function statusMatchFilter(headerValue, rowValue) {
+      if (headerValue === undefined || headerValue === null || headerValue === "") return true;
+      var expectedBool = headerValue === "In Trash";
+      return rowValue === expectedBool;
+    }
+
+    function exactMatchFilter(headerValue, rowValue) {
+      if (headerValue === undefined || headerValue === null || headerValue === "") return true;
+      return String(rowValue).trim() === String(headerValue).trim();
+    }
+
+    function advancedDateFilterFunc(headerValue, rowValue) {
+      if (!headerValue || !headerValue.value) return true;
+      if (!rowValue) return false;
+      var rowDateStr = String(rowValue).split("T")[0].split(" ")[0];
+      var targetDateStr = headerValue.value;
+      switch(headerValue.operator) {
+        case "on": return rowDateStr === targetDateStr;
+        case "not_on": return rowDateStr !== targetDateStr;
+        case "before": return rowDateStr < targetDateStr;
+        case "after": return rowDateStr > targetDateStr;
+        default: return true;
+      }
+    }
+
+    function customDropdownFilter(values) {
+      return function(cell, onRendered, success, cancel, editorParams) {
+        var select = document.createElement("select");
+        select.style.padding = "4px";
+        select.style.background = "var(--bg-canvas)";
+        select.style.border = "1px solid var(--border-subtle)";
+        select.style.color = "var(--text-primary)";
+        select.style.borderRadius = "var(--radius-xs)";
+        select.style.fontFamily = "var(--font-mono)";
+        select.style.fontSize = "0.75rem";
+        var allOpt = document.createElement("option");
+        allOpt.value = ""; allOpt.text = "All";
+        select.appendChild(allOpt);
+        values.forEach(function(val) {
+          var opt = document.createElement("option");
+          opt.value = val; opt.text = val;
+          select.appendChild(opt);
+        });
+        select.addEventListener("change", function() { success(select.value); });
+        onRendered(function() { select.value = cell.getValue() || ""; });
+        return select;
+      };
+    }
+
+    function customDateFilterEditor(cell, onRendered, success, cancel, editorParams) {
+      var container = document.createElement("div");
+      container.className = "custom-header-filter-container";
+      var select = document.createElement("select");
+      select.style.padding = "2px 4px";
+      select.style.background = "var(--bg-canvas)";
+      select.style.border = "1px solid var(--border-subtle)";
+      select.style.color = "var(--text-primary)";
+      select.style.borderRadius = "var(--radius-xs)";
+      select.style.fontFamily = "var(--font-mono)";
+      select.style.fontSize = "0.7rem";
+      var ops = [
+        { value: "on", text: "on (equal)" },
+        { value: "before", text: "before" },
+        { value: "after", text: "after" },
+        { value: "not_on", text: "not on" }
+      ];
+      ops.forEach(function(op) {
+        var opt = document.createElement("option");
+        opt.value = op.value; opt.text = op.text;
+        select.appendChild(opt);
+      });
+      var input = document.createElement("input");
+      input.type = "date";
+      input.style.padding = "2px 4px";
+      input.style.background = "var(--bg-canvas)";
+      input.style.border = "1px solid var(--border-subtle)";
+      input.style.color = "var(--text-primary)";
+      input.style.borderRadius = "var(--radius-xs)";
+      input.style.fontFamily = "var(--font-mono)";
+      input.style.fontSize = "0.75rem";
+      container.appendChild(select);
+      container.appendChild(input);
+      function triggerChange() { success({ operator: select.value, value: input.value }); }
+      select.addEventListener("change", triggerChange);
+      input.addEventListener("change", triggerChange);
+      onRendered(function() {
+        var val = cell.getValue();
+        if (val && typeof val === "object") { select.value = val.operator || "on"; input.value = val.value || ""; }
+        else { select.value = "on"; input.value = ""; }
+      });
+      return container;
+    }
+
+    var uniqueAppSources = [...new Set(tableData.map(function(r) { return r.app_source; }))].filter(Boolean).sort();
+    var uniqueBrowsers = [...new Set(tableData.map(function(r) { return r.browser; }))].filter(Boolean).sort();
+    var uniqueOS = [...new Set(tableData.map(function(r) { return r.os; }))].filter(Boolean).sort();
+    var uniqueLanguages = [...new Set(tableData.map(function(r) { return r.language; }))].filter(Boolean).sort();
+
     var table = new Tabulator("#scans-tabulator-table", {
       data: tableData,
       layout: "fitColumns",
+      resizableColumnFit: true,
       pagination: "local",
       paginationSize: 25,
       paginationSizeSelector: [10, 25, 50, 100, true],
@@ -291,7 +393,7 @@
           titleFormatter: "rowSelection",
           hozAlign: "center",
           headerSort: false,
-          width: 45,
+          width: 60,
           cellClick: function(e, cell){
             e.stopPropagation();
             cell.getRow().toggleSelect();
@@ -300,8 +402,9 @@
         {
           title: "Date (UTC)",
           field: "date_utc",
-          headerFilter: "input",
-          width: 110,
+          headerFilter: customDateFilterEditor,
+          headerFilterFunc: advancedDateFilterFunc,
+          width: 180,
           formatter: function (cell) {
             return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + cell.getValue() + '</span>';
           }
@@ -318,7 +421,8 @@
         {
           title: "Scanner / App",
           field: "app_source",
-          headerFilter: "input",
+          headerFilter: customDropdownFilter(uniqueAppSources),
+          headerFilterFunc: exactMatchFilter,
           formatter: function (cell) {
             return '<span class="badge badge-accent" style="font-weight:600;">' + cell.getValue() + '</span>';
           }
@@ -335,7 +439,8 @@
         {
           title: "Browser",
           field: "browser",
-          headerFilter: "input",
+          headerFilter: customDropdownFilter(uniqueBrowsers),
+          headerFilterFunc: exactMatchFilter,
           formatter: function (cell) {
             return '<span style="font-size:0.84rem;">' + cell.getValue() + '</span>';
           }
@@ -343,7 +448,8 @@
         {
           title: "OS",
           field: "os",
-          headerFilter: "input",
+          headerFilter: customDropdownFilter(uniqueOS),
+          headerFilterFunc: exactMatchFilter,
           formatter: function (cell) {
             return '<span style="font-size:0.84rem;">' + cell.getValue() + '</span>';
           }
@@ -351,8 +457,9 @@
         {
           title: "Language",
           field: "language",
-          headerFilter: "input",
-          width: 85,
+          headerFilter: customDropdownFilter(uniqueLanguages),
+          headerFilterFunc: exactMatchFilter,
+          width: 95,
           formatter: function (cell) {
             return '<span class="mono" style="font-size:0.78rem;">' + cell.getValue() + '</span>';
           }
@@ -377,8 +484,8 @@
         {
           title: "Status",
           field: "is_deleted",
-          headerFilter: "select",
-          headerFilterParams: { values: {"": "All", "false": "Active", "true": "In Trash"} },
+          headerFilter: customDropdownFilter(["Active", "In Trash"]),
+          headerFilterFunc: statusMatchFilter,
           width: 90,
           hozAlign: "center",
           formatter: function (cell) {
@@ -398,6 +505,7 @@
               out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete scan log?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
             } else {
               out += '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move scan log to trash?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Trash</button></form>';
+              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete scan log?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
             }
             out += '</div>';
             return out;
