@@ -12,18 +12,20 @@
 <body>
   <header class="admin-header">
     <div class="container-fluid">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <a class="brand" href="{{ url_for('admin.dashboard') }}">
-          <span class="brand-mark" aria-hidden="true">MM</span>
-          <div class="brand-text">
-            <span class="brand-name">QR & Lead Manager</span>
-            <span class="brand-sub">Internal Admin Console</span>
-          </div>
-        </a>
-      </div>
+      <a class="brand" href="{{ url_for('admin.dashboard') }}">
+        <span class="brand-mark" aria-hidden="true">MM</span>
+        <div class="brand-text">
+          <span class="brand-name">QR & Lead Manager</span>
+          <span class="brand-sub">Internal Admin Console</span>
+        </div>
+      </a>
+
+      <button id="admin-mobile-toggle" class="mobile-nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+        ☰
+      </button>
 
       <div class="header-controls">
-        <nav class="site-nav" style="display: flex;">
+        <nav id="admin-site-nav" class="site-nav">
           <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
           <a href="{{ url_for('admin.campaigns') }}">Campaigns</a>
           <a href="{{ url_for('admin.qr_list') }}">QR Codes</a>
@@ -53,5 +55,26 @@
       {% block content %}{% endblock %}
     </div>
   </main>
+
+  <script>
+    (function () {
+      var btn = document.getElementById('admin-mobile-toggle');
+      var nav = document.getElementById('admin-site-nav');
+      if (btn && nav) {
+        btn.addEventListener('click', function () {
+          var open = nav.classList.toggle('open');
+          btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+          btn.textContent = open ? '✕' : '☰';
+        });
+        nav.querySelectorAll('a').forEach(function (link) {
+          link.addEventListener('click', function () {
+            nav.classList.remove('open');
+            btn.setAttribute('aria-expanded', 'false');
+            btn.textContent = '☰';
+          });
+        });
+      }
+    })();
+  </script>
 </body>
 </html>
