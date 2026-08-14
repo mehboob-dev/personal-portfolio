@@ -5,42 +5,56 @@
 
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-/* --- 0. DEFAULT LIGHT THEME: Only Light (White Canvas & Minimal Accent) --- */
-:root,
-[data-theme="only-light"],
-[data-theme="light"] {
+/* --- SINGLE DESIGN SYSTEM PALETTE --- */
+:root {
+  /* Canvas & Surface Colors */
   --bg-canvas: #ffffff;
   --bg-surface: #ffffff;
-  --bg-subtle: #f8fafc;
-  --bg-inset: #e2e8f0;
-  --border-subtle: #cbd5e1;
-  --border-strong: #94a3b8;
-  --border-focus: #0f766e;
-  
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  
-  --accent-primary: #0f766e;       /* Deep Cyan / Teal */
+  --bg-surface-elevated: #f5f2ea;
+  --bg-subtle: #faf9f6;
+  --bg-inset: #f5f2ea;
+
+  /* Borders */
+  --border-subtle: #e5e0d6;
+  --border-strong: #cec6b8;
+  --border-focus: #c59a3d;
+
+  /* Typography Colors */
+  --text-primary: #161513;
+  --text-secondary: #5f5b54;
+  --text-muted: #918b80;
+
+  /* Primary Brand & Accent Colors */
+  --accent-primary: #c59a3d;
+  --accent-primary-dark: #987225;
+  --accent-primary-light: #e7d4a5;
   --accent-ink: #ffffff;
-  --accent-subtle: rgba(15, 118, 110, 0.08);
-  --accent-border: rgba(15, 118, 110, 0.25);
-  --accent-signal: #059669;       /* Emerald */
-  
-  --gold: #b45309;
-  --danger: #be123c;
-  
+  --accent-subtle: rgba(197, 154, 61, 0.08);
+  --accent-border: rgba(197, 154, 61, 0.25);
+  --accent-signal: #287a58;
+
+  --gold: #c59a3d;
+  --warning: #b7791f;
+  --danger: #b83a3a;
+  --link: #a77c2e;
+
+  /* Button Specific Tokens */
+  --btn-bg: #181715;
+  --btn-text: #ffffff;
+  --btn-hover: #302d27;
+
+  /* Fonts & Radii */
   --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  
+
   --radius-sm: 4px;
   --radius-md: 6px;
   --radius-lg: 8px;
-  
+
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
 
-  /* Legacy variables for admin and backward-compatibility */
+  /* Backward compatibility variables */
   --bg: var(--bg-canvas);
   --bg-soft: var(--bg-subtle);
   --card: var(--bg-surface);
@@ -49,129 +63,6 @@
   --muted: var(--text-muted);
   --accent: var(--accent-primary);
   --radius: var(--radius-md);
-}
-
-/* --- 1. CURATED LIGHT THEME: Systems Engineering --- */
-[data-theme="systems-light"] {
-  --bg-canvas: #f8fafc;
-  --bg-surface: #ffffff;
-  --bg-subtle: #f1f5f9;
-  --bg-inset: #e2e8f0;
-  --border-subtle: #e2e8f0;
-  --border-strong: #cbd5e1;
-  --border-focus: #0f766e;
-  
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  
-  --accent-primary: #0f766e;       /* Deep Cyan / Teal */
-  --accent-ink: #ffffff;
-  --accent-subtle: rgba(15, 118, 110, 0.08);
-  --accent-border: rgba(15, 118, 110, 0.25);
-  --accent-signal: #059669;       /* Emerald */
-  
-  --gold: #b45309;
-  --danger: #be123c;
-  
-  --font-sans: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
-  
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
-
-  /* Legacy variables for admin and backward-compatibility */
-  --bg: var(--bg-canvas);
-  --bg-soft: var(--bg-subtle);
-  --card: var(--bg-surface);
-  --border: var(--border-subtle);
-  --text: var(--text-primary);
-  --muted: var(--text-muted);
-  --accent: var(--accent-primary);
-  --radius: var(--radius-md);
-}
-
-/* --- 2. MONOCHROME PRECISION (High-Contrast Editorial) --- */
-[data-theme="monochrome"] {
-  --bg-canvas: #ffffff;
-  --bg-surface: #ffffff;
-  --bg-subtle: #f4f4f5;
-  --bg-inset: #e4e4e7;
-  --border-subtle: #e4e4e7;
-  --border-strong: #18181b;
-  --border-focus: #000000;
-  
-  --text-primary: #09090b;
-  --text-secondary: #27272a;
-  --text-muted: #71717a;
-  
-  --accent-primary: #18181b;
-  --accent-ink: #ffffff;
-  --accent-subtle: rgba(0, 0, 0, 0.05);
-  --accent-border: #a1a1aa;
-  --accent-signal: #18181b;
-  
-  --gold: #52525b;
-  --danger: #71717a;
-  
-  --shadow-sm: none;
-  --shadow-md: none;
-}
-
-/* --- 3. QUANT DARK / TERMINAL (Low-Light Execution) --- */
-[data-theme="quant-dark"],
-[data-theme="dark"] {
-  --bg-canvas: #090d16;
-  --bg-surface: #0f172a;
-  --bg-subtle: #161f30;
-  --bg-inset: #1e293b;
-  --border-subtle: #1e293b;
-  --border-strong: #334155;
-  --border-focus: #06b6d4;
-  
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  
-  --accent-primary: #06b6d4;       /* Quant Cyan */
-  --accent-ink: #041217;
-  --accent-subtle: rgba(6, 182, 212, 0.12);
-  --accent-border: rgba(6, 182, 212, 0.3);
-  --accent-signal: #10b981;       /* Phosphor Emerald */
-  
-  --gold: #fbbf24;
-  --danger: #f43f5e;
-  
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-}
-
-/* --- 4. WARM MONOGRAPH (Technical Whitepaper) --- */
-[data-theme="warm-monograph"] {
-  --bg-canvas: #faf8f5;
-  --bg-surface: #ffffff;
-  --bg-subtle: #f2eee6;
-  --bg-inset: #e5dec9;
-  --border-subtle: #e5dec9;
-  --border-strong: #c7bba2;
-  --border-focus: #9a3412;
-  
-  --text-primary: #292524;
-  --text-secondary: #57534e;
-  --text-muted: #78716c;
-  
-  --accent-primary: #9a3412;       /* Warm Bronze / Sienna */
-  --accent-ink: #ffffff;
-  --accent-subtle: rgba(154, 52, 18, 0.08);
-  --accent-border: rgba(154, 52, 18, 0.25);
-  --accent-signal: #15803d;
-  
-  --gold: #b45309;
-  --danger: #b91c1c;
 }
 
 /* ==========================================================================
@@ -259,12 +150,13 @@ p {
 }
 
 a {
-  color: var(--accent-primary);
+  color: var(--link);
   text-decoration: none;
   transition: color 120ms ease;
 }
 
 a:hover {
+  color: var(--accent-primary-dark);
   text-decoration: underline;
 }
 
@@ -311,38 +203,15 @@ code, kbd, samp, pre {
   color: var(--text-primary);
 }
 
-.brand-mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  font-family: var(--font-mono);
-  font-weight: 700;
-  font-size: 0.8rem;
-  color: var(--accent-primary);
-  letter-spacing: -0.05em;
+.brand-logo {
+  height: 52px;
+  width: auto;
+  display: block;
+  transition: transform 180ms ease;
 }
 
-.brand-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.brand-name {
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-}
-
-.brand-sub {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-muted);
+.brand:hover .brand-logo {
+  transform: scale(1.03);
 }
 
 .header-controls {
@@ -397,46 +266,6 @@ code, kbd, samp, pre {
   text-decoration: none;
 }
 
-.theme-controls {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.theme-select {
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--text-secondary);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 4px 8px;
-  cursor: pointer;
-}
-
-.theme-select:focus {
-  outline: 2px solid var(--border-focus);
-}
-
-.theme-toggle-btn {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-  padding: 4px 8px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.theme-toggle-btn:hover {
-  color: var(--text-primary);
-  border-color: var(--border-strong);
-}
-
 /* ==========================================================================
    BUTTONS & BADGES
    ========================================================================== */
@@ -464,15 +293,17 @@ code, kbd, samp, pre {
 }
 
 .btn-primary {
-  background: var(--accent-primary);
-  border-color: var(--accent-primary);
-  color: var(--accent-ink);
+  background: var(--btn-bg);
+  border-color: var(--btn-bg);
+  color: var(--btn-text);
   font-weight: 600;
 }
 
 .btn-primary:hover {
-  opacity: 0.92;
-  color: var(--accent-ink);
+  background: var(--btn-hover);
+  border-color: var(--btn-hover);
+  color: var(--btn-text);
+  text-decoration: none;
 }
 
 .btn-sm {

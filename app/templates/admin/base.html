@@ -1,23 +1,19 @@
 <!doctype html>
-<html lang="en" data-theme="only-light">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Dashboard{% endblock %} — Dynamic QR & Lead Admin</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
   <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <script src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
-  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
 <body>
   <header class="admin-header">
     <div class="container-fluid">
       <a class="brand" href="{{ url_for('admin.dashboard') }}">
-        <span class="brand-mark" aria-hidden="true">MM</span>
-        <div class="brand-text">
-          <span class="brand-name">QR & Lead Manager</span>
-          <span class="brand-sub">Internal Admin Console</span>
-        </div>
+        <img class="brand-logo" src="{{ url_for('static', filename='img/WhiteGoldTransparent.png') }}" alt="QR & Lead Manager">
       </a>
 
       <button id="admin-mobile-toggle" class="mobile-nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
@@ -33,19 +29,6 @@
           <a href="{{ url_for('public.home') }}" target="_blank" rel="noopener">View Site ↗</a>
           <a href="{{ url_for('admin.logout') }}" style="color: var(--danger);">Logout</a>
         </nav>
-
-        <div class="theme-controls">
-          <div class="theme-swatches" id="theme-swatches">
-            <button class="theme-swatch only-light" data-theme-val="only-light" title="Only Light" aria-label="Only Light Theme"></button>
-            <button class="theme-swatch systems-light" data-theme-val="systems-light" title="Systems Light" aria-label="Systems Light Theme"></button>
-            <button class="theme-swatch monochrome" data-theme-val="monochrome" title="Monochrome" aria-label="Monochrome Theme"></button>
-            <button class="theme-swatch quant-dark" data-theme-val="quant-dark" title="Quant Dark" aria-label="Quant Dark Theme"></button>
-            <button class="theme-swatch warm-monograph" data-theme-val="warm-monograph" title="Warm Monograph" aria-label="Warm Monograph Theme"></button>
-          </div>
-          <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Toggle Dark Mode" style="display:none;">
-            🌙 Dark
-          </button>
-        </div>
       </div>
     </div>
   </header>

@@ -1,23 +1,19 @@
 <!doctype html>
-<html lang="en" data-theme="only-light">
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ site.site.title if site and site.site else 'Mehboob Meghani' }} — Quantitative Developer & Systems Infrastructure{% endblock %}</title>
   <meta name="description" content="High-performance quantitative trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures by M. Mehboob Meghani.">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-  <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
 </head>
 <body>
   <header class="site-header">
     <div class="container">
       <a class="brand" href="{{ url_for('public.home') }}">
-        <span class="brand-mark" aria-hidden="true">MM</span>
-        <div class="brand-text">
-          <span class="brand-name">{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }}</span>
-          <span class="brand-sub">{{ site.identity.location if site and site.identity else 'Mumbai, India' }}</span>
-        </div>
+        <img class="brand-logo" src="{{ url_for('static', filename='img/WhiteGoldTransparent.png') }}" alt="{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }}">
       </a>
 
       <button id="mobile-toggle" class="mobile-nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
@@ -32,25 +28,12 @@
           <a href="#artifacts"><span class="nav-num">04</span>Artifacts</a>
           <a href="#contact"><span class="nav-num">05</span>Contact</a>
           {% if current_user.is_authenticated %}
-          <a class="nav-admin" href="{{ url_for('admin.dashboard') }}">Admin</a>
+          <a class="nav-admin" href="{{ url_for('admin.dashboard') }}">Admin Desk</a>
           {% endif %}
           <a class="nav-cv-btn" href="{{ url_for('static', filename='resume/' + site.identity.resume if site and site.identity else 'MehboobMeghaniResume.md') }}" download>
             <span>CV</span> <span>↓</span>
           </a>
         </nav>
-
-        <div class="theme-controls">
-          <div class="theme-swatches" id="theme-swatches">
-            <button class="theme-swatch only-light" data-theme-val="only-light" title="Only Light" aria-label="Only Light Theme"></button>
-            <button class="theme-swatch systems-light" data-theme-val="systems-light" title="Systems Light" aria-label="Systems Light Theme"></button>
-            <button class="theme-swatch monochrome" data-theme-val="monochrome" title="Monochrome" aria-label="Monochrome Theme"></button>
-            <button class="theme-swatch quant-dark" data-theme-val="quant-dark" title="Quant Dark" aria-label="Quant Dark Theme"></button>
-            <button class="theme-swatch warm-monograph" data-theme-val="warm-monograph" title="Warm Monograph" aria-label="Warm Monograph Theme"></button>
-          </div>
-          <button id="theme-toggle" class="theme-toggle-btn" type="button" aria-label="Toggle Dark Mode" style="display:none;">
-            🌙 Dark
-          </button>
-        </div>
       </div>
     </div>
   </header>
