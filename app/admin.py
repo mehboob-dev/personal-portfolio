@@ -24,6 +24,7 @@ Protected by flask-login. Routes:
 
 import io
 from datetime import datetime, timedelta, timezone
+from urllib.parse import urlparse
 
 import qrcode
 from flask import (
@@ -45,6 +46,20 @@ from .models import AdminUser, Campaign, Lead, QrCode, Scan
 bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
+def _valid_destination_url(url: str) -> bool:
+    """A QR destination must be an absolute http(s) URL.
+
+    The /r/<slug> endpoint 302s to this value, so anything else (javascript:,
+    ftp://, a bare path, garbage) would break the printed card and is an
+    open-redirect vector.
+    """
+    try:
+        parts = urlparse(url)
+    except ValueError:
+        return False
+    return parts.scheme in ("http", "https") and bool(parts.netloc)
+
+
 # --- auth ------------------------------------------------------------------
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -52,9 +67,6 @@ def login():
     error = None
     username = ""
     if request.method == "POST":
-        from . import _sync_admin_from_secrets
-        _sync_admin_from_secrets()
-
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "")
         user = AdminUser.query.filter_by(username=username).first()
@@ -268,6 +280,15 @@ def qr_new():
         destination = request.form.get("destination_url", "").strip()
         campaign_id = request.form.get("campaign_id") or None
         if slug and destination:
+            if not _valid_destination_url(destination):
+                return render_template(
+                    "admin/qr_edit.html",
+                    code=None,
+                    campaigns=campaigns,
+                    error="Destination URL must be an absolute http(s) link (e.g. https://example.com).",
+                    form=request.form,
+                )
+            existing = QrCode.query.filter_by(slug=slug).first()
             existing = QrCode.query.filter_by(slug=slug).first()
             if existing and existing.is_deleted:
                 # restore and update
@@ -300,11 +321,20 @@ def qr_edit(qid: int):
     campaigns = Campaign.query.filter_by(is_deleted=False).order_by(Campaign.name).all()
     if request.method == "POST":
         new_slug = slugify(request.form.get("slug", code.slug))
+        destination = request.form.get("destination_url", "").strip()
+        if not _valid_destination_url(destination):
+            return render_template(
+                "admin/qr_edit.html",
+                code=code,
+                campaigns=campaigns,
+                error="Destination URL must be an absolute http(s) link (e.g. https://example.com).",
+                form=request.form,
+            )
         clash = QrCode.query.filter(QrCode.slug == new_slug, QrCode.id != code.id).first()
         if not clash:
             code.slug = new_slug
             code.label = request.form.get("label", "").strip()
-            code.destination_url = request.form.get("destination_url", "").strip()
+            code.destination_url = destination
             campaign_id = request.form.get("campaign_id") or None
             code.campaign_id = int(campaign_id) if campaign_id else None
             code.is_active = request.form.get("is_active") == "on"

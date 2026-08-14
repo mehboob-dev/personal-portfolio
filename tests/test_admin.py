@@ -10,6 +10,33 @@ def test_admin_requires_login(client):
     assert "/admin/login" in res.headers["Location"]
 
 
+def test_csrf_token_present_on_public_contact_form(client):
+    res = client.get("/")
+    assert res.status_code == 200
+    html = res.get_data(as_text=True)
+    assert 'name="csrf_token"' in html
+
+
+def test_csrf_rejects_post_without_token(app):
+    # CSRF is globally ON in the real app config; this app forces it OFF for
+    # the rest of the suite. Test the protection is actually wired by turning
+    # it back on here.
+    app.config["WTF_CSRF_ENABLED"] = True
+    client = app.test_client()
+    res = client.post("/admin/login", data={"username": "admin", "password": "secret"})
+    assert res.status_code == 400
+
+
+def test_csrf_rejects_post_with_invalid_token(app):
+    app.config["WTF_CSRF_ENABLED"] = True
+    client = app.test_client()
+    res = client.post(
+        "/admin/login",
+        data={"username": "admin", "password": "secret", "csrf_token": "invalid-token"},
+    )
+    assert res.status_code == 400
+
+
 def test_admin_login_and_dashboard(admin_client):
     res = admin_client.get("/admin/")
     assert res.status_code == 200
@@ -221,6 +248,67 @@ def test_scan_trash_recover_purge(admin_client, app, seeded):
     with app.app_context():
         from app.models import Scan
         assert db.session.get(Scan, sid) is None
+
+
+def test_qr_destination_validation_rejects_non_http(admin_client, app):
+    # javascript: / ftp: / bare paths are open-redirect / broken-card vectors
+    bad_values = [
+        "javascript:alert(1)",
+        "ftp://example.com/file",
+        "example.com",  # no scheme
+        "/r/relative-path",
+    ]
+    for bad in bad_values:
+        res = admin_client.post(
+            "/admin/qr/new",
+            data={
+                "slug": "bad-" + str(len(bad)),
+                "label": "Bad target",
+                "destination_url": bad,
+            },
+            follow_redirects=True,
+        )
+        assert res.status_code == 200
+        html = res.get_data(as_text=True)
+        assert "Destination URL must be an absolute http(s) link" in html
+        with app.app_context():
+            assert QrCode.query.filter_by(destination_url=bad).first() is None
+
+
+def test_qr_destination_validation_accepts_https(admin_client, app):
+    res = admin_client.post(
+        "/admin/qr/new",
+        data={
+            "slug": "good-card",
+            "label": "Good target",
+            "destination_url": "https://example.com/portfolio",
+            "is_active": "on",
+        },
+        follow_redirects=True,
+    )
+    assert res.status_code == 200
+    with app.app_context():
+        code = QrCode.query.filter_by(slug="good-card").first()
+        assert code is not None
+        assert code.destination_url == "https://example.com/portfolio"
+
+
+def test_qr_edit_rejects_invalid_destination(admin_client, app, seeded):
+    res = admin_client.post(
+        f"/admin/qr/{seeded}",
+        data={
+            "slug": "expo-card",
+            "label": "Still visiting card",
+            "destination_url": "javascript:alert(1)",
+        },
+        follow_redirects=True,
+    )
+    assert res.status_code == 200
+    html = res.get_data(as_text=True)
+    assert "Destination URL must be an absolute http(s) link" in html
+    with app.app_context():
+        # unchanged
+        assert db.session.get(QrCode, seeded).destination_url == "https://example.com/expo"
 
 
 def test_bulk_actions_across_models(admin_client, app, seeded):

@@ -9,20 +9,28 @@
 <div style="display: grid; grid-template-columns: {% if code %}1.4fr 1fr{% else %}1fr{% endif %}; gap: 32px; max-width: 900px;">
   <!-- Form -->
   <div class="card">
+    {% if error %}
+    <div style="background: rgba(220, 38, 38, 0.08); border: 1px solid var(--danger); color: var(--danger); padding: 10px 14px; border-radius: var(--radius-sm); font-size: 0.85rem; margin-bottom: 18px; display: flex; align-items: center; gap: 8px;">
+      <span style="font-weight: 700;">⚠</span>
+      <span>{{ error }}</span>
+    </div>
+    {% endif %}
+
     <form method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="form-group">
         <label for="qr-slug">Slug (Redirect Path: <code>/r/&lt;slug&gt;</code>)</label>
-        <input id="qr-slug" class="form-control mono" type="text" name="slug" value="{{ code.slug if code }}" placeholder="visiting-card-2026" required>
+        <input id="qr-slug" class="form-control mono" type="text" name="slug" value="{{ form.slug if form and form.slug else (code.slug if code) }}" placeholder="visiting-card-2026" required>
       </div>
 
       <div class="form-group">
         <label for="qr-label">Administrative Label</label>
-        <input id="qr-label" class="form-control" type="text" name="label" value="{{ code.label if code }}" placeholder="Visiting Card — Front Side">
+        <input id="qr-label" class="form-control" type="text" name="label" value="{{ form.label if form and form.label else (code.label if code) }}" placeholder="Visiting Card — Front Side">
       </div>
 
       <div class="form-group">
         <label for="qr-dest">Destination URL (Where scans redirect to)</label>
-        <input id="qr-dest" class="form-control mono" type="url" name="destination_url" value="{{ code.destination_url if code }}" placeholder="https://mehboob.itqantrades.com" required>
+        <input id="qr-dest" class="form-control mono" type="url" name="destination_url" value="{{ form.destination_url if form and form.destination_url else (code.destination_url if code) }}" placeholder="https://mehboob.itqantrades.com" required>
       </div>
 
       <div class="form-group">
@@ -30,13 +38,13 @@
         <select id="qr-camp" class="form-control" name="campaign_id">
           <option value="">— Unassigned —</option>
           {% for c in campaigns %}
-          <option value="{{ c.id }}" {% if code and code.campaign_id == c.id %}selected{% endif %}>{{ c.name }}</option>
+          <option value="{{ c.id }}" {% if (form and form.campaign_id and c.id|string == form.campaign_id) or (not form and code and code.campaign_id == c.id) %}selected{% endif %}>{{ c.name }}</option>
           {% endfor %}
         </select>
       </div>
 
       <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; margin-top: 8px;">
-        <input id="qr-active" type="checkbox" name="is_active" {% if not code or code.is_active %}checked{% endif %}>
+        <input id="qr-active" type="checkbox" name="is_active" {% if (form and form.get('is_active') == 'on') or (not form and (not code or code.is_active)) %}checked{% endif %}>
         <label for="qr-active" style="cursor: pointer; margin: 0;">Active (Permit 302 redirects)</label>
       </div>
 

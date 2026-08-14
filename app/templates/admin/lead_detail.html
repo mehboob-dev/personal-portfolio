@@ -15,15 +15,18 @@
       {% if lead.is_deleted %}
       <!-- Recover -->
       <form method="post" action="{{ url_for('admin.lead_restore', lid=lead.id) }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button class="btn btn-sm" type="submit">Restore to Active</button>
       </form>
       <!-- Permanent Delete -->
       <form method="post" action="{{ url_for('admin.lead_purge', lid=lead.id) }}" onsubmit="return confirm('PERMANENTLY delete inquiry from {{ lead.name }}? This cannot be undone.')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button class="btn btn-sm btn-danger" type="submit" style="background: var(--danger); color: #ffffff; border-color: var(--danger);">Delete Forever</button>
       </form>
       {% else %}
       <!-- Move to Trash -->
       <form method="post" action="{{ url_for('admin.lead_delete', lid=lead.id) }}" onsubmit="return confirm('Move this inquiry to trash?')">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <button class="btn btn-sm btn-danger" type="submit">Move to Trash</button>
       </form>
       {% endif %}

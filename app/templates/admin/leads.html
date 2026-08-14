@@ -39,6 +39,7 @@
   </div>
 
   <form id="bulk-form" method="post" action="{{ url_for('admin.leads_bulk') }}" style="display: flex; gap: 8px; align-items: center; margin: 0;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="action" id="bulk-action-input" value="">
     <div id="bulk-hidden-ids"></div>
 
@@ -76,6 +77,7 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    var CSRF_TOKEN = {{ csrf_token() | tojson }};
     var tableData = [
       {% for lead in leads %}
       {
@@ -297,11 +299,11 @@
             var out = '<div style="display: flex; gap: 4px; justify-content: flex-end; align-items: center;">';
             out += '<a class="btn btn-sm btn-mono" href="' + row.detail_url + '" style="padding: 2px 6px; font-size: 0.75rem;">View →</a>';
             if (row.is_deleted) {
-              out += '<form method="post" action="' + row.restore_url + '" style="display:inline; margin:0;"><button class="btn btn-sm" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Restore</button></form>';
-              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete inquiry from ' + row.name + '?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
+              out += '<form method="post" action="' + row.restore_url + '" style="display:inline; margin:0;"><input type="hidden" name="csrf_token" value="' + CSRF_TOKEN + '"><button class="btn btn-sm" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Restore</button></form>';
+              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete inquiry from ' + row.name + '?\')" style="display:inline; margin:0;"><input type="hidden" name="csrf_token" value="' + CSRF_TOKEN + '"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
             } else {
-              out += '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move inquiry from ' + row.name + ' to trash?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Trash</button></form>';
-              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete inquiry from ' + row.name + '?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
+              out += '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move inquiry from ' + row.name + ' to trash?\')" style="display:inline; margin:0;"><input type="hidden" name="csrf_token" value="' + CSRF_TOKEN + '"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem;">Trash</button></form>';
+              out += '<form method="post" action="' + row.purge_url + '" onsubmit="return confirm(\'PERMANENTLY delete inquiry from ' + row.name + '?\')" style="display:inline; margin:0;"><input type="hidden" name="csrf_token" value="' + CSRF_TOKEN + '"><button class="btn btn-sm btn-danger" type="submit" style="padding: 2px 6px; font-size: 0.75rem; background:var(--danger); color:#fff;">Delete</button></form>';
             }
             out += '</div>';
             return out;

@@ -34,6 +34,7 @@
       {% endif %}
 
       <form method="post" action="{{ url_for('admin.login') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         <div class="form-group">
           <label for="login-username">Username</label>
           <input id="login-username" class="form-control mono" type="text" name="username" value="{{ username }}" autocomplete="username" required autofocus>

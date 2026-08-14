@@ -352,6 +352,7 @@
       <!-- Concise Structured Inquiry Form -->
       <div class="contact-form-wrap">
         <form method="post" action="{{ url_for('public.contact_submit') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <div class="form-group">
             <label for="contact-name">{{ content.contact.labels.name if content.contact else 'Your Name' }}</label>
             <input id="contact-name" class="form-control" type="text" name="name" required placeholder="Name or Organization">

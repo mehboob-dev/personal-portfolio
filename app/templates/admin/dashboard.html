@@ -144,6 +144,7 @@
   </div>
 
   <form id="bulk-form" method="post" action="{{ url_for('admin.scans_bulk') }}" style="display: flex; gap: 8px; align-items: center; margin: 0;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <input type="hidden" name="action" id="bulk-action-input" value="trash">
     <div id="bulk-hidden-ids"></div>
     <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move selected scan records to trash?')">
@@ -167,6 +168,7 @@
 
 <script>
   document.addEventListener("DOMContentLoaded", function () {
+    var CSRF_TOKEN = {{ csrf_token() | tojson }};
     var tableData = [
       {% for scan in recent_scans %}
       {
@@ -270,7 +272,7 @@
           width: 90,
           formatter: function (cell) {
             var row = cell.getRow().getData();
-            return '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move scan record to trash?\')" style="display:inline; margin:0;"><button class="btn btn-sm btn-danger" type="submit" style="padding:2px 6px; font-size:0.75rem;">Trash</button></form>';
+            return '<form method="post" action="' + row.delete_url + '" onsubmit="return confirm(\'Move scan record to trash?\')" style="display:inline; margin:0;"><input type="hidden" name="csrf_token" value="' + CSRF_TOKEN + '"><button class="btn btn-sm btn-danger" type="submit" style="padding:2px 6px; font-size:0.75rem;">Trash</button></form>';
           }
         }
       ]

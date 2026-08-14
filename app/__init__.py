@@ -67,7 +67,6 @@ def _sync_admin_from_secrets() -> None:
 def create_app(config: dict | None = None) -> Flask:
     app = Flask(__name__)
     app.config["JSON_AS_ASCII"] = False
-    app.config["WTF_CSRF_CHECK_DEFAULT"] = False  # scoped per-route in tests
 
     secrets = _load_secrets()
     app.config["SECRET_KEY"] = secrets.get("SECRET_KEY", "dev-insecure-key")
@@ -91,10 +90,11 @@ def create_app(config: dict | None = None) -> Flask:
     def load_user(user_id):
         return db.session.get(models.AdminUser, int(user_id))
 
-    # Auto-sync admin credentials from secrets.json on startup
+    # Admin credentials are synced from secrets.json on startup. Schema is
+    # managed by Alembic (`flask db upgrade`), not create_all, so the two
+    # cannot drift. create_all remains available via the `init-db` CLI command.
     with app.app_context():
         try:
-            db.create_all()
             _sync_admin_from_secrets()
         except Exception:
             pass
