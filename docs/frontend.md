@@ -14,7 +14,8 @@ app/static/
 │   └── WhiteGoldTransparent.png   # brand logo
 ├── js/
 │   ├── hero.js     # hero/ticker animation
-│   └── theme.js    # theme switcher
+│   ├── theme.js    # theme switcher
+│   └── table.js    # TableKit table factory + filter helpers (byte-identical with itqan-trades)
 └── resume/
     └── MehboobMeghaniResume.md    # downloadable CV
 ```
@@ -78,6 +79,15 @@ Sections render from `content/*.json` via `site.*` / `content.*` (see [content-m
 - **Flagship systems** — `content.projects.flagship_systems[]` cards.
 - **Channel links** — `.channel-link` styles for email/phone/social.
 - **Contact form** — POST `/contact` (CSRF token included), redirects with `?sent=1` on success.
+
+## Tables (TableKit)
+
+All grids use `window.TableKit.create(container, opts)` from **`app/static/js/table.js`** — the same module as itqan-trades; keep the file **byte-identical across both repos**:
+
+- Shared base config: `layout: "fitColumns"`, `resizableColumnFit`, local pagination (default 20, selector `[10, 20, 50, true]`), `selectableRows: "highlight"`, shared selection column (prepended unless `selectable: false`).
+- Helpers/editors: `TableKit.exactMatchFilter`, `statusMatchFilter`, `publishedMatchFilter`, `advancedNumericFilterFunc`, `advancedDateFilterFunc`, `customDropdownFilter(values)`, `customNumericFilterEditor`, `customDateFilterEditor`.
+- `resetButton` wires `clearHeaderFilter()` + editor resets; `countEl`/`countLabel` render the "Showing N …" line (qr_list/qr_stats); `header: false` hides the header row (device/OS/app breakdown grids); `paginationSize`/`paginationSizeSelector` per-page overrides.
+- Theme-aware: all styling reads `--accent-*`/`--border-*` tokens, so the 4 themes restyle tables automatically.
 
 ## Legacy anchor redirects
 

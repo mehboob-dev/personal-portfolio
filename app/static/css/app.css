@@ -38,6 +38,11 @@
   --danger: #b83a3a;
   --link: #a77c2e;
 
+  /* Gold aliases — shared Tabulator theme compatibility (checkbox fallback chain) */
+  --gold-primary: #b99b5f;
+  --gold-light: #cbb183;
+  --border-gold: #b99b5f;
+
   /* Button Specific Tokens */
   --btn-bg: #181715;
   --btn-text: #ffffff;
@@ -751,40 +756,45 @@ textarea.form-control {
 }
 
 /* ==========================================================================
-   TABULATOR TABLE DESIGN SYSTEM THEME
+   SHARED TABULATOR THEME (UNIFIED)
    ========================================================================== */
 .tabulator {
   background-color: var(--bg-surface) !important;
   border: 1px solid var(--border-subtle) !important;
   border-radius: var(--radius-md) !important;
-  font-family: var(--font-sans) !important;
-  font-size: 0.85rem !important;
   color: var(--text-primary) !important;
-  box-shadow: var(--shadow-sm) !important;
+  font-family: var(--font-sans) !important;
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
 .tabulator .tabulator-header {
-  background-color: var(--bg-subtle) !important;
-  border-bottom: 1px solid var(--border-subtle) !important;
+  background-color: var(--bg-surface-elevated) !important;
+  border-bottom: 1px solid var(--border-gold) !important;
   color: var(--text-secondary) !important;
-  font-size: 0.76rem !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.75rem !important;
   text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
-  font-weight: 700 !important;
 }
 
 .tabulator .tabulator-header .tabulator-col {
-  background-color: var(--bg-subtle) !important;
+  background-color: transparent !important;
   border-right: 1px solid var(--border-subtle) !important;
+  padding: 10px 12px !important;
   vertical-align: top !important;
 }
 
 .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
-  padding: 8px 10px !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: flex-start !important;
   justify-content: flex-start !important;
+}
+
+.tabulator .tabulator-header .tabulator-col .tabulator-col-content .tabulator-col-title {
+  font-weight: 700 !important;
+  color: var(--text-secondary) !important;
 }
 
 .tabulator .tabulator-header .tabulator-col.tabulator-sortable:hover {
@@ -793,16 +803,15 @@ textarea.form-control {
 
 .tabulator .tabulator-header .tabulator-col input,
 .tabulator .tabulator-header .tabulator-col select {
-  background-color: var(--bg-surface) !important;
-  color: var(--text-primary) !important;
-  border: 1px solid var(--border-subtle) !important;
-  border-radius: var(--radius-sm) !important;
-  font-family: var(--font-mono) !important;
-  font-size: 0.76rem !important;
-  padding: 4px 8px !important;
-  margin-top: 4px !important;
   width: 100% !important;
   box-sizing: border-box !important;
+  background-color: var(--bg-canvas) !important;
+  border: 1px solid var(--border-subtle) !important;
+  color: var(--text-primary) !important;
+  border-radius: var(--radius-xs) !important;
+  padding: 3px 6px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.75rem !important;
 }
 
 /* Two-line vertical filter layout - works across all Tabulator tables */
@@ -831,11 +840,11 @@ textarea.form-control {
 
 /* Tabulator List Editor Popup styling */
 .tabulator-edit-list {
-  background-color: var(--bg-surface) !important;
+  background-color: var(--bg-canvas) !important;
   border: 1px solid var(--border-subtle) !important;
-  border-radius: var(--radius-sm) !important;
+  border-radius: var(--radius-xs) !important;
   font-family: var(--font-mono) !important;
-  font-size: 0.76rem !important;
+  font-size: 0.75rem !important;
   box-shadow: var(--shadow-md) !important;
   color: var(--text-primary) !important;
   max-height: 250px !important;
@@ -843,7 +852,7 @@ textarea.form-control {
 }
 
 .tabulator-edit-list .tabulator-edit-list-item {
-  padding: 5px 10px !important;
+  padding: 4px 8px !important;
   color: var(--text-secondary) !important;
   transition: background-color 100ms ease, color 100ms ease !important;
 }
@@ -855,7 +864,7 @@ textarea.form-control {
 
 .tabulator-edit-list .tabulator-edit-list-item.tabulator-edit-list-item-selected {
   background-color: var(--accent-primary) !important;
-  color: #ffffff !important;
+  color: var(--accent-ink) !important;
   font-weight: 700 !important;
 }
 
@@ -874,7 +883,7 @@ textarea.form-control {
 }
 
 .tabulator .tabulator-tableholder .tabulator-table .tabulator-row:hover {
-  background-color: var(--bg-subtle) !important;
+  background-color: var(--accent-subtle) !important;
 }
 
 .tabulator .tabulator-tableholder .tabulator-table .tabulator-row.tabulator-selected {
@@ -890,14 +899,15 @@ textarea.form-control {
 }
 
 .tabulator .tabulator-footer {
-  background-color: var(--bg-subtle) !important;
+  background-color: var(--bg-surface-elevated) !important;
   border-top: 1px solid var(--border-subtle) !important;
   color: var(--text-secondary) !important;
-  padding: 8px 14px !important;
+  font-family: var(--font-mono) !important;
+  font-size: 0.8rem !important;
+  padding: 8px 12px !important;
   display: flex !important;
   align-items: center !important;
   justify-content: space-between !important;
-  font-size: 0.8rem !important;
 }
 
 .tabulator .tabulator-footer .tabulator-paginator label {
@@ -910,7 +920,7 @@ textarea.form-control {
   background-color: var(--bg-surface) !important;
   border: 1px solid var(--border-subtle) !important;
   color: var(--text-primary) !important;
-  border-radius: var(--radius-sm) !important;
+  border-radius: var(--radius-xs) !important;
   padding: 4px 10px !important;
   font-family: var(--font-mono) !important;
   font-size: 0.78rem !important;
@@ -921,6 +931,7 @@ textarea.form-control {
   background-color: var(--accent-primary) !important;
   color: var(--accent-ink) !important;
   border-color: var(--accent-primary) !important;
+  font-weight: 700 !important;
 }
 
 .tabulator .tabulator-footer .tabulator-page:hover:not(.disabled) {

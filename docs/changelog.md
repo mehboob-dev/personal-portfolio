@@ -4,6 +4,22 @@ All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
 ---
 
+## 2026-08-16 — Unified table system (TableKit)
+
+### Shared table module
+- **`app/static/js/table.js`** (new): `window.TableKit.create(container, opts)` factory plus all filter helpers/editors, exported as `TableKit.*`. One copy per repo, kept byte-identical with `itqan-trades` (convention documented in CLAUDE.md).
+- All admin grids (campaigns, leads, qr_list, qr_stats, dashboard recent scans) migrated to `TableKit.create`; per-page helper definitions and reset handlers removed.
+
+### Static summary tables → Tabulator grids
+- Dashboard + QR stats: the 6 static HTML `<table class="table">` summaries now render as Tabulator grids (`#dashboard-daily-table`, `#dashboard-device-table`, `#dashboard-os-table`, `#stats-daily-table`, `#stats-app-table`, `#stats-os-table`). Headerless layouts preserved where the old markup had no `<thead>` (device/OS/app breakdowns); daily grids keep their header row.
+- All grids read `--accent-*`/`--border-*` tokens — all 4 themes style them consistently.
+
+### Behavior
+- Table header font → mono uppercase (was sans). Filters, reset, bulk select, row-click nav, counts unchanged.
+- **Date filter fix** (shared `table.js`): `advancedDateFilterFunc` now parses both the filter value and the row value (ISO or DMY) and compares normalized dates — typed DMY dates against ISO row values match, and `after`/`before` work. Previously DMY input never matched ISO rows. Verified by unit cases + headless-browser E2E.
+
+---
+
 ## 2026-08-15 — Documentation system established
 
 ### Added: `docs/` + `CLAUDE.md`

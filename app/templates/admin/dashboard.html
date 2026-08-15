@@ -79,23 +79,7 @@
   <!-- Daily Scan Activity (Last 14 Days) -->
   <div class="card">
     <div class="case-block-title">Scan Activity Timeline (Last 14 Days)</div>
-    <div class="table-wrap">
-      <table class="table">
-        <thead>
-          <tr><th>Date (UTC)</th><th style="text-align: right;">Scans</th></tr>
-        </thead>
-        <tbody>
-          {% for date, count in daily %}
-          <tr>
-            <td class="mono">{{ date }}</td>
-            <td class="mono" style="text-align: right; font-weight: 600; color: var(--accent-primary);">{{ count }}</td>
-          </tr>
-          {% else %}
-          <tr><td colspan="2" class="muted" style="text-align: center;">No scans recorded in the last 14 days.</td></tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
+    <div id="dashboard-daily-table"></div>
   </div>
 
   <!-- Device & OS Breakdown -->
@@ -104,33 +88,11 @@
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
       <div>
         <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Device Type</h4>
-        <table class="table">
-          <tbody>
-            {% for label, count in device_breakdown %}
-            <tr>
-              <td>{{ label }}</td>
-              <td class="mono" style="text-align: right; font-weight: 600;">{{ count }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="2" class="muted">No data</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div id="dashboard-device-table"></div>
       </div>
       <div>
         <h4 style="font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Operating System</h4>
-        <table class="table">
-          <tbody>
-            {% for label, count in os_breakdown %}
-            <tr>
-              <td>{{ label }}</td>
-              <td class="mono" style="text-align: right; font-weight: 600;">{{ count }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="2" class="muted">No data</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div id="dashboard-os-table"></div>
       </div>
     </div>
   </div>
@@ -169,6 +131,72 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     var CSRF_TOKEN = {{ csrf_token() | tojson }};
+
+    // --- Summary grids: daily activity + platform breakdowns ---
+    var dailyData = [
+      {% for date, count in daily %}
+      { date: "{{ date }}", count: {{ count }} }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+    var deviceData = [
+      {% for label, count in device_breakdown %}
+      { label: "{{ label|replace('"', '\\"') }}", count: {{ count }} }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+    var osData = [
+      {% for label, count in os_breakdown %}
+      { label: "{{ label|replace('"', '\\"') }}", count: {{ count }} }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    TableKit.create("#dashboard-daily-table", {
+      data: dailyData,
+      selectable: false,
+      pagination: false,
+      placeholder: "No scans recorded in the last 14 days.",
+      columns: [
+        {
+          title: "Date (UTC)",
+          field: "date",
+          formatter: function (cell) {
+            return '<span class="mono" style="font-size:0.82rem;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Scans",
+          field: "count",
+          hozAlign: "right",
+          formatter: function (cell) {
+            return '<span class="mono" style="font-weight:700; color:var(--accent-primary);">' + cell.getValue() + '</span>';
+          }
+        }
+      ]
+    });
+
+    TableKit.create("#dashboard-device-table", {
+      data: deviceData,
+      selectable: false,
+      pagination: false,
+      header: false,
+      placeholder: "No data",
+      columns: [
+        { title: "Label", field: "label", formatter: function (cell) { return '<strong>' + cell.getValue() + '</strong>'; } },
+        { title: "Count", field: "count", hozAlign: "right", formatter: function (cell) { return '<span class="mono" style="font-weight:600;">' + cell.getValue() + '</span>'; } }
+      ]
+    });
+
+    TableKit.create("#dashboard-os-table", {
+      data: osData,
+      selectable: false,
+      pagination: false,
+      header: false,
+      placeholder: "No data",
+      columns: [
+        { title: "Label", field: "label" },
+        { title: "Count", field: "count", hozAlign: "right", formatter: function (cell) { return '<span class="mono" style="font-weight:600;">' + cell.getValue() + '</span>'; } }
+      ]
+    });
+
     var tableData = [
       {% for scan in recent_scans %}
       {
@@ -186,14 +214,11 @@
       {% endfor %}
     ];
 
-    var table = new Tabulator("#dashboard-scans-table", {
+    var table = TableKit.create("#dashboard-scans-table", {
       data: tableData,
-      layout: "fitColumns",
-      resizableColumnFit: true,
-      pagination: "local",
-      paginationSize: 15,
       placeholder: "No scan events recorded yet.",
-      selectableRows: "highlight",
+      paginationSize: 15,
+      resetButton: "#reset-tabulator-filters",
       rowClick: function (e, row) {
         if (e.target.closest('a, button, form, input, select, .tabulator-cell:first-child')) {
           return;
@@ -204,17 +229,6 @@
         }
       },
       columns: [
-        {
-          formatter: "rowSelection",
-          titleFormatter: "rowSelection",
-          hozAlign: "center",
-          headerSort: false,
-          width: 60,
-          cellClick: function(e, cell){
-            e.stopPropagation();
-            cell.getRow().toggleSelect();
-          }
-        },
         {
           title: "Date (UTC)",
           field: "date_utc",
@@ -316,13 +330,6 @@
       bulkActionInput.value = action;
       bulkForm.submit();
     };
-
-    var resetBtn = document.getElementById('reset-tabulator-filters');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', function () {
-        table.clearHeaderFilter();
-      });
-    }
   });
 </script>
 {% endblock %}

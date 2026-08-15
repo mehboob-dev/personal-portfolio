@@ -91,6 +91,7 @@
         date_utc: "{{ code.created_at.strftime('%Y-%m-%d') if code.created_at else '' }}",
         time_utc: "{{ code.created_at.strftime('%H:%M:%S') if code.created_at else '' }}",
         is_active: {{ 'true' if code.is_active else 'false' }},
+        is_paused: {{ 'true' if not code.is_active else 'false' }},
         is_deleted: {{ 'true' if code.is_deleted else 'false' }},
         scans_count: {{ code.scans.count() }},
         png_url: "{{ url_for('admin.qr_png', qid=code.id) }}",
@@ -108,172 +109,13 @@
 
     var uniqueCampaigns = [...new Set(tableData.map(function(r) { return r.campaign; }))].filter(Boolean).sort();
 
-    function exactMatchFilter(headerValue, rowValue) {
-      if (headerValue === undefined || headerValue === null || headerValue === "") return true;
-      return String(rowValue).trim() === String(headerValue).trim();
-    }
-
-    function activeStatusFilter(headerValue, rowValue) {
-      if (headerValue === undefined || headerValue === null || headerValue === "") return true;
-      if (headerValue === "Active") return rowValue === true;
-      if (headerValue === "Paused") return rowValue === false;
-      return true;
-    }
-
-    function advancedNumericFilterFunc(headerValue, rowValue) {
-      if (!headerValue || headerValue.value === undefined || headerValue.value === null || headerValue.value === "") return true;
-      if (rowValue === null || rowValue === undefined) return false;
-      var val = parseFloat(String(rowValue).replace(/,/g, "").trim());
-      var target = parseFloat(headerValue.value);
-      if (isNaN(val) || isNaN(target)) return false;
-      switch(headerValue.operator) {
-        case "gt": return val > target;
-        case "gte": return val >= target;
-        case "lt": return val < target;
-        case "lte": return val <= target;
-        case "eq": return val === target;
-        case "neq": return val !== target;
-        default: return true;
-      }
-    }
-
-    function advancedDateFilterFunc(headerValue, rowValue) {
-      if (!headerValue || !headerValue.value) return true;
-      if (!rowValue) return false;
-      var rowDateStr = String(rowValue).split("T")[0].split(" ")[0];
-      var targetDateStr = headerValue.value;
-      switch(headerValue.operator) {
-        case "on": return rowDateStr === targetDateStr;
-        case "not_on": return rowDateStr !== targetDateStr;
-        case "before": return rowDateStr < targetDateStr;
-        case "after": return rowDateStr > targetDateStr;
-        default: return true;
-      }
-    }
-
-    function customDropdownFilter(values) {
-      return function(cell, onRendered, success, cancel, editorParams) {
-        var select = document.createElement("select");
-        select.style.padding = "4px";
-        select.style.background = "var(--bg-canvas)";
-        select.style.border = "1px solid var(--border-subtle)";
-        select.style.color = "var(--text-primary)";
-        select.style.borderRadius = "var(--radius-xs)";
-        select.style.fontFamily = "var(--font-mono)";
-        select.style.fontSize = "0.75rem";
-        var allOpt = document.createElement("option");
-        allOpt.value = ""; allOpt.text = "All";
-        select.appendChild(allOpt);
-        values.forEach(function(val) {
-          var opt = document.createElement("option");
-          opt.value = val; opt.text = val;
-          select.appendChild(opt);
-        });
-        select.addEventListener("change", function() { success(select.value); });
-        onRendered(function() { select.value = cell.getValue() || ""; });
-        return select;
-      };
-    }
-
-    function customNumericFilterEditor(cell, onRendered, success, cancel, editorParams) {
-      var container = document.createElement("div");
-      container.className = "custom-header-filter-container";
-      var select = document.createElement("select");
-      select.style.padding = "2px 4px";
-      select.style.background = "var(--bg-canvas)";
-      select.style.border = "1px solid var(--border-subtle)";
-      select.style.color = "var(--text-primary)";
-      select.style.borderRadius = "var(--radius-xs)";
-      select.style.fontFamily = "var(--font-mono)";
-      select.style.fontSize = "0.7rem";
-      var ops = [
-        { value: "gte", text: "≥ (Greater or Equal)" },
-        { value: "gt", text: "> (Greater)" },
-        { value: "lte", text: "≤ (Less or Equal)" },
-        { value: "lt", text: "< (Less)" },
-        { value: "eq", text: "= (Equal)" },
-        { value: "neq", text: "≠ (Not Equal)" }
-      ];
-      ops.forEach(function(op) {
-        var opt = document.createElement("option");
-        opt.value = op.value; opt.text = op.text;
-        select.appendChild(opt);
-      });
-      var input = document.createElement("input");
-      input.type = "text"; input.placeholder = "value";
-      input.style.padding = "2px 4px";
-      input.style.background = "var(--bg-canvas)";
-      input.style.border = "1px solid var(--border-subtle)";
-      input.style.color = "var(--text-primary)";
-      input.style.borderRadius = "var(--radius-xs)";
-      input.style.fontFamily = "var(--font-mono)";
-      input.style.fontSize = "0.75rem";
-      container.appendChild(select);
-      container.appendChild(input);
-      function triggerChange() { success({ operator: select.value, value: input.value }); }
-      select.addEventListener("change", triggerChange);
-      input.addEventListener("input", triggerChange);
-      onRendered(function() {
-        var val = cell.getValue();
-        if (val && typeof val === "object") { select.value = val.operator || "gte"; input.value = val.value || ""; }
-        else { select.value = "gte"; input.value = ""; }
-      });
-      return container;
-    }
-
-    function customDateFilterEditor(cell, onRendered, success, cancel, editorParams) {
-      var container = document.createElement("div");
-      container.className = "custom-header-filter-container";
-      var select = document.createElement("select");
-      select.style.padding = "2px 4px";
-      select.style.background = "var(--bg-canvas)";
-      select.style.border = "1px solid var(--border-subtle)";
-      select.style.color = "var(--text-primary)";
-      select.style.borderRadius = "var(--radius-xs)";
-      select.style.fontFamily = "var(--font-mono)";
-      select.style.fontSize = "0.7rem";
-      var ops = [
-        { value: "on", text: "on (equal)" },
-        { value: "before", text: "before" },
-        { value: "after", text: "after" },
-        { value: "not_on", text: "not on" }
-      ];
-      ops.forEach(function(op) {
-        var opt = document.createElement("option");
-        opt.value = op.value; opt.text = op.text;
-        select.appendChild(opt);
-      });
-      var input = document.createElement("input");
-      input.type = "date";
-      input.style.padding = "2px 4px";
-      input.style.background = "var(--bg-canvas)";
-      input.style.border = "1px solid var(--border-subtle)";
-      input.style.color = "var(--text-primary)";
-      input.style.borderRadius = "var(--radius-xs)";
-      input.style.fontFamily = "var(--font-mono)";
-      input.style.fontSize = "0.75rem";
-      container.appendChild(select);
-      container.appendChild(input);
-      function triggerChange() { success({ operator: select.value, value: input.value }); }
-      select.addEventListener("change", triggerChange);
-      input.addEventListener("change", triggerChange);
-      onRendered(function() {
-        var val = cell.getValue();
-        if (val && typeof val === "object") { select.value = val.operator || "on"; input.value = val.value || ""; }
-        else { select.value = "on"; input.value = ""; }
-      });
-      return container;
-    }
-
-    var table = new Tabulator("#qr-tabulator-table", {
+    var table = TableKit.create("#qr-tabulator-table", {
       data: tableData,
-      layout: "fitColumns",
-      resizableColumnFit: true,
-      pagination: "local",
-      paginationSize: 20,
-      paginationSizeSelector: [10, 20, 50, 100, true],
       placeholder: "No {{ show }} QR codes found.",
-      selectableRows: "highlight",
+      paginationSizeSelector: [10, 20, 50, 100, true],
+      resetButton: "#reset-tabulator-filters",
+      countEl: "#table-record-count",
+      countLabel: "{{ show }} QR codes",
       rowClick: function (e, row) {
         if (e.target.closest('a, button, form, input, select, .tabulator-cell:first-child')) {
           return;
@@ -284,17 +126,6 @@
         }
       },
       columns: [
-        {
-          formatter: "rowSelection",
-          titleFormatter: "rowSelection",
-          hozAlign: "center",
-          headerSort: false,
-          width: 60,
-          cellClick: function(e, cell){
-            e.stopPropagation();
-            cell.getRow().toggleSelect();
-          }
-        },
         {
           title: "QR Code",
           field: "png_url",
@@ -334,8 +165,8 @@
         {
           title: "Campaign",
           field: "campaign",
-          headerFilter: customDropdownFilter(uniqueCampaigns),
-          headerFilterFunc: exactMatchFilter,
+          headerFilter: TableKit.customDropdownFilter(uniqueCampaigns),
+          headerFilterFunc: TableKit.exactMatchFilter,
           formatter: function (cell) {
             var val = cell.getValue();
             return val ? '<span class="badge">' + val + '</span>' : '<span class="muted">—</span>';
@@ -353,8 +184,8 @@
         {
           title: "Date (UTC)",
           field: "date_utc",
-          headerFilter: customDateFilterEditor,
-          headerFilterFunc: advancedDateFilterFunc,
+          headerFilter: TableKit.customDateFilterEditor,
+          headerFilterFunc: TableKit.advancedDateFilterFunc,
           width: 180,
           formatter: function(cell) {
             return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + (cell.getValue() || '—') + '</span>';
@@ -371,9 +202,9 @@
         },
         {
           title: "Status",
-          field: "is_active",
-          headerFilter: customDropdownFilter(["Active", "Paused"]),
-          headerFilterFunc: activeStatusFilter,
+          field: "is_paused",
+          headerFilter: TableKit.customDropdownFilter(["Active", "Paused"]),
+          headerFilterFunc: TableKit.activeStatusFilter,
           width: 95,
           hozAlign: "center",
           formatter: function (cell) {
@@ -385,8 +216,8 @@
         {
           title: "Scans",
           field: "scans_count",
-          headerFilter: customNumericFilterEditor,
-          headerFilterFunc: advancedNumericFilterFunc,
+          headerFilter: TableKit.customNumericFilterEditor,
+          headerFilterFunc: TableKit.advancedNumericFilterFunc,
           width: 80,
           hozAlign: "center",
           formatter: function (cell) {
@@ -456,13 +287,6 @@
       bulkActionInput.value = action;
       bulkForm.submit();
     };
-
-    var resetBtn = document.getElementById('reset-tabulator-filters');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', function () {
-        table.clearHeaderFilter();
-      });
-    }
   });
 </script>
 {% endblock %}

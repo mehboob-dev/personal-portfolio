@@ -135,23 +135,7 @@
     <!-- Daily Scan Activity for this QR (Last 14 Days) -->
     <div class="card">
       <div class="case-block-title">Daily Scans (Last 14 Days)</div>
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr><th>Date (UTC)</th><th style="text-align: right;">Scans</th></tr>
-          </thead>
-          <tbody>
-            {% for date, count in daily %}
-            <tr>
-              <td class="mono">{{ date }}</td>
-              <td class="mono" style="text-align: right; font-weight: 700; color: var(--accent-primary);">{{ count }}</td>
-            </tr>
-            {% else %}
-            <tr><td colspan="2" class="muted" style="text-align: center;">No scans recorded in the last 14 days.</td></tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
+      <div id="stats-daily-table"></div>
     </div>
 
     <!-- Scanner / In-App & Platform Breakdown -->
@@ -160,33 +144,11 @@
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div>
           <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Scanner / App Source</h4>
-          <table class="table">
-            <tbody>
-              {% for label, count in app_breakdown %}
-              <tr>
-                <td><strong>{{ label }}</strong></td>
-                <td class="mono" style="text-align: right; font-weight: 600;">{{ count }}</td>
-              </tr>
-              {% else %}
-              <tr><td colspan="2" class="muted">No data</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div id="stats-app-table"></div>
         </div>
         <div>
           <h4 style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">Operating System</h4>
-          <table class="table">
-            <tbody>
-              {% for label, count in os_breakdown %}
-              <tr>
-                <td>{{ label }}</td>
-                <td class="mono" style="text-align: right; font-weight: 600;">{{ count }}</td>
-              </tr>
-              {% else %}
-              <tr><td colspan="2" class="muted">No data</td></tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div id="stats-os-table"></div>
         </div>
       </div>
     </div>
@@ -260,6 +222,72 @@
 <script>
   document.addEventListener("DOMContentLoaded", function () {
     var CSRF_TOKEN = {{ csrf_token() | tojson }};
+
+    // --- Summary grids: daily activity + platform breakdowns ---
+    var dailyData = [
+      {% for date, count in daily %}
+      { date: "{{ date }}", count: {{ count }} }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+    var appData = [
+      {% for label, count in app_breakdown %}
+      { label: "{{ label|replace('"', '\\"') }}", count: {{ count }} }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+    var osData = [
+      {% for label, count in os_breakdown %}
+      { label: "{{ label|replace('"', '\\"') }}", count: {{ count }} }{% if not loop.last %},{% endif %}
+      {% endfor %}
+    ];
+
+    TableKit.create("#stats-daily-table", {
+      data: dailyData,
+      selectable: false,
+      pagination: false,
+      placeholder: "No scans recorded in the last 14 days.",
+      columns: [
+        {
+          title: "Date (UTC)",
+          field: "date",
+          formatter: function (cell) {
+            return '<span class="mono" style="font-size:0.82rem;">' + cell.getValue() + '</span>';
+          }
+        },
+        {
+          title: "Scans",
+          field: "count",
+          hozAlign: "right",
+          formatter: function (cell) {
+            return '<span class="mono" style="font-weight:700; color:var(--accent-primary);">' + cell.getValue() + '</span>';
+          }
+        }
+      ]
+    });
+
+    TableKit.create("#stats-app-table", {
+      data: appData,
+      selectable: false,
+      pagination: false,
+      header: false,
+      placeholder: "No data",
+      columns: [
+        { title: "Label", field: "label", formatter: function (cell) { return '<strong>' + cell.getValue() + '</strong>'; } },
+        { title: "Count", field: "count", hozAlign: "right", formatter: function (cell) { return '<span class="mono" style="font-weight:600;">' + cell.getValue() + '</span>'; } }
+      ]
+    });
+
+    TableKit.create("#stats-os-table", {
+      data: osData,
+      selectable: false,
+      pagination: false,
+      header: false,
+      placeholder: "No data",
+      columns: [
+        { title: "Label", field: "label" },
+        { title: "Count", field: "count", hozAlign: "right", formatter: function (cell) { return '<span class="mono" style="font-weight:600;">' + cell.getValue() + '</span>'; } }
+      ]
+    });
+
     var tableData = [
       {% for scan in scans %}
       {
@@ -284,130 +312,23 @@
       {% endfor %}
     ];
 
-    function statusMatchFilter(headerValue, rowValue) {
-      if (headerValue === undefined || headerValue === null || headerValue === "") return true;
-      var expectedBool = headerValue === "In Trash";
-      return rowValue === expectedBool;
-    }
-
-    function exactMatchFilter(headerValue, rowValue) {
-      if (headerValue === undefined || headerValue === null || headerValue === "") return true;
-      return String(rowValue).trim() === String(headerValue).trim();
-    }
-
-    function advancedDateFilterFunc(headerValue, rowValue) {
-      if (!headerValue || !headerValue.value) return true;
-      if (!rowValue) return false;
-      var rowDateStr = String(rowValue).split("T")[0].split(" ")[0];
-      var targetDateStr = headerValue.value;
-      switch(headerValue.operator) {
-        case "on": return rowDateStr === targetDateStr;
-        case "not_on": return rowDateStr !== targetDateStr;
-        case "before": return rowDateStr < targetDateStr;
-        case "after": return rowDateStr > targetDateStr;
-        default: return true;
-      }
-    }
-
-    function customDropdownFilter(values) {
-      return function(cell, onRendered, success, cancel, editorParams) {
-        var select = document.createElement("select");
-        select.style.padding = "4px";
-        select.style.background = "var(--bg-canvas)";
-        select.style.border = "1px solid var(--border-subtle)";
-        select.style.color = "var(--text-primary)";
-        select.style.borderRadius = "var(--radius-xs)";
-        select.style.fontFamily = "var(--font-mono)";
-        select.style.fontSize = "0.75rem";
-        var allOpt = document.createElement("option");
-        allOpt.value = ""; allOpt.text = "All";
-        select.appendChild(allOpt);
-        values.forEach(function(val) {
-          var opt = document.createElement("option");
-          opt.value = val; opt.text = val;
-          select.appendChild(opt);
-        });
-        select.addEventListener("change", function() { success(select.value); });
-        onRendered(function() { select.value = cell.getValue() || ""; });
-        return select;
-      };
-    }
-
-    function customDateFilterEditor(cell, onRendered, success, cancel, editorParams) {
-      var container = document.createElement("div");
-      container.className = "custom-header-filter-container";
-      var select = document.createElement("select");
-      select.style.padding = "2px 4px";
-      select.style.background = "var(--bg-canvas)";
-      select.style.border = "1px solid var(--border-subtle)";
-      select.style.color = "var(--text-primary)";
-      select.style.borderRadius = "var(--radius-xs)";
-      select.style.fontFamily = "var(--font-mono)";
-      select.style.fontSize = "0.7rem";
-      var ops = [
-        { value: "on", text: "on (equal)" },
-        { value: "before", text: "before" },
-        { value: "after", text: "after" },
-        { value: "not_on", text: "not on" }
-      ];
-      ops.forEach(function(op) {
-        var opt = document.createElement("option");
-        opt.value = op.value; opt.text = op.text;
-        select.appendChild(opt);
-      });
-      var input = document.createElement("input");
-      input.type = "date";
-      input.style.padding = "2px 4px";
-      input.style.background = "var(--bg-canvas)";
-      input.style.border = "1px solid var(--border-subtle)";
-      input.style.color = "var(--text-primary)";
-      input.style.borderRadius = "var(--radius-xs)";
-      input.style.fontFamily = "var(--font-mono)";
-      input.style.fontSize = "0.75rem";
-      container.appendChild(select);
-      container.appendChild(input);
-      function triggerChange() { success({ operator: select.value, value: input.value }); }
-      select.addEventListener("change", triggerChange);
-      input.addEventListener("change", triggerChange);
-      onRendered(function() {
-        var val = cell.getValue();
-        if (val && typeof val === "object") { select.value = val.operator || "on"; input.value = val.value || ""; }
-        else { select.value = "on"; input.value = ""; }
-      });
-      return container;
-    }
-
     var uniqueAppSources = [...new Set(tableData.map(function(r) { return r.app_source; }))].filter(Boolean).sort();
     var uniqueBrowsers = [...new Set(tableData.map(function(r) { return r.browser; }))].filter(Boolean).sort();
     var uniqueOS = [...new Set(tableData.map(function(r) { return r.os; }))].filter(Boolean).sort();
     var uniqueLanguages = [...new Set(tableData.map(function(r) { return r.language; }))].filter(Boolean).sort();
 
-    var table = new Tabulator("#scans-tabulator-table", {
+    var table = TableKit.create("#scans-tabulator-table", {
       data: tableData,
-      layout: "fitColumns",
-      resizableColumnFit: true,
-      pagination: "local",
+      placeholder: "No {{ show }} scan events recorded for this QR code.",
       paginationSize: 25,
       paginationSizeSelector: [10, 25, 50, 100, true],
-      placeholder: "No {{ show }} scan events recorded for this QR code.",
-      selectableRows: "highlight",
+      resetButton: "#reset-tabulator-filters",
       columns: [
-        {
-          formatter: "rowSelection",
-          titleFormatter: "rowSelection",
-          hozAlign: "center",
-          headerSort: false,
-          width: 60,
-          cellClick: function(e, cell){
-            e.stopPropagation();
-            cell.getRow().toggleSelect();
-          }
-        },
         {
           title: "Date (UTC)",
           field: "date_utc",
-          headerFilter: customDateFilterEditor,
-          headerFilterFunc: advancedDateFilterFunc,
+          headerFilter: TableKit.customDateFilterEditor,
+          headerFilterFunc: TableKit.advancedDateFilterFunc,
           width: 180,
           formatter: function (cell) {
             return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + cell.getValue() + '</span>';
@@ -425,8 +346,8 @@
         {
           title: "Scanner / App",
           field: "app_source",
-          headerFilter: customDropdownFilter(uniqueAppSources),
-          headerFilterFunc: exactMatchFilter,
+          headerFilter: TableKit.customDropdownFilter(uniqueAppSources),
+          headerFilterFunc: TableKit.exactMatchFilter,
           formatter: function (cell) {
             return '<span class="badge badge-accent" style="font-weight:600;">' + cell.getValue() + '</span>';
           }
@@ -443,8 +364,8 @@
         {
           title: "Browser",
           field: "browser",
-          headerFilter: customDropdownFilter(uniqueBrowsers),
-          headerFilterFunc: exactMatchFilter,
+          headerFilter: TableKit.customDropdownFilter(uniqueBrowsers),
+          headerFilterFunc: TableKit.exactMatchFilter,
           formatter: function (cell) {
             return '<span style="font-size:0.84rem;">' + cell.getValue() + '</span>';
           }
@@ -452,8 +373,8 @@
         {
           title: "OS",
           field: "os",
-          headerFilter: customDropdownFilter(uniqueOS),
-          headerFilterFunc: exactMatchFilter,
+          headerFilter: TableKit.customDropdownFilter(uniqueOS),
+          headerFilterFunc: TableKit.exactMatchFilter,
           formatter: function (cell) {
             return '<span style="font-size:0.84rem;">' + cell.getValue() + '</span>';
           }
@@ -461,8 +382,8 @@
         {
           title: "Language",
           field: "language",
-          headerFilter: customDropdownFilter(uniqueLanguages),
-          headerFilterFunc: exactMatchFilter,
+          headerFilter: TableKit.customDropdownFilter(uniqueLanguages),
+          headerFilterFunc: TableKit.exactMatchFilter,
           width: 95,
           formatter: function (cell) {
             return '<span class="mono" style="font-size:0.78rem;">' + cell.getValue() + '</span>';
@@ -488,8 +409,8 @@
         {
           title: "Status",
           field: "is_deleted",
-          headerFilter: customDropdownFilter(["Active", "In Trash"]),
-          headerFilterFunc: statusMatchFilter,
+          headerFilter: TableKit.customDropdownFilter(["Active", "In Trash"]),
+          headerFilterFunc: TableKit.statusMatchFilter,
           width: 90,
           hozAlign: "center",
           formatter: function (cell) {
@@ -556,13 +477,6 @@
       bulkActionInput.value = action;
       bulkForm.submit();
     };
-
-    var resetBtn = document.getElementById('reset-tabulator-filters');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', function () {
-        table.clearHeaderFilter();
-      });
-    }
   });
 </script>
 {% endblock %}

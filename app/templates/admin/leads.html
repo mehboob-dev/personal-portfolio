@@ -1,73 +1,26 @@
 {% extends "admin/base.html" %}
-{% block title %}Leads & Inquiries{% endblock %}
+{% block title %}Leads — Dynamic QR & Lead Admin{% endblock %}
+
 {% block content %}
-<div class="section-head" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
-  <div>
-    <h1 style="font-size: 1.5rem; margin: 0 0 6px;">Captured Inquiries & Leads</h1>
-    <p class="muted" style="margin: 0; font-size: 0.88rem;">Direct submissions from the portfolio contact interface.</p>
-  </div>
-  <div style="display: flex; gap: 10px; align-items: center;">
-    <button id="reset-tabulator-filters" class="btn btn-sm btn-mono" type="button">Reset Filters ✕</button>
-    <a class="btn btn-primary btn-mono" href="{{ url_for('admin.leads_csv', show=show) }}">Export CSV ({{ show|capitalize }}) ↓</a>
-  </div>
-</div>
-
-<!-- Filter Tabs: Active (Default) | Trash / Deleted | All -->
-<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 20px;">
-  <div style="display: flex; gap: 6px;">
-    <a class="btn btn-sm {% if show == 'active' %}btn-primary{% endif %}" href="{{ url_for('admin.leads', show='active') }}">
-      Active Inquiries ({{ active_count }})
-    </a>
-    <a class="btn btn-sm {% if show == 'deleted' %}btn-primary{% endif %}" href="{{ url_for('admin.leads', show='deleted') }}" style="{% if show == 'deleted' %}background: var(--danger); border-color: var(--danger);{% endif %}">
-      Trash / Deleted ({{ deleted_count }})
-    </a>
-    <a class="btn btn-sm {% if show == 'all' %}btn-primary{% endif %}" href="{{ url_for('admin.leads', show='all') }}">
-      All Records ({{ all_count }})
-    </a>
-  </div>
-
-  <div class="mono muted" style="font-size: 0.78rem;">
-    Showing {{ leads|length }} {{ show }} inquiries
+<div class="card" style="padding: 0; overflow: hidden; margin-bottom: 24px;">
+  <div style="padding: 14px 18px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-subtle); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+    <span class="mono" style="font-weight: 700; font-size: 0.85rem; color: var(--accent-primary);">
+      {{ show|upper }} LEADS ({{ leads|length }})
+    </span>
+    <div style="display: flex; gap: 8px; align-items: center;">
+      <button id="reset-tabulator-filters" class="btn btn-sm btn-mono" type="button">Reset Filters ✕</button>
+      <a class="btn btn-primary btn-mono" href="{{ url_for('admin.leads_csv', show=show) }}">Export CSV ({{ show|capitalize }}) ↓</a>
+    </div>
   </div>
 </div>
 
-<!-- Multi-Select Bulk Actions Toolbar -->
+<!-- Bulk actions toolbar -->
 <div id="bulk-toolbar" style="display: none; background: var(--bg-subtle); border: 1px solid var(--accent-primary); border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 16px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-  <div style="display: flex; align-items: center; gap: 10px;">
-    <span class="badge badge-accent" id="bulk-selected-count">0 selected</span>
-    <span class="muted" style="font-size: 0.85rem;">Apply action to all selected inquiries:</span>
-  </div>
-
-  <form id="bulk-form" method="post" action="{{ url_for('admin.leads_bulk') }}" style="display: flex; gap: 8px; align-items: center; margin: 0;">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <input type="hidden" name="action" id="bulk-action-input" value="">
+  <span class="badge badge-accent" id="bulk-selected-count">0 selected</span>
+  <form id="bulk-form" method="post" action="{{ url_for('admin.leads_bulk', show=show) }}" style="display: flex; gap: 8px; align-items: center; margin: 0;">
+    <input type="hidden" name="action" id="bulk-action-input" value="trash">
     <div id="bulk-hidden-ids"></div>
-
-    {% if show == 'deleted' %}
-    <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected inquiries from trash?')">
-      Restore Selected
-    </button>
-    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('purge', 'PERMANENTLY delete all selected inquiries? This cannot be undone!')">
-      Delete Forever Selected
-    </button>
-    {% elif show == 'all' %}
-    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move selected inquiries to trash?')">
-      Trash Selected
-    </button>
-    <button type="button" class="btn btn-sm" onclick="submitBulk('restore', 'Restore selected inquiries from trash?')">
-      Restore Selected
-    </button>
-    <button type="button" class="btn btn-sm btn-danger" style="background: var(--danger); color: #ffffff;" onclick="submitBulk('purge', 'PERMANENTLY delete selected inquiries? This cannot be undone!')">
-      Delete Forever
-    </button>
-    {% else %}
-    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move all selected inquiries to trash?')">
-      Trash Selected
-    </button>
-    <button type="button" class="btn btn-sm btn-danger" style="background: var(--danger); color: #ffffff;" onclick="submitBulk('purge', 'PERMANENTLY delete all selected inquiries? This cannot be undone!')">
-      Delete Forever Selected
-    </button>
-    {% endif %}
+    <button type="button" class="btn btn-sm btn-danger" onclick="submitBulk('trash', 'Move selected inquiries to trash?')">Trash Selected</button>
     <button type="button" class="btn btn-sm btn-mono" onclick="deselectAllRows()">Cancel</button>
   </form>
 </div>
@@ -97,110 +50,13 @@
       {% endfor %}
     ];
 
-    function statusMatchFilter(headerValue, rowValue) {
-      if (headerValue === undefined || headerValue === null || headerValue === "") return true;
-      var expectedBool = headerValue === "In Trash";
-      return rowValue === expectedBool;
-    }
-
-    function exactMatchFilter(headerValue, rowValue) {
-      if (headerValue === undefined || headerValue === null || headerValue === "") return true;
-      return String(rowValue).trim() === String(headerValue).trim();
-    }
-
-    function advancedDateFilterFunc(headerValue, rowValue) {
-      if (!headerValue || !headerValue.value) return true;
-      if (!rowValue) return false;
-      var rowDateStr = String(rowValue).split("T")[0].split(" ")[0];
-      var targetDateStr = headerValue.value;
-      switch(headerValue.operator) {
-        case "on": return rowDateStr === targetDateStr;
-        case "not_on": return rowDateStr !== targetDateStr;
-        case "before": return rowDateStr < targetDateStr;
-        case "after": return rowDateStr > targetDateStr;
-        default: return true;
-      }
-    }
-
-    function customDropdownFilter(values) {
-      return function(cell, onRendered, success, cancel, editorParams) {
-        var select = document.createElement("select");
-        select.style.padding = "4px";
-        select.style.background = "var(--bg-canvas)";
-        select.style.border = "1px solid var(--border-subtle)";
-        select.style.color = "var(--text-primary)";
-        select.style.borderRadius = "var(--radius-xs)";
-        select.style.fontFamily = "var(--font-mono)";
-        select.style.fontSize = "0.75rem";
-        var allOpt = document.createElement("option");
-        allOpt.value = ""; allOpt.text = "All";
-        select.appendChild(allOpt);
-        values.forEach(function(val) {
-          var opt = document.createElement("option");
-          opt.value = val; opt.text = val;
-          select.appendChild(opt);
-        });
-        select.addEventListener("change", function() { success(select.value); });
-        onRendered(function() { select.value = cell.getValue() || ""; });
-        return select;
-      };
-    }
-
-    function customDateFilterEditor(cell, onRendered, success, cancel, editorParams) {
-      var container = document.createElement("div");
-      container.className = "custom-header-filter-container";
-      var select = document.createElement("select");
-      select.style.padding = "2px 4px";
-      select.style.background = "var(--bg-canvas)";
-      select.style.border = "1px solid var(--border-subtle)";
-      select.style.color = "var(--text-primary)";
-      select.style.borderRadius = "var(--radius-xs)";
-      select.style.fontFamily = "var(--font-mono)";
-      select.style.fontSize = "0.7rem";
-      var ops = [
-        { value: "on", text: "on (equal)" },
-        { value: "before", text: "before" },
-        { value: "after", text: "after" },
-        { value: "not_on", text: "not on" }
-      ];
-      ops.forEach(function(op) {
-        var opt = document.createElement("option");
-        opt.value = op.value; opt.text = op.text;
-        select.appendChild(opt);
-      });
-      var input = document.createElement("input");
-      input.type = "date";
-      input.style.padding = "2px 4px";
-      input.style.background = "var(--bg-canvas)";
-      input.style.border = "1px solid var(--border-subtle)";
-      input.style.color = "var(--text-primary)";
-      input.style.borderRadius = "var(--radius-xs)";
-      input.style.fontFamily = "var(--font-mono)";
-      input.style.fontSize = "0.75rem";
-      container.appendChild(select);
-      container.appendChild(input);
-      function triggerChange() { success({ operator: select.value, value: input.value }); }
-      select.addEventListener("change", triggerChange);
-      input.addEventListener("change", triggerChange);
-      onRendered(function() {
-        var val = cell.getValue();
-        if (val && typeof val === "object") { select.value = val.operator || "on"; input.value = val.value || ""; }
-        else { select.value = "on"; input.value = ""; }
-      });
-      return container;
-    }
-
     var uniqueInterests = [...new Set(tableData.map(function(r) { return r.interest; }))].filter(Boolean).sort();
 
-    var table = new Tabulator("#leads-tabulator-table", {
+    var table = TableKit.create("#leads-tabulator-table", {
       data: tableData,
-      layout: "fitColumns",
-      resizableColumnFit: true,
-      pagination: "local",
-      paginationSize: 20,
-      paginationSizeSelector: [10, 20, 50, 100, true],
       placeholder: "No {{ show }} inquiries found.",
-      selectableRows: "highlight",
+      paginationSizeSelector: [10, 20, 50, 100, true],
+      resetButton: "#reset-tabulator-filters",
       rowClick: function (e, row) {
         if (e.target.closest('a, button, form, input, select, .tabulator-cell:first-child')) {
           return;
@@ -212,21 +68,10 @@
       },
       columns: [
         {
-          formatter: "rowSelection",
-          titleFormatter: "rowSelection",
-          hozAlign: "center",
-          headerSort: false,
-          width: 60,
-          cellClick: function(e, cell){
-            e.stopPropagation();
-            cell.getRow().toggleSelect();
-          }
-        },
-        {
           title: "Date (UTC)",
           field: "date_utc",
-          headerFilter: customDateFilterEditor,
-          headerFilterFunc: advancedDateFilterFunc,
+          headerFilter: TableKit.customDateFilterEditor,
+          headerFilterFunc: TableKit.advancedDateFilterFunc,
           width: 180,
           formatter: function (cell) {
             return '<span class="mono" style="font-size:0.8rem; font-weight:600;">' + (cell.getValue() || '—') + '</span>';
@@ -261,8 +106,8 @@
         {
           title: "Inquiry Focus",
           field: "interest",
-          headerFilter: customDropdownFilter(uniqueInterests),
-          headerFilterFunc: exactMatchFilter,
+          headerFilter: TableKit.customDropdownFilter(uniqueInterests),
+          headerFilterFunc: TableKit.exactMatchFilter,
           formatter: function (cell) {
             var val = cell.getValue();
             return val ? '<span class="badge badge-accent">' + val + '</span>' : '<span class="muted">—</span>';
@@ -281,8 +126,8 @@
         {
           title: "Status",
           field: "is_deleted",
-          headerFilter: customDropdownFilter(["Active", "In Trash"]),
-          headerFilterFunc: statusMatchFilter,
+          headerFilter: TableKit.customDropdownFilter(["Active", "In Trash"]),
+          headerFilterFunc: TableKit.statusMatchFilter,
           width: 95,
           hozAlign: "center",
           formatter: function (cell) {
@@ -350,13 +195,6 @@
       bulkActionInput.value = action;
       bulkForm.submit();
     };
-
-    var resetBtn = document.getElementById('reset-tabulator-filters');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', function () {
-        table.clearHeaderFilter();
-      });
-    }
   });
 </script>
 {% endblock %}
