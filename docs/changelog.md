@@ -4,6 +4,20 @@ All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
 ---
 
+## 2026-08-18 — Step-by-step cPanel deployment guide (`a976827`)
+
+- **`docs/cpanel-deploy-stepbystep.md`** (new): deploy **both** Flask apps
+  (mehboob-portfolio + itqan-trades) onto one cPanel shared-hosting account — repo
+  transfer (GitHub push or zip), MySQL DBs + users per site, per-site venv +
+  `pip install -e .`, `data/secrets.json` per site, two "Setup Python App" entries
+  (`wsgi.py` + entry point `app`), `flask db upgrade` (Alembic migrations), admin
+  user auto-sync on startup, restart + per-site verification (incl. QR scan flow),
+  Let's Encrypt TLS, updates, rollback, troubleshooting.
+- Identical copy in `itqan-trades/docs/` (shared-file convention, same as `table.js`).
+- No code changes.
+
+---
+
 ## 2026-08-16 — Unified table system (TableKit)
 
 ### Shared table module
