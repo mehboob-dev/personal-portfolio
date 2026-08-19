@@ -19,16 +19,6 @@
 	},
 	"benchmarks": [
 		{
-			"value": "~ 80%",
-			"count_to": 80,
-			"count_prefix": "~ ",
-			"count_suffix": "%",
-			"count_decimals": 0,
-			"param": "Memory Reduction",
-			"scope": "Memory-Mapped Files + Blittable Structs",
-			"context": "Reduced memory usage by ~80% through memory-mapped files and blittable structs, minimizing managed-memory overhead"
-		},
-		{
 			"value": "< 10 ms",
 			"count_to": 10,
 			"count_prefix": "< ",
@@ -39,14 +29,14 @@
 			"context": "Published real-time stock market tick and quote data to hundreds of clients using low-level socket programming"
 		},
 		{
-			"value": "98.8%",
-			"count_to": 98.8,
-			"count_prefix": "",
+			"value": "~ 80%",
+			"count_to": 80,
+			"count_prefix": "~ ",
 			"count_suffix": "%",
-			"count_decimals": 1,
-			"param": "Operational Cost Reduction",
-			"scope": "Cloud-Based Trading Migration",
-			"context": "Developed and deployed a dynamic cloud-based trading migration system that reduced operational costs by 98.8%"
+			"count_decimals": 0,
+			"param": "Memory Reduction",
+			"scope": "Memory-Mapped Files + Blittable Structs",
+			"context": "Reduced memory usage by ~80% through memory-mapped files and blittable structs"
 		},
 		{
 			"value": "98.8%",
@@ -57,6 +47,36 @@
 			"param": "Operational Cost Reduction",
 			"scope": "Cloud-Based Trading Migration",
 			"context": "Developed and deployed a dynamic cloud-based trading migration system that reduced operational costs by 98.8%"
+		},
+		{
+			"value": "100s",
+			"count_to": 100,
+			"count_prefix": "",
+			"count_suffix": "s",
+			"count_decimals": 0,
+			"param": "Client Reach",
+			"scope": "Real-Time Market Data",
+			"context": "Built streaming infrastructure delivering real-time tick and quote data consumed by hundreds of clients"
+		},
+		{
+			"value": "3",
+			"count_to": 3,
+			"count_prefix": "",
+			"count_suffix": "",
+			"count_decimals": 0,
+			"param": "Market Domains",
+			"scope": "Indian · Crypto · FX",
+			"context": "Contributed to trading-stack expansion across Indian, cryptocurrency, and foreign-exchange markets"
+		},
+		{
+			"value": "6+",
+			"count_to": 6,
+			"count_prefix": "",
+			"count_suffix": "+",
+			"count_decimals": 0,
+			"param": "Years of Experience",
+			"scope": "Quantitative & Trading Systems",
+			"context": "Professional experience spanning quantitative development, algorithmic trading, market data, cloud infrastructure, and software engineering"
 		}
 	]
 }
