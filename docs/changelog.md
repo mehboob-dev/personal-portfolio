@@ -2,12 +2,14 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
-## 2026-08-19 — Container width matching, breakpoint unification, mobile header fix, and unified typography
+## 2026-08-19 — Layout matching, typography unification, mobile header, and anchor redirect fixes
 
 - **Container Width Matching**: updated `.container` styling in `app/static/css/app.css` to match `itqan-trades` exactly (`width: 90%`, `max-width: 1600px`).
 - **Breakpoint Unification**: changed mobile nav toggle and site nav media query breakpoints from `768px` to `900px` in `app/static/css/app.css`, and did the same for contact layout and responsive paddings/grids in `app/static/css/home.css`. This prevents menu wrapping on medium screens and unifies layout responsiveness breakpoints with the Tabulator table wrapper.
 - **Mobile Header Fix**: removed the redundant and empty `.header-controls` container element from `app/templates/base.html` and `app/templates/admin/base.html` and cleaned up its CSS rules in `app.css`. This allows the mobile hamburger menu toggle to correctly align to the right side of the screen using the flexbox `space-between` rule, matching the clean structure of the `itqan-trades` site.
 - **Unified Typography**: aligned the font loading and font variables structure in `app/static/css/app.css` to match `itqan-trades` exactly. The site now loads and uses Google Fonts `Fauna One` (for body/mono/display elements) and `Cinzel` (for headings/serif text), replacing `Plus Jakarta Sans` and `JetBrains Mono`.
+- **Anchor Redirect Fixes**: changed the navigation links in the header of `app/templates/base.html` from relative hashes (e.g. `#systems`) to absolute home paths (e.g. `{{ url_for('public.home') }}#systems`) so that they work correctly when clicked from other pages (such as the 404 page).
+- **Scroll Padding Offset**: added `scroll-padding-top: 80px;` to the `html` element in `app/static/css/app.css` to prevent the sticky header from overlapping and obscuring the headings of targeted sections when scrolling to page anchors.
 
 ---
 

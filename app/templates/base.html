@@ -23,11 +23,11 @@
       </button>
 
       <nav id="site-nav" class="site-nav">
-        <a href="#systems"><span class="nav-num">01</span>Systems</a>
-        <a href="#architecture"><span class="nav-num">02</span>Architecture</a>
-        <a href="#experience"><span class="nav-num">03</span>Chronology</a>
-        <a href="#artifacts"><span class="nav-num">04</span>Artifacts</a>
-        <a href="#contact"><span class="nav-num">05</span>Contact</a>
+        <a href="{{ url_for('public.home') }}#systems"><span class="nav-num">01</span>Systems</a>
+        <a href="{{ url_for('public.home') }}#architecture"><span class="nav-num">02</span>Architecture</a>
+        <a href="{{ url_for('public.home') }}#experience"><span class="nav-num">03</span>Chronology</a>
+        <a href="{{ url_for('public.home') }}#artifacts"><span class="nav-num">04</span>Artifacts</a>
+        <a href="{{ url_for('public.home') }}#contact"><span class="nav-num">05</span>Contact</a>
         {% if current_user.is_authenticated %}
         <a class="nav-admin" href="{{ url_for('admin.dashboard') }}">Admin Desk</a>
         {% endif %}
