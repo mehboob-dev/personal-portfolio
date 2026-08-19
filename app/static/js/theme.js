@@ -59,34 +59,6 @@
       });
     }
 
-    // Support theme swatches if present
-    var swatches = document.querySelectorAll(".theme-swatch");
-    if (swatches.length > 0) {
-      var updateSwatches = function (activeTheme) {
-        swatches.forEach(function (swatch) {
-          if (swatch.getAttribute("data-theme-val") === activeTheme) {
-            swatch.classList.add("is-active");
-          } else {
-            swatch.classList.remove("is-active");
-          }
-        });
-      };
-      
-      swatches.forEach(function (swatch) {
-        swatch.addEventListener("click", function () {
-          var val = swatch.getAttribute("data-theme-val");
-          set(val);
-          updateSwatches(val);
-        });
-      });
-      
-      updateSwatches(curr);
-      
-      window.addEventListener("themechange", function (e) {
-        updateSwatches(e.detail.theme);
-      });
-    }
-
     // Support toggle button if present (cycles or toggles)
     var btn = document.getElementById("theme-toggle");
     if (btn) {

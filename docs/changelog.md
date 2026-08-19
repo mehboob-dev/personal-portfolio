@@ -2,6 +2,12 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Remove color swatches from admin login page
+
+- **Remove Color Swatches**: removed the color/theme swatches from the admin login page (`app/templates/admin/login.html`), including their CSS styles in `app/static/css/app.css` and their theme-handling JavaScript event listeners and UI update logic in `app/static/js/theme.js`.
+
+---
+
 ## 2026-08-19 — Scroll-to-Top FAB, layout matching, typography unification, mobile header, and anchor redirect fixes
 
 - **Scroll-to-Top FAB**: added a "jump to top" floating action button (FAB) with a scroll progress ring to `base.html` and styled it in `app.css`. It features a smooth-scrolling click handler, a circular SVG ring showing scroll percentage, and mobile responsiveness matching the `itqan-trades` implementation.
