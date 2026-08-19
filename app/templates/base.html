@@ -22,21 +22,19 @@
         ☰
       </button>
 
-      <div class="header-controls">
-        <nav id="site-nav" class="site-nav">
-          <a href="#systems"><span class="nav-num">01</span>Systems</a>
-          <a href="#architecture"><span class="nav-num">02</span>Architecture</a>
-          <a href="#experience"><span class="nav-num">03</span>Chronology</a>
-          <a href="#artifacts"><span class="nav-num">04</span>Artifacts</a>
-          <a href="#contact"><span class="nav-num">05</span>Contact</a>
-          {% if current_user.is_authenticated %}
-          <a class="nav-admin" href="{{ url_for('admin.dashboard') }}">Admin Desk</a>
-          {% endif %}
-          <a class="nav-cv-btn" href="{{ url_for('static', filename='resume/' + site.identity.resume if site and site.identity else 'MehboobMeghaniResume.md') }}" download>
-            <span>CV</span> <span>↓</span>
-          </a>
-        </nav>
-      </div>
+      <nav id="site-nav" class="site-nav">
+        <a href="#systems"><span class="nav-num">01</span>Systems</a>
+        <a href="#architecture"><span class="nav-num">02</span>Architecture</a>
+        <a href="#experience"><span class="nav-num">03</span>Chronology</a>
+        <a href="#artifacts"><span class="nav-num">04</span>Artifacts</a>
+        <a href="#contact"><span class="nav-num">05</span>Contact</a>
+        {% if current_user.is_authenticated %}
+        <a class="nav-admin" href="{{ url_for('admin.dashboard') }}">Admin Desk</a>
+        {% endif %}
+        <a class="nav-cv-btn" href="{{ url_for('static', filename='resume/' + site.identity.resume if site and site.identity else 'MehboobMeghaniResume.md') }}" download>
+          <span>CV</span> <span>↓</span>
+        </a>
+      </nav>
     </div>
   </header>
 

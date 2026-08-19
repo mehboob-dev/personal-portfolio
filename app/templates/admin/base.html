@@ -21,16 +21,14 @@
         ☰
       </button>
 
-      <div class="header-controls">
-        <nav id="admin-site-nav" class="site-nav">
-          <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
-          <a href="{{ url_for('admin.campaigns') }}">Campaigns</a>
-          <a href="{{ url_for('admin.qr_list') }}">QR Codes</a>
-          <a href="{{ url_for('admin.leads') }}">Leads</a>
-          <a href="{{ url_for('public.home') }}" target="_blank" rel="noopener">View Site ↗</a>
-          <a href="{{ url_for('admin.logout') }}" style="color: var(--danger);">Logout</a>
-        </nav>
-      </div>
+      <nav id="admin-site-nav" class="site-nav">
+        <a href="{{ url_for('admin.dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('admin.campaigns') }}">Campaigns</a>
+        <a href="{{ url_for('admin.qr_list') }}">QR Codes</a>
+        <a href="{{ url_for('admin.leads') }}">Leads</a>
+        <a href="{{ url_for('public.home') }}" target="_blank" rel="noopener">View Site ↗</a>
+        <a href="{{ url_for('admin.logout') }}" style="color: var(--danger);">Logout</a>
+      </nav>
     </div>
   </header>
 

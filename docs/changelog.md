@@ -2,6 +2,15 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-19 — Container width matching, breakpoint unification, mobile header fix, and unified typography
+
+- **Container Width Matching**: updated `.container` styling in `app/static/css/app.css` to match `itqan-trades` exactly (`width: 90%`, `max-width: 1600px`).
+- **Breakpoint Unification**: changed mobile nav toggle and site nav media query breakpoints from `768px` to `900px` in `app/static/css/app.css`, and did the same for contact layout and responsive paddings/grids in `app/static/css/home.css`. This prevents menu wrapping on medium screens and unifies layout responsiveness breakpoints with the Tabulator table wrapper.
+- **Mobile Header Fix**: removed the redundant and empty `.header-controls` container element from `app/templates/base.html` and `app/templates/admin/base.html` and cleaned up its CSS rules in `app.css`. This allows the mobile hamburger menu toggle to correctly align to the right side of the screen using the flexbox `space-between` rule, matching the clean structure of the `itqan-trades` site.
+- **Unified Typography**: aligned the font loading and font variables structure in `app/static/css/app.css` to match `itqan-trades` exactly. The site now loads and uses Google Fonts `Fauna One` (for body/mono/display elements) and `Cinzel` (for headings/serif text), replacing `Plus Jakarta Sans` and `JetBrains Mono`.
+
+---
+
 ## 2026-08-19 — Reusable JSON defaults and FontAwesome icon support
 
 - **Generic Defaults System**: implemented generic `"defaults"` block merging dynamically for all content JSON files loaded via `get_content()` in `app/helpers.py`.
