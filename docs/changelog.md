@@ -11,6 +11,8 @@ All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 - **Unified Typography**: aligned the font loading and font variables structure in `app/static/css/app.css` to match `itqan-trades` exactly. The site now loads and uses Google Fonts `Fauna One` (for body/mono/display elements) and `Cinzel` (for headings/serif text), replacing `Plus Jakarta Sans` and `JetBrains Mono`.
 - **Anchor Redirect Fixes**: changed the navigation links in the header of `app/templates/base.html` from relative hashes (e.g. `#systems`) to absolute home paths (e.g. `{{ url_for('public.home') }}#systems`) so that they work correctly when clicked from other pages (such as the 404 page).
 - **Scroll Padding Offset**: added `scroll-padding-top: 80px;` to the `html` element in `app/static/css/app.css` to prevent the sticky header from overlapping and obscuring the headings of targeted sections when scrolling to page anchors.
+- **Mobile Grid Layout Overflow Fixes**: updated `.decisions-grid`, `.arch-dossier-grid`, `.foundation-grid`, and `.artifacts-grid` in `app/static/css/home.css` to use `minmax(min(100%, X), 1fr)` patterns. This prevents horizontal scrolling and layout overflow on mobile screens where the container width is smaller than the grid columns' minimum width. Also decreased padding of `.arch-dossier-card` under the 900px breakpoint to allow more breathing room for text-rich sections.
+- **Justify Align Content Globally**: added `text-align: justify;` to the global `p` rule in `app/static/css/app.css` to make all body/description text elements on the site justify-aligned. Removed the card-specific alignment from `home.css` to rely on the global style.
 
 ---
 
