@@ -10,13 +10,13 @@
   <div class="container">
     <div class="masthead-inner">
       <div class="masthead-identity">
-        <h1 class="masthead-name">{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }}</h1>
-        <p class="masthead-role">{{ site.masthead.role if site and site.masthead else 'Quantitative Developer · Systems Infrastructure' }}</p>
-        <p class="masthead-context">{{ site.identity.focus if site and site.identity else 'High-performance trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures.' }}</p>
+        <h1 class="masthead-name" data-anim-text data-gsap-reveal>{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }}</h1>
+        <p class="masthead-role" data-gsap-reveal="up">{{ site.masthead.role if site and site.masthead else 'Quantitative Developer · Systems Infrastructure' }}</p>
+        <p class="masthead-context" data-gsap-reveal="up">{{ site.identity.focus if site and site.identity else 'High-performance trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures.' }}</p>
       </div>
 
       <!-- Direct Channels Toolbar -->
-      <div class="masthead-channels">
+      <div class="masthead-channels" data-gsap-reveal="up">
         <div class="channel-row">
           {% if site and site.identity and site.identity.contact %}
           <a class="channel-link channel-link-primary" href="mailto:{{ site.identity.contact.email }}">
@@ -44,16 +44,22 @@
       </div>
 
       <!-- Calibrated Engineering Evidence Benchmarks Panel -->
-      <div class="benchmarks-spec-panel">
+      <div class="benchmarks-spec-panel" data-gsap-reveal="up">
         <div class="benchmarks-spec-header">
           <span>// Calibrated System & Performance Benchmarks</span>
           <span>Verified Production & Replay Specs</span>
         </div>
         <div class="benchmarks-spec-grid">
           {% for b in (site.benchmarks if site and site.benchmarks else site.benchmark.stats) %}
-          <div class="benchmark-spec-item">
+          <div class="benchmark-spec-item" data-gsap-reveal>
             <span class="benchmark-spec-param">{{ b.param if b.param else 'Metric' }}</span>
-            <span class="benchmark-spec-val">{{ b.value }}</span>
+            <span class="benchmark-spec-val"
+                  {% if b.count_to is defined %}
+                    data-count-to="{{ b.count_to }}"
+                    {% if b.count_prefix is defined %}data-count-prefix="{{ b.count_prefix }}"{% endif %}
+                    {% if b.count_suffix is defined %}data-count-suffix="{{ b.count_suffix }}"{% endif %}
+                    {% if b.count_decimals is defined %}data-count-decimals="{{ b.count_decimals }}"{% endif %}
+                  {% endif %}>{{ b.value }}</span>
             <span class="benchmark-spec-scope">{{ b.scope if b.scope else b.label }}</span>
             <p class="benchmark-spec-ctx">{{ b.context if b.context else site.benchmark.detail }}</p>
           </div>
@@ -72,15 +78,15 @@
   <div id="engine"></div>
   <div id="projects"></div>
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-gsap-reveal>
       <div class="section-label">[01] Flagship Systems</div>
-      <h2 class="section-title">Production Trading Infrastructure & Case Studies</h2>
+      <h2 class="section-title" data-anim-text>Production Trading Infrastructure & Case Studies</h2>
       <p class="section-intro">Detailed technical breakdowns of core execution engines, data distribution pipelines, and architectural optimization work.</p>
     </div>
 
     <div class="flagship-list">
       {% for system in (content.projects.flagship_systems if content.projects and content.projects.flagship_systems else []) %}
-      <article class="case-study" id="system-{{ system.id }}">
+      <article class="case-study" id="system-{{ system.id }}" data-gsap-reveal>
         <!-- Header -->
         <div class="case-header">
           <div class="case-meta">
@@ -179,16 +185,16 @@
   <!-- Secondary anchor for legacy /skills test compatibility -->
   <div id="skills"></div>
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-gsap-reveal>
       <div class="section-label">[02] Systems Architecture</div>
-      <h2 class="section-title">Architectural Mechanisms & Trade-offs</h2>
+      <h2 class="section-title" data-anim-text>Architectural Mechanisms & Trade-offs</h2>
       <p class="section-intro">Core engineering decisions, memory boundaries, and execution models connected to the concrete systems where they operate.</p>
     </div>
 
     <!-- Systems Architecture Dossier List -->
     <div class="arch-dossier-list">
       {% for arch in (content.about.systems_architecture if content.about and content.about.systems_architecture else []) %}
-      <article class="arch-dossier-card">
+      <article class="arch-dossier-card" data-gsap-reveal>
         <div class="arch-dossier-head">
           <h3 class="arch-concept-title">{{ arch.concept }}</h3>
           <span class="arch-system-badge">System: {{ arch.system }}</span>
@@ -224,17 +230,17 @@
   <!-- Secondary anchor for legacy /education test compatibility -->
   <div id="education"></div>
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-gsap-reveal>
       <div class="section-label">[03] Chronology & Foundations</div>
-      <h2 class="section-title">Production Engineering History</h2>
+      <h2 class="section-title" data-anim-text>Production Engineering History</h2>
       <p class="section-intro">Six years at Wallstreet Algo Trading developing infrastructure from low-level socket streaming to complete multi-asset strategy rewrites.</p>
     </div>
 
     <div class="chronology-list">
       {% for role in (content.experience.roles if content.experience and content.experience.roles else []) %}
-      <article class="chronology-item">
+      <article class="chronology-item" data-gsap-reveal>
         <div class="chronology-head">
-          <h3 class="role-title">{{ role.title }} · <span class="muted" style="font-weight: 500;">{{ role.org }}</span></h3>
+          <h3 class="role-title" data-anim-text>{{ role.title }} · <span class="muted" style="font-weight: 500;">{{ role.org }}</span></h3>
           <span class="role-period">{{ role.period }}</span>
         </div>
         {% if role.system %}
@@ -246,7 +252,7 @@
     </div>
 
     <!-- Integrated Technical Foundation (Embedded Context) -->
-    <div class="foundation-panel">
+    <div class="foundation-panel" data-gsap-reveal>
       <div class="case-block-title">Academic & Technical Foundation</div>
       <p class="muted" style="margin-bottom: 0; font-size: 0.85rem;">Formal engineering training in telecommunications, signal protocols, and hardware-conscious computer engineering.</p>
       
@@ -270,15 +276,15 @@
      ========================================================================== -->
 <section id="artifacts" class="section">
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-gsap-reveal>
       <div class="section-label">[04] Secondary Artifacts</div>
-      <h2 class="section-title">Tools & Engineering Utilities</h2>
+      <h2 class="section-title" data-anim-text>Tools & Engineering Utilities</h2>
       <p class="section-intro">Supporting open-source tooling, data extraction scrapers, and internal infrastructure utilities.</p>
     </div>
 
     <div class="artifacts-grid">
       {% for artifact in (content.projects.secondary_artifacts if content.projects and content.projects.secondary_artifacts else []) %}
-      <article class="artifact-card">
+      <article class="artifact-card" data-gsap-reveal>
         <div class="artifact-head">
           <h3>{{ artifact.name }}</h3>
           <span class="badge {{ artifact.classification_class }}">{{ artifact.classification }}</span>
@@ -311,9 +317,9 @@
      ========================================================================== -->
 <section id="contact" class="section">
   <div class="container">
-    <div class="section-head">
+    <div class="section-head" data-gsap-reveal>
       <div class="section-label">[05] Direct Contact</div>
-      <h2 class="section-title">Direct Inquiries & Technical Inquiries</h2>
+      <h2 class="section-title" data-anim-text>Direct Inquiries & Technical Inquiries</h2>
       <p class="section-intro">{{ content.contact.lead if content.contact else 'Reach out directly or send a message below.' }}</p>
     </div>
 
@@ -325,7 +331,7 @@
 
     <div class="contact-layout">
       <!-- Direct Contact Channels -->
-      <div class="contact-channels">
+      <div class="contact-channels" data-gsap-reveal="left">
         <div class="channel-entry">
           <span class="channel-label">Direct Email</span>
           <span class="channel-val">
@@ -361,7 +367,7 @@
       </div>
 
       <!-- Concise Structured Inquiry Form -->
-      <div class="contact-form-wrap">
+      <div class="contact-form-wrap" data-gsap-reveal="right">
         <form method="post" action="{{ url_for('public.contact_submit') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <div class="form-group">

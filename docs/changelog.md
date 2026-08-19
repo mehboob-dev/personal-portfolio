@@ -2,6 +2,15 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Implement GSAP scroll-triggered and numeric count-up animations with immediate hero loading
+
+- **Immediate Hero Animation Loading**: updated the GSAP animation runner script in both `app/templates/base.html` and `app/templates/admin/base.html` to check if animated elements reside inside the hero masthead container (`#about`). If they do, their animations (fade/slide reveals, word-masks, and numeric count-ups) trigger immediately upon script execution/page load instead of waiting for scroll trigger entry, ensuring a complete and animated initial viewport above the fold.
+- **GSAP Scroll Animations Setup**: integrated GSAP and ScrollTrigger libraries via CDN links in `app/templates/base.html` and `app/templates/admin/base.html`. Added scroll-reveal styles with progressive enhancement wrapping (`html.js-gsap [data-gsap-reveal] { opacity: 0; }`) to ensure contents only start hidden when JavaScript and GSAP are loaded and actively driving the page.
+- **Scroll-Reveal Animations**: decorated section headers, card lists, timelines, and form panels in `app/templates/public/home.html` and `app/templates/admin/dashboard.html` with `data-gsap-reveal` triggers and `data-anim-text` word-masks for smooth transition reveals on scroll.
+- **Numeric Count-up Engine**: integrated numeric count-up animations for key metrics using `data-count-to` parameters. Updated `data/config.json` with dedicated animation configurations for the system benchmarks (throughput, memory reduction, socket latency, cloud cost optimization) so that benchmark values dynamically count up when scrolled into view.
+
+---
+
 ## 2026-08-20 — Convert direct channels toolbar to two-line layout and refine mobile navigation menu
 
 - **Two-Line Masthead Toolbar**: split the direct contact/links toolbar inside `.masthead-channels` (under `app/templates/public/home.html`) into two distinct lines: Email and Phone contact info on Line 1, and GitHub, LinkedIn, and Download CV on Line 2. Modified CSS in `app/static/css/home.css` to preserve this two-line layout, keep it left-aligned on mobile devices, and optimize sizing. To prevent wrapping/overflow on mobile viewports, the long email address text is swapped to display "Email" on screens under 480px.

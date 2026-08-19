@@ -1,7 +1,7 @@
 {% extends "admin/base.html" %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="section-head" style="margin-bottom: 24px;">
+<div class="section-head" style="margin-bottom: 24px;" data-gsap-reveal>
   <h1 style="font-size: 1.6rem; margin: 0 0 6px;">Portfolio Operations & Telemetry</h1>
   <p class="muted" style="margin: 0; font-size: 0.88rem;">Real-time intelligence from dynamic QR endpoints and direct contact inquiries.</p>
 </div>
@@ -9,7 +9,7 @@
 <!-- 5 Primary Metric Cards Grid -->
 <div class="admin-stats-grid">
   <!-- Card 1: Total Scans -->
-  <a href="{{ url_for('admin.qr_list') }}" class="admin-stat-card">
+  <a href="{{ url_for('admin.qr_list') }}" class="admin-stat-card" data-gsap-reveal>
     <div class="admin-stat-head">
       <span class="admin-stat-label">Total Scans</span>
       <span class="admin-stat-icon">📊</span>
@@ -22,7 +22,7 @@
   </a>
 
   <!-- Card 2: Unique Visitors -->
-  <div class="admin-stat-card">
+  <div class="admin-stat-card" data-gsap-reveal>
     <div class="admin-stat-head">
       <span class="admin-stat-label">Unique Visitors</span>
       <span class="admin-stat-icon">🛡️</span>
@@ -35,7 +35,7 @@
   </div>
 
   <!-- Card 3: Active QR Codes -->
-  <a href="{{ url_for('admin.qr_list') }}" class="admin-stat-card">
+  <a href="{{ url_for('admin.qr_list') }}" class="admin-stat-card" data-gsap-reveal>
     <div class="admin-stat-head">
       <span class="admin-stat-label">Active QR Codes</span>
       <span class="admin-stat-icon">⚡</span>
@@ -48,7 +48,7 @@
   </a>
 
   <!-- Card 4: Campaigns -->
-  <a href="{{ url_for('admin.campaigns') }}" class="admin-stat-card">
+  <a href="{{ url_for('admin.campaigns') }}" class="admin-stat-card" data-gsap-reveal>
     <div class="admin-stat-head">
       <span class="admin-stat-label">Campaigns</span>
       <span class="admin-stat-icon">🏷️</span>
@@ -61,7 +61,7 @@
   </a>
 
   <!-- Card 5: Leads Captured -->
-  <a href="{{ url_for('admin.leads') }}" class="admin-stat-card">
+  <a href="{{ url_for('admin.leads') }}" class="admin-stat-card" data-gsap-reveal>
     <div class="admin-stat-head">
       <span class="admin-stat-label">Leads Captured</span>
       <span class="admin-stat-icon">📬</span>
@@ -77,13 +77,13 @@
 <!-- Charts & Breakdown Grid -->
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px; margin-bottom: 32px;">
   <!-- Daily Scan Activity (Last 14 Days) -->
-  <div class="card">
+  <div class="card" data-gsap-reveal>
     <div class="case-block-title">Scan Activity Timeline (Last 14 Days)</div>
     <div id="dashboard-daily-table"></div>
   </div>
 
   <!-- Device & OS Breakdown -->
-  <div class="card">
+  <div class="card" data-gsap-reveal>
     <div class="case-block-title">Client Platform Breakdown</div>
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
       <div>
@@ -117,7 +117,7 @@
 </div>
 
 <!-- Recent Scans Tabulator Table -->
-<div class="card" style="padding: 0; overflow: hidden;">
+<div class="card" style="padding: 0; overflow: hidden;" data-gsap-reveal>
   <div style="padding: 16px 20px; border-bottom: 1px solid var(--border-subtle); background: var(--bg-subtle); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;">
     <div>
       <div class="case-block-title" style="margin:0 0 2px;">Recent Scan Stream (Last 15 Records)</div>

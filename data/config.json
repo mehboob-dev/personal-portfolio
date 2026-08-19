@@ -31,24 +31,40 @@
   "benchmarks": [
     {
       "value": "< 3 min",
+      "count_to": 3,
+      "count_prefix": "< ",
+      "count_suffix": " min",
+      "count_decimals": 0,
       "param": "Throughput Benchmark",
       "scope": "50 symbols × 3 years × 1m OHLCV",
       "context": "Multi-strategy backtest sweep with modular exit evaluation through the complete pipeline"
     },
     {
       "value": "~ 80%",
+      "count_to": 80,
+      "count_prefix": "~ ",
+      "count_suffix": "%",
+      "count_decimals": 0,
       "param": "Memory Footprint",
       "scope": "MMF + Blittable Structs",
       "context": "Direct virtual memory mapping eliminating GC allocation churn and heap pressure"
     },
     {
       "value": "< 10 ms",
+      "count_to": 10,
+      "count_prefix": "< ",
+      "count_suffix": " ms",
+      "count_decimals": 0,
       "param": "Distribution Latency",
       "scope": "Hundreds of Client Endpoints",
       "context": "Low-level TCP socket loop with ring buffering to real-time SignalR web broadcast"
     },
     {
       "value": "98.8%",
+      "count_to": 98.8,
+      "count_prefix": "",
+      "count_suffix": "%",
+      "count_decimals": 1,
       "param": "Resource Efficiency",
       "scope": "Cloud Infrastructure Migration",
       "context": "Dynamic session-aware compute scheduling eliminating idle resource overhead"

@@ -7,8 +7,27 @@
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
   <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.2.1/dist/css/tabulator.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+
+  <!-- GSAP Scroll Animations: elements only hide while JS drives them -->
+  <style>
+    html.js-gsap [data-gsap-reveal] { opacity: 0; }
+    html.js-gsap [data-anim-text] .anim-mask {
+      display: inline-block;
+      overflow: hidden;
+      vertical-align: top;
+      padding-bottom: 0.1em;
+      margin-bottom: -0.1em;
+    }
+    html.js-gsap [data-anim-text] .anim-mask-in {
+      display: inline-block;
+      will-change: transform;
+    }
+  </style>
+
   <script src="https://unpkg.com/tabulator-tables@6.2.1/dist/js/tabulator.min.js"></script>
   <script src="{{ url_for('static', filename='js/table.js') }}"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
 <body>
   <header class="admin-header">
@@ -56,6 +75,122 @@
           });
         });
       }
+    })();
+  </script>
+
+  <!-- GSAP Scroll Animations — reveal, word-mask text, counters (progressively enhanced) -->
+  <script>
+    (function () {
+      if (!window.gsap || !window.ScrollTrigger) return;
+      gsap.registerPlugin(ScrollTrigger);
+
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (reduceMotion) return;
+
+      // Only when JS + GSAP are actually driving the page do elements start hidden.
+      document.documentElement.classList.add("js-gsap");
+
+      // 1) Fade / slide / zoom reveal on scroll (or immediate if on hero)
+      var REVEAL_FROM = {
+        up:    { y: 30 },
+        left:  { x: -36 },
+        right: { x: 36 },
+        zoom:  { scale: 0.92 }
+      };
+      gsap.utils.toArray("[data-gsap-reveal]").forEach(function (el) {
+        var dir = el.getAttribute("data-gsap-reveal") || "up";
+        var from = REVEAL_FROM[dir] || REVEAL_FROM.up;
+        var onHero = el.closest("#about");
+        var animOpts = {
+          autoAlpha: 1, x: 0, y: 0, scale: 1,
+          duration: 0.8,
+          ease: "power2.out",
+          clearProps: "transform"
+        };
+        if (!onHero) {
+          animOpts.scrollTrigger = { trigger: el, start: "top 85%", once: true };
+        }
+        gsap.fromTo(el, Object.assign({ autoAlpha: 0 }, from), animOpts);
+      });
+
+      // 2) Word-mask text reveal for [data-anim-text] headings.
+      //    Only direct text nodes are masked, so nested custom spans
+      //    stay intact and rise in separately.
+      gsap.utils.toArray("[data-anim-text]").forEach(function (head) {
+        var nodes = Array.prototype.slice.call(head.childNodes);
+        var frag = document.createDocumentFragment();
+        nodes.forEach(function (child) {
+          if (child.nodeType === 3) {
+            String(child.textContent).split(/(\s+)/).forEach(function (part) {
+              if (!part) return;
+              if (/^\s+$/.test(part)) {
+                frag.appendChild(document.createTextNode(part));
+              } else {
+                var mask = document.createElement("span");
+                mask.className = "anim-mask";
+                var inner = document.createElement("span");
+                inner.className = "anim-mask-in";
+                inner.textContent = part;
+                mask.appendChild(inner);
+                frag.appendChild(mask);
+              }
+            });
+          } else {
+            frag.appendChild(child);
+          }
+        });
+        head.textContent = "";
+        head.appendChild(frag);
+
+        var onHero = head.closest("#about");
+        var textOpts = {
+          yPercent: 0,
+          duration: 0.9,
+          ease: "power4.out",
+          stagger: 0.045
+        };
+        if (!onHero) {
+          textOpts.scrollTrigger = { trigger: head, start: "top 88%", once: true };
+        }
+        gsap.fromTo(head.querySelectorAll(".anim-mask-in"), { yPercent: 115 }, textOpts);
+
+        var spans = head.querySelectorAll("span:not(.anim-mask):not(.anim-mask-in)");
+        if (spans.length) {
+          var spanOpts = {
+            autoAlpha: 0, yPercent: 40,
+            duration: 0.7, ease: "power3.out",
+            delay: 0.25
+          };
+          if (!onHero) {
+            spanOpts.scrollTrigger = { trigger: head, start: "top 88%", once: true };
+          }
+          gsap.from(spans, spanOpts);
+        }
+      });
+
+      // 3) Count-up numbers when scrolled into view (or immediate if on hero)
+      gsap.utils.toArray("[data-count-to]").forEach(function (el) {
+        var target = parseFloat(el.getAttribute("data-count-to"));
+        if (isNaN(target)) return;
+        var decimals = parseInt(el.getAttribute("data-count-decimals") || "0", 10);
+        var prefix = el.getAttribute("data-count-prefix") || "";
+        var suffix = el.getAttribute("data-count-suffix") || "";
+        el.textContent = prefix + (0).toFixed(decimals) + suffix;
+        var state = { v: 0 };
+        var onHero = el.closest("#about");
+        var countOpts = {
+          v: target,
+          duration: 1.8,
+          ease: "power2.out",
+          onUpdate: function () {
+            el.textContent = prefix + state.v.toFixed(decimals) + suffix;
+          }
+        };
+        if (!onHero) {
+          countOpts.scrollTrigger = { trigger: el, start: "top 88%", once: true };
+        }
+        gsap.to(state, countOpts);
+      });
     })();
   </script>
 </body>
