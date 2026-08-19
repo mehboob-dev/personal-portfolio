@@ -321,6 +321,22 @@ code, kbd, samp, pre {
   font-size: 0.8125rem;
 }
 
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
 .badge {
   display: inline-flex;
   align-items: center;
@@ -345,22 +361,6 @@ code, kbd, samp, pre {
   color: var(--accent-signal);
   background: rgba(5, 150, 105, 0.08);
   border-color: rgba(5, 150, 105, 0.25);
-}
-
-.tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.tag {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
-  padding: 2px 6px;
 }
 
 /* ==========================================================================

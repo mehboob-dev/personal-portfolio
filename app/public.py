@@ -27,6 +27,7 @@ def home():
         content={
             "about": get_content("about") or {},
             "experience": get_content("experience") or {},
+            "education": get_content("education") or {},
             "projects": get_content("projects") or {},
             "contact": get_content("contact") or {},
         },

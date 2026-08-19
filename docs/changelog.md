@@ -2,6 +2,19 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-19 — Reusable JSON defaults and FontAwesome icon support
+
+- **Generic Defaults System**: implemented generic `"defaults"` block merging dynamically for all content JSON files loaded via `get_content()` in `app/helpers.py`.
+- **`data/content/education.json`**: created new content file to make education data independent of experience data.
+- **`data/content/about.json`**: removed duplicate/redundant `"education"` block to adhere to DRY principles.
+- **`data/content/experience.json`**: removed the `"education"` block, keeping professional experience decoupled from education.
+- **`app/helpers.py`**: replaced `preprocess_projects` with a generic recursive `merge_defaults` function combined with a name-specific `preprocess_content` mapper, making fallback resolution completely deterministic at Python load-time.
+- **`app/public.py`**: registered and loaded `"education"` as an independent content file in the homepage routing context.
+- **`app/templates/public/home.html`**: cleaned up flagship systems, secondary artifacts, and education rendering templates by removing all Jinja2 fallback/guessing inline logic in favor of directly rendering backend-resolved values (using bracket notation `['items']` for education).
+- **`tests/test_public.py`**: added unit tests to verify deterministic merging of defaults in projects JSON content loading, and to assert that education is loaded independently.
+
+---
+
 ## 2026-08-19 — Fix table header select-all to target filtered rows
 
 - **`app/static/js/table.js`**: modified `TableKit` table selection logic to only select/deselect active (filtered) rows when the header checkbox is clicked. The header checkbox's state (checked, unchecked, indeterminate) is automatically kept in sync with the selection status of active rows by listening to `rowSelectionChanged` and `dataFiltered` events.

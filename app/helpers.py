@@ -24,8 +24,107 @@ def get_site_config(base_dir: Path | None = None) -> dict:
     return load_json("config.json", base_dir)
 
 
+def merge_defaults(data: dict, defaults: dict | None = None) -> dict:
+    """Generically merge 'defaults' block keys into lists of dicts at any level."""
+    if not isinstance(data, dict):
+        return data
+
+    local_defaults = data.get("defaults")
+    current_defaults = {}
+    if defaults:
+        current_defaults.update(defaults)
+    if isinstance(local_defaults, dict):
+        current_defaults.update(local_defaults)
+
+    for key, value in data.items():
+        if key == "defaults":
+            continue
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    for def_k, def_v in current_defaults.items():
+                        if def_k not in item or item[def_k] is None or item[def_k] == "":
+                            item[def_k] = def_v
+                    merge_defaults(item, current_defaults)
+        elif isinstance(value, dict):
+            merge_defaults(value, current_defaults)
+
+    return data
+
+
+def preprocess_content(name: str, data: dict) -> dict:
+    """Preprocess loaded JSON content to apply defaults and mappings."""
+    if not data:
+        return data
+
+    # 1. Run generic defaults merge
+    data = merge_defaults(data)
+
+    # 2. Specific projects-only mappings
+    if name == "projects":
+        defaults = data.get("defaults", {})
+        default_tech_badge = defaults.get("tech_badge_class", "badge-accent")
+        default_cta = defaults.get("cta_label", "GitHub Repository")
+        default_icon = defaults.get("project_icon", "fa-brands fa-github")
+
+        for system in data.get("flagship_systems", []):
+            if isinstance(system, dict):
+                if "classification_class" not in system or not system["classification_class"]:
+                    system["classification_class"] = default_tech_badge
+
+                stack = system.get("stack", [])
+                if isinstance(stack, list):
+                    new_stack = []
+                    for tech in stack:
+                        if isinstance(tech, dict):
+                            if "class" not in tech or not tech["class"]:
+                                tech["class"] = default_tech_badge
+                            new_stack.append(tech)
+                        else:
+                            new_stack.append(tech)
+                    system["stack"] = new_stack
+
+                evidence = system.get("evidence")
+                if isinstance(evidence, dict) and "link" in evidence:
+                    link = evidence["link"]
+                    if isinstance(link, dict):
+                        if "label" not in link or not link["label"]:
+                            link["label"] = default_cta
+                        if "icon" not in link or not link["icon"]:
+                            link["icon"] = default_icon
+
+        for artifact in data.get("secondary_artifacts", []):
+            if isinstance(artifact, dict):
+                if "classification_class" not in artifact or not artifact["classification_class"]:
+                    artifact["classification_class"] = default_tech_badge
+
+                stack = artifact.get("stack", [])
+                if isinstance(stack, list):
+                    new_stack = []
+                    for tech in stack:
+                        if isinstance(tech, dict):
+                            if "class" not in tech or not tech["class"]:
+                                tech["class"] = default_tech_badge
+                            new_stack.append(tech)
+                        else:
+                            new_stack.append(tech)
+                    artifact["stack"] = new_stack
+
+                link = artifact.get("link")
+                if isinstance(link, dict):
+                    if "label" not in link or not link["label"]:
+                        link["label"] = default_cta
+                    if "icon" not in link or not link["icon"]:
+                        link["icon"] = default_icon
+
+    return data
+
+
 def get_content(name: str, base_dir: Path | None = None) -> dict:
-    return load_json(f"content/{name}.json", base_dir)
+    data = load_json(f"content/{name}.json", base_dir)
+    if data:
+        data = preprocess_content(name, data)
+    return data
 
 
 # --- Strings ---------------------------------------------------------------

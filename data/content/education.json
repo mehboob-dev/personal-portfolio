@@ -1,0 +1,18 @@
+{
+  "heading": "Integrated Technical Foundation",
+  "intro": "Formal engineering background in hardware, telecommunications, and low-level computing.",
+  "items": [
+    {
+      "degree": "Bachelor of Engineering — Electronics & Telecommunication",
+      "institution": "M. H. Saboo Siddik College of Engineering, Mumbai",
+      "period": "2020 – 2023",
+      "focus": "Signal processing, telecommunication protocols, digital electronics, and computer networks."
+    },
+    {
+      "degree": "Diploma in Computer Engineering",
+      "institution": "M. H. Saboo Siddik Polytechnic, Mumbai",
+      "period": "2016 – 2020",
+      "focus": "Computer architecture, data structures, low-level programming, operating systems, and OOP."
+    }
+  ]
+}

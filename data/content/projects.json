@@ -1,13 +1,24 @@
 {
   "heading": "Flagship Engineering Systems",
   "intro": "Production trading infrastructure, low-latency distribution pipelines, and architectural case studies.",
+  "defaults": {
+    "tech_badge_class": "badge-accent",
+    "cta_label": "GitHub Repository",
+    "project_icon": "fa-brands fa-github"
+  },
   "flagship_systems": [
     {
       "id": "trading-engine",
       "number": "01",
       "title": "High-Throughput Algorithmic Trading & Backtesting Engine",
       "classification": "Internal Production · Live Demo Available",
-      "stack": ["C#", ".NET", "Unmanaged C++ Interop", "Memory-Mapped Files", "SignalR"],
+      "stack": [
+        { "name": "C#", "class": "badge-accent" },
+        { "name": ".NET", "class": "badge-accent" },
+        "Unmanaged C++ Interop",
+        "Memory-Mapped Files",
+        "SignalR"
+      ],
       "context": "Backtesting multi-strategy models across 50 instruments over 3 years of 1-minute OHLCV data created severe memory overhead and Garbage Collector allocation pauses in traditional object-oriented pipeline designs.",
       "constraints": [
         "Eliminating .NET Garbage Collector pauses under sustained multi-million candle workloads",
@@ -44,7 +55,8 @@
         "label": "50 symbols × 3 years × 1-minute OHLCV full pipeline backtest completed in under 3 minutes.",
         "link": {
           "label": "Explore Interactive Engine Replay",
-          "url": "https://itqantrades.com/expo"
+          "url": "https://itqantrades.com/expo",
+          "icon": "fa-solid fa-up-right-from-square"
         }
       }
     },
@@ -53,7 +65,14 @@
       "number": "02",
       "title": "Low-Latency Market Data Distribution Pipeline",
       "classification": "Production System · Wallstreet Algo Trading",
-      "stack": ["C#", ".NET", "Sockets", "Multithreading", "SignalR", "WebSockets"],
+      "stack": [
+        { "name": "C#", "class": "badge-accent" },
+        { "name": ".NET", "class": "badge-accent" },
+        "Sockets",
+        "Multithreading",
+        "SignalR",
+        "WebSockets"
+      ],
       "context": "Real-time distribution of high-frequency tick and quote market feeds to hundreds of distributed client applications with sub-10ms delivery requirements.",
       "constraints": [
         "Preventing network buffer congestion under sudden market volatility bursts",
@@ -124,28 +143,38 @@
       "classification": "Production · This Site",
       "description": "Generic QR redirect engine with mutable destinations, SHA-256 IP anonymization, campaign analytics, and lead capture. Built so physical business cards never go stale.",
       "stack": ["Flask", "SQLAlchemy", "SQLite / MySQL", "Vanilla JS"],
-      "link": { "label": "Architecture Overview", "url": "#architecture" }
+      "link": {
+        "label": "Architecture Overview",
+        "url": "#architecture",
+        "icon": "fa-solid fa-sitemap"
+      }
     },
     {
       "name": "GitHub Trend Recorder & Historical API",
       "classification": "Open Source",
       "description": "Web scraper and FastAPI service tracking daily trending GitHub repositories with filters for spoken language, programming language, and historical date ranges.",
       "stack": ["FastAPI", "Flask", "Python", "Scraping"],
-      "link": { "label": "GitHub Repository", "url": "https://github.com/mehboob-dev/Github-Trend-Recorder-API" }
+      "link": {
+        "url": "https://github.com/mehboob-dev/Github-Trend-Recorder-API"
+      }
     },
     {
       "name": "UrbanDB",
       "classification": "Open Source",
       "description": "REST API built with Flask providing structured CRUD operations using Google Sheets as a lightweight backend.",
       "stack": ["Flask", "REST API", "Google Sheets API"],
-      "link": { "label": "GitHub Repository", "url": "https://github.com/mehboob-dev/UrbanDB" }
+      "link": {
+        "url": "https://github.com/mehboob-dev/UrbanDB"
+      }
     },
     {
       "name": "SBEUIA Voice Assistant",
       "classification": "Open Source",
       "description": "Voice-command-based intelligent assistant capable of autonomous task execution and speech processing.",
       "stack": ["Python", "Speech Recognition", "Automation"],
-      "link": { "label": "GitHub Repository", "url": "https://github.com/mehboob-dev/SBEUIA" }
+      "link": {
+        "url": "https://github.com/mehboob-dev/SBEUIA"
+      }
     }
   ],
   "projects": [

@@ -81,12 +81,16 @@
         <div class="case-header">
           <div class="case-meta">
             <span class="case-num">SYSTEM [{{ system.number }}]</span>
-            <span class="badge badge-accent">{{ system.classification }}</span>
+            <span class="badge {{ system.classification_class }}">{{ system.classification }}</span>
           </div>
           <h3 class="case-title">{{ system.title }}</h3>
           <div class="tag-list">
             {% for tech in system.stack %}
-            <span class="tag">{{ tech }}</span>
+              {% if tech is string %}
+                <span class="tag">{{ tech }}</span>
+              {% else %}
+                <span class="tag {{ tech.class }}">{{ tech.name }}</span>
+              {% endif %}
             {% endfor %}
           </div>
         </div>
@@ -152,7 +156,7 @@
             </div>
             {% if system.evidence.link %}
             <a class="btn btn-sm btn-primary" href="{{ system.evidence.link.url }}" target="_blank" rel="noopener">
-              {{ system.evidence.link.label }} ↗
+              {% if system.evidence.link.icon %}<i class="{{ system.evidence.link.icon }}"></i> {% endif %}{{ system.evidence.link.label }}
             </a>
             {% endif %}
           </div>
@@ -243,11 +247,10 @@
       <p class="muted" style="margin-bottom: 0; font-size: 0.85rem;">Formal engineering training in telecommunications, signal protocols, and hardware-conscious computer engineering.</p>
       
       <div class="foundation-grid">
-        {% set edu_items = content.experience.education['items'] if (content.experience and content.experience.education and content.experience.education['items'] is defined) else (content.about.education['items'] if (content.about and content.about.education and content.about.education['items'] is defined) else []) %}
-        {% for edu in edu_items %}
+        {% for edu in content.education['items'] %}
         <div class="foundation-item">
           <h4>{{ edu.degree }}</h4>
-          <div class="foundation-school">{{ edu.institution if edu.institution else edu.school }} · <span class="mono">{{ edu.period }}</span></div>
+          <div class="foundation-school">{{ edu.institution }} · <span class="mono">{{ edu.period }}</span></div>
           {% if edu.focus %}
           <p class="foundation-focus">{{ edu.focus }}</p>
           {% endif %}
@@ -274,18 +277,22 @@
       <article class="artifact-card">
         <div class="artifact-head">
           <h3>{{ artifact.name }}</h3>
-          <span class="badge">{{ artifact.classification }}</span>
+          <span class="badge {{ artifact.classification_class }}">{{ artifact.classification }}</span>
         </div>
         <p class="artifact-desc">{{ artifact.description }}</p>
         <div class="tag-list">
           {% for tech in artifact.stack %}
-          <span class="tag">{{ tech }}</span>
+            {% if tech is string %}
+              <span class="tag">{{ tech }}</span>
+            {% else %}
+              <span class="tag {{ tech.class }}">{{ tech.name }}</span>
+            {% endif %}
           {% endfor %}
         </div>
         {% if artifact.link %}
         <div class="artifact-links">
           <a class="btn btn-sm btn-mono" href="{{ artifact.link.url }}" {% if artifact.link.url.startswith('http') %}target="_blank" rel="noopener"{% endif %}>
-            {{ artifact.link.label }} ↗
+            {% if artifact.link.icon %}<i class="{{ artifact.link.icon }}"></i> {% endif %}{{ artifact.link.label }}
           </a>
         </div>
         {% endif %}

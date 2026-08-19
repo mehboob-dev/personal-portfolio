@@ -48,21 +48,5 @@
       "category": "Architecture & Engineering",
       "items": ["Real-Time Systems", "Code Profiling & GC Tuning", "Backtesting Pipelines", "Risk Modeling", "API Design"]
     }
-  ],
-  "education": {
-    "heading": "Technical Foundation",
-    "intro": "Engineering foundations in electronics, communication, and computer systems.",
-    "items": [
-      {
-        "degree": "Bachelor of Engineering — Electronics & Telecommunication",
-        "school": "M. H. Saboo Siddik College of Engineering, Mumbai",
-        "period": "2020 – 2023"
-      },
-      {
-        "degree": "Diploma in Computer Engineering",
-        "school": "M. H. Saboo Siddik Polytechnic, Mumbai",
-        "period": "2016 – 2020"
-      }
-    ]
-  }
+  ]
 }
