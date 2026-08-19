@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% block title %}{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }} — Quantitative Developer & Systems Infrastructure{% endblock %}
 
 {% block content %}
 
@@ -10,15 +9,15 @@
   <div class="container">
     <div class="masthead-inner">
       <div class="masthead-identity">
-        <h1 class="masthead-name" data-anim-text data-gsap-reveal>{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }}</h1>
-        <p class="masthead-role" data-gsap-reveal="up">{{ site.masthead.role if site and site.masthead else 'Quantitative Developer · Systems Infrastructure' }}</p>
-        <p class="masthead-context" data-gsap-reveal="up">{{ site.identity.focus if site and site.identity else 'High-performance trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures.' }}</p>
+        <h1 class="masthead-name" data-anim-text data-gsap-reveal>{{ site.identity.name }}</h1>
+        <p class="masthead-role" data-gsap-reveal="up">{{ site.identity.role }}</p>
+        <p class="masthead-context" data-gsap-reveal="up">{{ site.identity.focus }}</p>
       </div>
 
       <!-- Direct Channels Toolbar -->
       <div class="masthead-channels" data-gsap-reveal="up">
         <div class="channel-row">
-          {% if site and site.identity and site.identity.contact %}
+          {% if site.identity.contact %}
           <a class="channel-link channel-link-primary" href="mailto:{{ site.identity.contact.email }}">
             <span>✉</span> <span class="channel-text-desktop">{{ site.identity.contact.email }}</span><span class="channel-text-mobile">Email</span>
           </a>
@@ -29,7 +28,7 @@
           {% endif %}
         </div>
         <div class="channel-row">
-          {% if site and site.identity and site.identity.links %}
+          {% if site.identity.links %}
           <a class="channel-link" href="{{ site.identity.links.github }}" target="_blank" rel="noopener">
             <span>GitHub</span> <span>↗</span>
           </a>
@@ -37,7 +36,7 @@
             <span>LinkedIn</span> <span>↗</span>
           </a>
           {% endif %}
-          <a class="channel-link" href="{{ url_for('static', filename='resume/' + site.identity.resume if site and site.identity else 'MehboobMeghaniResume.md') }}" download>
+          <a class="channel-link" href="{{ url_for('static', filename='resume/' + site.identity.resume) }}" download>
             <span>Download CV</span> <span>↓</span>
           </a>
         </div>
@@ -50,9 +49,9 @@
           <span>Verified Production & Replay Specs</span>
         </div>
         <div class="benchmarks-spec-grid">
-          {% for b in (site.benchmarks if site and site.benchmarks else site.benchmark.stats) %}
+          {% for b in site.benchmarks %}
           <div class="benchmark-spec-item" data-gsap-reveal>
-            <span class="benchmark-spec-param">{{ b.param if b.param else 'Metric' }}</span>
+            <span class="benchmark-spec-param">{{ b.param }}</span>
             <span class="benchmark-spec-val"
                   {% if b.count_to is defined %}
                     data-count-to="{{ b.count_to }}"
@@ -60,8 +59,8 @@
                     {% if b.count_suffix is defined %}data-count-suffix="{{ b.count_suffix }}"{% endif %}
                     {% if b.count_decimals is defined %}data-count-decimals="{{ b.count_decimals }}"{% endif %}
                   {% endif %}>{{ b.value }}</span>
-            <span class="benchmark-spec-scope">{{ b.scope if b.scope else b.label }}</span>
-            <p class="benchmark-spec-ctx">{{ b.context if b.context else site.benchmark.detail }}</p>
+            <span class="benchmark-spec-scope">{{ b.scope }}</span>
+            <p class="benchmark-spec-ctx">{{ b.context }}</p>
           </div>
           {% endfor %}
         </div>
@@ -85,7 +84,7 @@
     </div>
 
     <div class="flagship-list">
-      {% for system in (content.projects.flagship_systems if content.projects and content.projects.flagship_systems else []) %}
+      {% for system in content.projects.flagship_systems %}
       <article class="case-study" id="system-{{ system.id }}" data-gsap-reveal>
         <!-- Header -->
         <div class="case-header">
@@ -193,7 +192,7 @@
 
     <!-- Systems Architecture Dossier List -->
     <div class="arch-dossier-list">
-      {% for arch in (content.about.systems_architecture if content.about and content.about.systems_architecture else []) %}
+      {% for arch in content.about.systems_architecture %}
       <article class="arch-dossier-card" data-gsap-reveal>
         <div class="arch-dossier-head">
           <h3 class="arch-concept-title">{{ arch.concept }}</h3>
@@ -237,7 +236,7 @@
     </div>
 
     <div class="chronology-list">
-      {% for role in (content.experience.roles if content.experience and content.experience.roles else []) %}
+      {% for role in content.experience.roles %}
       <article class="chronology-item" data-gsap-reveal>
         <div class="chronology-head">
           <h3 class="role-title" data-anim-text>{{ role.title }} · <span class="muted" style="font-weight: 500;">{{ role.org }}</span></h3>
@@ -246,7 +245,7 @@
         {% if role.system %}
         <div class="role-system-tag">Focus System: {{ role.system }}</div>
         {% endif %}
-        <p class="role-contribution">{{ role.contribution if role.contribution else role.highlights[0] }}</p>
+        <p class="role-contribution">{{ role.contribution }}</p>
       </article>
       {% endfor %}
     </div>
@@ -283,7 +282,7 @@
     </div>
 
     <div class="artifacts-grid">
-      {% for artifact in (content.projects.secondary_artifacts if content.projects and content.projects.secondary_artifacts else []) %}
+      {% for artifact in content.projects.secondary_artifacts %}
       <article class="artifact-card" data-gsap-reveal>
         <div class="artifact-head">
           <h3>{{ artifact.name }}</h3>
@@ -320,12 +319,12 @@
     <div class="section-head" data-gsap-reveal>
       <div class="section-label">[05] Direct Contact</div>
       <h2 class="section-title" data-anim-text>Direct Inquiries & Technical Inquiries</h2>
-      <p class="section-intro">{{ content.contact.lead if content.contact else 'Reach out directly or send a message below.' }}</p>
+      <p class="section-intro">{{ content.contact.lead }}</p>
     </div>
 
     {% if sent %}
     <div class="alert alert-success" role="alert">
-      ✓ {{ content.contact.success_message if content.contact else 'Inquiry recorded successfully.' }}
+      ✓ {{ content.contact.success_message }}
     </div>
     {% endif %}
 
@@ -357,11 +356,11 @@
         <div class="channel-entry">
           <span class="channel-label">Verified Networks</span>
           <div class="tag-list" style="margin-top: 6px;">
-            {% if site and site.identity and site.identity.links %}
+            {% if site.identity.links %}
             <a class="btn btn-sm" href="{{ site.identity.links.github }}" target="_blank" rel="noopener">GitHub ↗</a>
             <a class="btn btn-sm" href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener">LinkedIn ↗</a>
             {% endif %}
-            <a class="btn btn-sm" href="{{ url_for('static', filename='resume/' + site.identity.resume if site and site.identity else 'MehboobMeghaniResume.md') }}" download>Full CV ↓</a>
+            <a class="btn btn-sm" href="{{ url_for('static', filename='resume/' + site.identity.resume) }}" download>Full CV ↓</a>
           </div>
         </div>
       </div>
@@ -371,31 +370,31 @@
         <form method="post" action="{{ url_for('public.contact_submit') }}">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           <div class="form-group">
-            <label for="contact-name">{{ content.contact.labels.name if content.contact else 'Your Name' }}</label>
+            <label for="contact-name">{{ content.contact.labels.name }}</label>
             <input id="contact-name" class="form-control" type="text" name="name" required placeholder="Name or Organization">
           </div>
 
           <div class="form-group">
-            <label for="contact-email">{{ content.contact.labels.email if content.contact else 'Email Address' }}</label>
+            <label for="contact-email">{{ content.contact.labels.email }}</label>
             <input id="contact-email" class="form-control" type="email" name="email" required placeholder="name@domain.com">
           </div>
 
           <div class="form-group">
-            <label for="contact-interest">{{ content.contact.labels.interest if content.contact else 'Inquiry Focus' }}</label>
+            <label for="contact-interest">{{ content.contact.labels.interest }}</label>
             <select id="contact-interest" class="form-control" name="interest">
-              {% for opt in (content.contact.interests if content.contact and content.contact.interests else []) %}
+              {% for opt in content.contact.interests %}
               <option value="{{ opt.value }}">{{ opt.label }}</option>
               {% endfor %}
             </select>
           </div>
 
           <div class="form-group">
-            <label for="contact-message">{{ content.contact.labels.message if content.contact else 'Message' }}</label>
+            <label for="contact-message">{{ content.contact.labels.message }}</label>
             <textarea id="contact-message" class="form-control" name="message" rows="4" placeholder="Technical context, requirements, or inquiry details..."></textarea>
           </div>
 
           <button class="btn btn-primary" type="submit" style="width: 100%;">
-            {{ content.contact.labels.submit if content.contact else 'Submit Inquiry' }}
+            {{ content.contact.labels.submit }}
           </button>
         </form>
       </div>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}{{ site.site.title if site and site.site else 'Mehboob Meghani' }} — Quantitative Developer & Systems Infrastructure{% endblock %}</title>
+  <title>{% block title %}{{ site.site.title }} — Quantitative Developer & Systems Infrastructure{% endblock %}</title>
   <meta name="description" content="High-performance quantitative trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures by M. Mehboob Meghani.">
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
   <!-- Font Awesome Icons -->
@@ -34,7 +34,7 @@
   <header class="site-header">
     <div class="container">
       <a class="brand" href="{{ url_for('public.home') }}">
-        <img class="brand-logo" src="{{ url_for('static', filename='img/WhiteGoldTransparent.png') }}" alt="{{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }}">
+        <img class="brand-logo" src="{{ url_for('static', filename='img/WhiteGoldTransparent.png') }}" alt="{{ site.identity.name }}">
       </a>
 
       <button id="mobile-toggle" class="mobile-nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
@@ -50,7 +50,7 @@
         {% if current_user.is_authenticated %}
         <a class="nav-admin" href="{{ url_for('admin.dashboard') }}">Admin Desk</a>
         {% endif %}
-        <a class="nav-cv-btn" href="{{ url_for('static', filename='resume/' + site.identity.resume if site and site.identity else 'MehboobMeghaniResume.md') }}" download>
+        <a class="nav-cv-btn" href="{{ url_for('static', filename='resume/' + site.identity.resume) }}" download>
           <span>CV</span> <span>↓</span>
         </a>
       </nav>
@@ -66,11 +66,11 @@
     <div class="container">
       <div class="footer-inner">
         <div>
-          © {{ site.site.year if site and site.site else 2026 }} {{ site.identity.name if site and site.identity else 'M. Mehboob Meghani' }} · Quantitative Infrastructure & Systems
+          © {{ now.year }} {{ site.identity.name }} · Quantitative Infrastructure & Systems
         </div>
         <div class="footer-links">
           <a href="#systems">Top ↑</a>
-          {% if site and site.identity and site.identity.links %}
+          {% if site.identity.links %}
           <a href="{{ site.identity.links.github }}" target="_blank" rel="noopener">GitHub ↗</a>
           <a href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener">LinkedIn ↗</a>
           {% endif %}

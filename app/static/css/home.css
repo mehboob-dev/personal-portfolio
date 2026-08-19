@@ -116,12 +116,15 @@
 }
 
 .benchmarks-spec-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  align-items: stretch;
   gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 6px;
 }
 
 .benchmark-spec-item {
+  flex: 0 0 calc((100% - 24px) / 3);
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);
@@ -129,6 +132,18 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+}
+
+@media (max-width: 900px) {
+  .benchmark-spec-item {
+    flex: 0 0 calc((100% - 12px) / 2);
+  }
+}
+
+@media (max-width: 600px) {
+  .benchmark-spec-item {
+    flex: 0 0 100%;
+  }
 }
 
 .benchmark-spec-param {
@@ -162,17 +177,6 @@
   margin: 0;
 }
 
-@media (max-width: 900px) {
-  .benchmarks-spec-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 520px) {
-  .benchmarks-spec-grid {
-    grid-template-columns: 1fr;
-  }
-}
 
 /* --- 3. Flagship Case Studies (Dominates Visual Hierarchy) --- */
 .flagship-list {

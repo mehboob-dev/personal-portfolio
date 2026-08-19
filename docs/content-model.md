@@ -19,22 +19,14 @@ flowchart LR
 | Key | Type | Consumed by |
 |---|---|---|
 | `site.title` | string | `<title>` in `base.html` |
-| `site.expo_url` | string | link to Itqan expo demo |
-| `site.year` | number | footer © year |
 | `identity.name` | string | masthead + brand alt |
+| `identity.role` | string | masthead role |
 | `identity.location` | string | contact section |
 | `identity.focus` | string | hero context |
-| `identity.summary` | string | about |
 | `identity.resume` | string | CV filename |
 | `identity.contact.phone` / `.email` | string | contact channels |
 | `identity.links.github` / `.linkedin` | string | social links |
-| `masthead.name` / `.role` / `.location` / `.context` | string | masthead display |
 | `benchmarks[]` | array | hero benchmark cards (value, param, scope, context) |
-| `benchmark.headline` / `.stats[]` / `.detail` | — | benchmark section (legacy shape) |
-| `nav[]` | array | anchor nav (label, href `#...`) |
-| `themes[]` | array | theme list (id, name) |
-
-> Both `benchmarks[]` (new) and `benchmark` (legacy) exist; templates prefer `benchmarks` and fall back to `benchmark.stats`.
 
 ## `data/content/*.json` — per-section copy
 
@@ -69,13 +61,12 @@ Loaded by `home()` (`app/public.py`) and passed as `content.{section}`.
 |---|---|---|
 | `base.html` | `site.site.title` | `<title>` |
 | `base.html` | `site.identity.name` | brand alt, footer |
-| `base.html` | `site.site.year` | footer © |
 | `base.html` | `site.identity.resume` | CV download link |
 | `base.html` | `site.identity.links.*` | GitHub/LinkedIn |
 | `public/home.html` | `site.identity.name` | masthead |
-| `public/home.html` | `site.masthead.*` | masthead role/context |
+| `public/home.html` | `site.identity.role` / `site.identity.focus` | masthead role/context |
 | `public/home.html` | `site.identity.contact.*` | channels |
-| `public/home.html` | `site.benchmarks` / `site.benchmark` | benchmark cards |
+| `public/home.html` | `site.benchmarks` | benchmark cards |
 | `public/home.html` | `content.projects.flagship_systems` | systems section |
 | `public/home.html` | `content.about.systems_architecture` | architecture section |
 | `public/home.html` | `content.experience.roles` / `.education` | chronology |

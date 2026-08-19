@@ -1,6 +1,7 @@
 """Application factory for the portfolio + QR manager (KISS)."""
 
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from flask import Flask, render_template
@@ -136,7 +137,7 @@ def create_app(config: dict | None = None) -> Flask:
         cfg_path = APP_DIR.parent / "data" / "config.json"
         if cfg_path.exists():
             cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
-        return {"site": cfg, "current_user": current_user}
+        return {"site": cfg, "current_user": current_user, "now": datetime.now(timezone.utc)}
 
     @app.errorhandler(404)
     def not_found(_e):

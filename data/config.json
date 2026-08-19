@@ -1,96 +1,62 @@
 {
-  "site": {
-    "title": "Mehboob Meghani",
-    "tagline": "Systems & Quantitative Infrastructure",
-    "domain": "mehboob.itqantrades.com",
-    "canonical_url": "https://mehboob.itqantrades.com",
-    "expo_url": "https://itqantrades.com/expo",
-    "year": 2026
-  },
-  "identity": {
-    "name": "M. Mehboob Meghani",
-    "location": "Mumbai, India",
-    "focus": "High-performance trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures.",
-    "summary": "Six years designing scalable trading architectures, data pipelines, and performance-critical systems for systematic and algorithmic strategies.",
-    "resume": "MehboobMeghaniResume.md",
-    "contact": {
-      "phone": "+91 7021 111 528",
-      "email": "er.mehboobmeghani@gmail.com"
-    },
-    "links": {
-      "github": "https://github.com/mehboob-dev",
-      "linkedin": "https://www.linkedin.com/in/m-mehboob-meghani-91813b138"
-    }
-  },
-  "masthead": {
-    "name": "M. MEHBOOB MEGHANI",
-    "role": "Quantitative Developer · Systems Infrastructure",
-    "location": "Mumbai, India",
-    "context": "Six years designing high-performance trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures."
-  },
-  "benchmarks": [
-    {
-      "value": "< 3 min",
-      "count_to": 3,
-      "count_prefix": "< ",
-      "count_suffix": " min",
-      "count_decimals": 0,
-      "param": "Throughput Benchmark",
-      "scope": "50 symbols × 3 years × 1m OHLCV",
-      "context": "Multi-strategy backtest sweep with modular exit evaluation through the complete pipeline"
-    },
-    {
-      "value": "~ 80%",
-      "count_to": 80,
-      "count_prefix": "~ ",
-      "count_suffix": "%",
-      "count_decimals": 0,
-      "param": "Memory Footprint",
-      "scope": "MMF + Blittable Structs",
-      "context": "Direct virtual memory mapping eliminating GC allocation churn and heap pressure"
-    },
-    {
-      "value": "< 10 ms",
-      "count_to": 10,
-      "count_prefix": "< ",
-      "count_suffix": " ms",
-      "count_decimals": 0,
-      "param": "Distribution Latency",
-      "scope": "Hundreds of Client Endpoints",
-      "context": "Low-level TCP socket loop with ring buffering to real-time SignalR web broadcast"
-    },
-    {
-      "value": "98.8%",
-      "count_to": 98.8,
-      "count_prefix": "",
-      "count_suffix": "%",
-      "count_decimals": 1,
-      "param": "Resource Efficiency",
-      "scope": "Cloud Infrastructure Migration",
-      "context": "Dynamic session-aware compute scheduling eliminating idle resource overhead"
-    }
-  ],
-  "benchmark": {
-    "headline": "Verified Performance Realities",
-    "stats": [
-      { "value": "< 3 min", "label": "50 Symbols × 3y (1m OHLCV)" },
-      { "value": "~ 80%", "label": "Memory Reduction (MMF)" },
-      { "value": "< 10 ms", "label": "Socket Stream Latency" },
-      { "value": "98.8%", "label": "Cloud Cost Optimization" }
-    ],
-    "detail": "50 symbols × 3 years × 1-minute OHLCV, multiple strategies with modular exits, through the complete engine pipeline in under 3 minutes."
-  },
-  "nav": [
-    { "label": "Systems", "href": "#systems" },
-    { "label": "Architecture", "href": "#architecture" },
-    { "label": "Chronology", "href": "#experience" },
-    { "label": "Artifacts", "href": "#artifacts" },
-    { "label": "Contact", "href": "#contact" }
-  ],
-  "themes": [
-    { "id": "systems-light", "name": "Systems Light" },
-    { "id": "monochrome", "name": "Monochrome" },
-    { "id": "quant-dark", "name": "Quant Dark" },
-    { "id": "warm-monograph", "name": "Warm Monograph" }
-  ]
+	"site": {
+		"title": "Mehboob Meghani"
+	},
+	"identity": {
+		"name": "M. Mehboob N. Meghani",
+		"role": "Quantitative Developer · Systems Infrastructure",
+		"location": "Mumbai, India",
+		"focus": "High-performance trading infrastructure, memory-mapped data pipelines, and low-latency streaming architectures.",
+		"resume": "MehboobMeghaniResume.md",
+		"contact": {
+			"phone": "+91 7021 111 528",
+			"email": "er.mehboobmeghani@gmail.com"
+		},
+		"links": {
+			"github": "https://github.com/mehboob-dev",
+			"linkedin": "https://www.linkedin.com/in/m-mehboob-meghani-91813b138"
+		}
+	},
+	"benchmarks": [
+		{
+			"value": "~ 80%",
+			"count_to": 80,
+			"count_prefix": "~ ",
+			"count_suffix": "%",
+			"count_decimals": 0,
+			"param": "Memory Reduction",
+			"scope": "Memory-Mapped Files + Blittable Structs",
+			"context": "Reduced memory usage by ~80% through memory-mapped files and blittable structs, minimizing managed-memory overhead"
+		},
+		{
+			"value": "< 10 ms",
+			"count_to": 10,
+			"count_prefix": "< ",
+			"count_suffix": " ms",
+			"count_decimals": 0,
+			"param": "Market Data Delay",
+			"scope": "Real-Time Tick & Quote Streaming",
+			"context": "Published real-time stock market tick and quote data to hundreds of clients using low-level socket programming"
+		},
+		{
+			"value": "98.8%",
+			"count_to": 98.8,
+			"count_prefix": "",
+			"count_suffix": "%",
+			"count_decimals": 1,
+			"param": "Operational Cost Reduction",
+			"scope": "Cloud-Based Trading Migration",
+			"context": "Developed and deployed a dynamic cloud-based trading migration system that reduced operational costs by 98.8%"
+		},
+		{
+			"value": "98.8%",
+			"count_to": 98.8,
+			"count_prefix": "",
+			"count_suffix": "%",
+			"count_decimals": 1,
+			"param": "Operational Cost Reduction",
+			"scope": "Cloud-Based Trading Migration",
+			"context": "Developed and deployed a dynamic cloud-based trading migration system that reduced operational costs by 98.8%"
+		}
+	]
 }

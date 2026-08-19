@@ -2,6 +2,16 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Remove template fallback literals and inline defaults
+
+- **Template Fallback Literal Cleanup**: removed inline default string literals and conditional existence guards (`if site and site.identity else ...`, `else '...'`, etc.) in `app/templates/base.html` and `app/templates/public/home.html`. Template variables for `site` and `content` are now accessed directly, aligning with the "config over code" principle so that missing or misconfigured keys fail loudly.
+- **Independent Page Title Configuration**: corrected the typo `"Mehboob Meghaniaaaaaaaaaaa"` to `"Mehboob Meghani"` in `data/config.json`. Removed the redundant `{% block title %}` override from `app/templates/public/home.html` so that the homepage title uses the `site.site.title` configuration value dynamically, separating browser tab title configuration from the displayed hero name (`site.identity.name`).
+- **Codebase and Configuration Simplification**: purged all unused properties from `data/config.json` (such as `tagline`, `domain`, `canonical_url`, `expo_url`, `identity.summary`, `masthead`, `benchmark`, `nav`, and `themes`). Moved `role` to `identity.role` in `data/config.json` and updated references. Deleted dead script files `app/static/js/theme.js` and `app/static/js/hero.js` and removed their inclusions in templates.
+- **Dynamic Copyright Year**: migrated the website's copyright year from a hardcoded config key (`site.site.year` in `data/config.json`) to a dynamically resolved datetime object (`now.year`) using Python's `datetime.now(timezone.utc)` injected globally via Flask's context processor.
+- **Calibrated Benchmarks Layout**: refactored the calibrated benchmarks panel (.benchmarks-spec-grid) in app/static/css/home.css from a fixed 4-column CSS grid to a flexible, horizontally scrollable flexbox container. Utilizes responsive percentage-based flex sizes (`calc((100% - 24px) / 3)` on desktop, `calc((100% - 12px) / 2)` on tablet, and `100%` on mobile) to guarantee that benchmark cards retain a stable, constant width and overflow scroll instead of shrinking/squeezing when more items are added.
+
+---
+
 ## 2026-08-20 — Implement GSAP scroll-triggered and numeric count-up animations with immediate hero loading
 
 - **Immediate Hero Animation Loading**: updated the GSAP animation runner script in both `app/templates/base.html` and `app/templates/admin/base.html` to check if animated elements reside inside the hero masthead container (`#about`). If they do, their animations (fade/slide reveals, word-masks, and numeric count-ups) trigger immediately upon script execution/page load instead of waiting for scroll trigger entry, ensuring a complete and animated initial viewport above the fold.
