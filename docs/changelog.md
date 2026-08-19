@@ -2,6 +2,10 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-19 — Fix table header select-all to target filtered rows
+
+- **`app/static/js/table.js`**: modified `TableKit` table selection logic to only select/deselect active (filtered) rows when the header checkbox is clicked. The header checkbox's state (checked, unchecked, indeterminate) is automatically kept in sync with the selection status of active rows by listening to `rowSelectionChanged` and `dataFiltered` events.
+
 ---
 
 ## 2026-08-18 — Step-by-step cPanel deployment guide (`a976827`)

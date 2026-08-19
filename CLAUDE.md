@@ -47,6 +47,8 @@ uv run flask db upgrade             # apply migrations
 9. **Frontend**: vanilla JS, no build. `app/static/js/hero.js` (ticker/hero), `theme.js` (themes: systems-light, monochrome, quant-dark, warm-monograph). Use design tokens (`var(--...)` from `app/static/css/app.css` + `home.css`), never hardcoded colors.
 10. **Legacy anchor routes** must stay — tests assert `LEGACY_ANCHORS` redirects (302 to `#section`).
 11. **Shared table system** — every grid (admin campaigns/leads/qr_list/qr_stats, dashboard + QR-stats summary grids) uses `window.TableKit.create()` from `app/static/js/table.js`; helpers/editors are `TableKit.*`, never redefined in templates. Keep the file **byte-identical** with `itqan-trades/app/static/js/table.js` — edit both copies together.
+12. **Git constraints**: Never create git worktrees, make commits, or push changes unless explicitly instructed by the user.
+13. **Changelog updates**: Update `docs/changelog.md` on every user-visible change or fix.
 
 ## Testing
 

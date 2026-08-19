@@ -108,6 +108,7 @@ Covers: public render + legacy redirects, admin login/CRUD/validation, QR redire
 - Explain the *why* in the body.
 - Never commit `secrets.json`, `data/*.db`, `__pycache__/`, `.venv/`.
 - This is the **PUBLIC** repo — no personal data beyond what's intentional.
+- **Workflow restrictions**: Do not create git worktrees, make commits, or push changes unless explicitly instructed by the user.
 
 ## Deployment
 
