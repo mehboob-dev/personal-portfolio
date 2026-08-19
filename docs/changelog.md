@@ -2,9 +2,10 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
-## 2026-08-20 — Convert direct channels toolbar to two-line layout
+## 2026-08-20 — Convert direct channels toolbar to two-line layout and refine mobile navigation menu
 
-- **Two-Line Masthead Toolbar**: split the direct contact/links toolbar inside `.masthead-channels` (under `app/templates/public/home.html`) into two distinct lines: Email and Phone contact info on Line 1, and GitHub, LinkedIn, and Download CV on Line 2. Adjusted CSS in `app/static/css/home.css` using flexbox rows to maintain mobile responsiveness.
+- **Two-Line Masthead Toolbar**: split the direct contact/links toolbar inside `.masthead-channels` (under `app/templates/public/home.html`) into two distinct lines: Email and Phone contact info on Line 1, and GitHub, LinkedIn, and Download CV on Line 2. Modified CSS in `app/static/css/home.css` to preserve this two-line layout, keep it left-aligned on mobile devices, and optimize sizing. To prevent wrapping/overflow on mobile viewports, the long email address text is swapped to display "Email" on screens under 480px.
+- **Navigation Menu Layout & Numbering Removal**: updated mobile navigation toggle button `.mobile-nav-toggle`, navigation menu dropdown `.site-nav.open`, and nav link elements `.site-nav a` to copy the styles exactly from the `itqan-trades` project. This includes inheriting the same elevated background, gold border highlights, flex space-between item alignments, card-based floating dropdown box with blur backdrop-filter, and responsive padding behavior. Completely removed the navigation links numbering (`.nav-num`) from both desktop and mobile modes to match the clean, unnumbered navigation menu of the `itqan-trades` site.
 
 ---
 
