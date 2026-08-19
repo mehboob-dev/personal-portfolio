@@ -2,8 +2,9 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
-## 2026-08-19 — Layout matching, typography unification, mobile header, and anchor redirect fixes
+## 2026-08-19 — Scroll-to-Top FAB, layout matching, typography unification, mobile header, and anchor redirect fixes
 
+- **Scroll-to-Top FAB**: added a "jump to top" floating action button (FAB) with a scroll progress ring to `base.html` and styled it in `app.css`. It features a smooth-scrolling click handler, a circular SVG ring showing scroll percentage, and mobile responsiveness matching the `itqan-trades` implementation.
 - **Container Width Matching**: updated `.container` styling in `app/static/css/app.css` to match `itqan-trades` exactly (`width: 90%`, `max-width: 1600px`).
 - **Breakpoint Unification**: changed mobile nav toggle and site nav media query breakpoints from `768px` to `900px` in `app/static/css/app.css`, and did the same for contact layout and responsive paddings/grids in `app/static/css/home.css`. This prevents menu wrapping on medium screens and unifies layout responsiveness breakpoints with the Tabulator table wrapper.
 - **Mobile Header Fix**: removed the redundant and empty `.header-controls` container element from `app/templates/base.html` and `app/templates/admin/base.html` and cleaned up its CSS rules in `app.css`. This allows the mobile hamburger menu toggle to correctly align to the right side of the screen using the flexbox `space-between` rule, matching the clean structure of the `itqan-trades` site.

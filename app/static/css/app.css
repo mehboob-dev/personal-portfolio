@@ -59,6 +59,7 @@
 
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 16px 32px rgba(28, 25, 20, 0.12);
 
   /* Backward compatibility variables */
   --bg: var(--bg-canvas);
@@ -998,4 +999,85 @@ textarea.form-control {
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
   margin-bottom: 2px;
+}
+
+/* ==========================================================================
+   SCROLL-TO-TOP FAB (JUMP TO TOP)
+   ========================================================================== */
+#to-top-btn {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  width: 52px;
+  height: 52px;
+  border: none;
+  background: var(--bg-surface);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(12px);
+  transition: opacity 220ms ease, transform 220ms ease, visibility 220ms ease, box-shadow 200ms ease;
+  z-index: 999;
+}
+
+#to-top-btn.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+#to-top-btn:hover {
+  box-shadow: var(--shadow-lg), 0 0 0 1px var(--border-gold), 0 0 22px rgba(185, 155, 95, 0.35);
+}
+
+#to-top-btn:active {
+  transform: scale(0.95);
+}
+
+.to-top-ring {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.to-top-track {
+  fill: none;
+  stroke: var(--border-subtle);
+  stroke-width: 3;
+}
+
+.to-top-progress {
+  fill: none;
+  stroke: var(--gold-primary);
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dashoffset 60ms linear;
+}
+
+.to-top-arrow {
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+@media (max-width: 480px) {
+  #to-top-btn {
+    right: 14px;
+    bottom: 14px;
+    width: 44px;
+    height: 44px;
+  }
+
+  #to-top-btn .to-top-ring {
+    width: 44px;
+    height: 44px;
+  }
 }
