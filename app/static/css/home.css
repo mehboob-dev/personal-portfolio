@@ -48,10 +48,17 @@
 /* Direct channels toolbar */
 .masthead-channels {
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding-top: 4px;
+}
+
+.channel-row {
+  display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  padding-top: 4px;
 }
 
 .channel-link {

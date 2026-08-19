@@ -2,6 +2,12 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Convert direct channels toolbar to two-line layout
+
+- **Two-Line Masthead Toolbar**: split the direct contact/links toolbar inside `.masthead-channels` (under `app/templates/public/home.html`) into two distinct lines: Email and Phone contact info on Line 1, and GitHub, LinkedIn, and Download CV on Line 2. Adjusted CSS in `app/static/css/home.css` using flexbox rows to maintain mobile responsiveness.
+
+---
+
 ## 2026-08-20 — Remove color swatches from admin login page
 
 - **Remove Color Swatches**: removed the color/theme swatches from the admin login page (`app/templates/admin/login.html`), including their CSS styles in `app/static/css/app.css` and their theme-handling JavaScript event listeners and UI update logic in `app/static/js/theme.js`.
