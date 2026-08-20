@@ -63,11 +63,27 @@ def contact():
 @bp.post("/contact")
 def contact_submit():
     name = request.form.get("name", "").strip()
+    phone = request.form.get("phone", "").strip()
     email = request.form.get("email", "").strip()
     interest = request.form.get("interest", "").strip()
     message = request.form.get("message", "").strip()
-    if name and email:
-        db.session.add(Lead(name=name, email=email, interest=interest or None, message=message or None))
+
+    # If phone is provided, validate it has country code and digits only (no +)
+    if phone:
+        # Strip spaces, hyphens, and leading + if user typed it
+        clean_phone = phone.replace(" ", "").replace("-", "").lstrip("+")
+        if not clean_phone.isdigit() or len(clean_phone) < 7:
+            return redirect(url_for("public.home", error="invalid_phone", _anchor="contact"))
+        phone = clean_phone
+
+    if name and (phone or email):
+        db.session.add(Lead(
+            name=name,
+            phone=phone or None,
+            email=email or None,
+            interest=interest or None,
+            message=message or None
+        ))
         db.session.commit()
         return redirect(url_for("public.home", sent=1, _anchor="contact"))
     return redirect(url_for("public.home", _anchor="contact"))

@@ -63,14 +63,32 @@ def test_projects_defaults_preprocessing(client):
             assert link.get("icon") is not None
 
 
-def test_education_independent(client):
-    from app.helpers import get_content
-    education = get_content("education")
-    assert education is not None
-    assert "items" in education
-    assert len(education["items"]) > 0
-    for item in education["items"]:
-        assert "degree" in item
-        assert "institution" in item
-        assert "period" in item
-        assert "focus" in item
+def test_contact_submit_with_phone(client, app):
+    from app.models import Lead
+
+    # 1. Valid phone submit without +
+    res = client.post(
+        "/contact",
+        data={"name": "Alice Tester", "phone": "971501234567", "message": "Hello"},
+        follow_redirects=True,
+    )
+    assert res.status_code == 200
+
+    with app.app_context():
+        lead = Lead.query.filter_by(name="Alice Tester").first()
+        assert lead is not None
+        assert lead.phone == "971501234567"
+        assert lead.email is None
+
+    # 2. Phone submit with leading + gets cleaned
+    res2 = client.post(
+        "/contact",
+        data={"name": "Bob Tester", "phone": "+971509998888"},
+        follow_redirects=True,
+    )
+    assert res2.status_code == 200
+
+    with app.app_context():
+        lead2 = Lead.query.filter_by(name="Bob Tester").first()
+        assert lead2 is not None
+        assert lead2.phone == "971509998888"

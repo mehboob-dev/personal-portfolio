@@ -35,10 +35,11 @@
       {% for lead in leads %}
       {
         id: {{ lead.id }},
-        name: "{{ lead.name|replace('"', '\\"') }}",
-        email: "{{ lead.email|replace('"', '\\"') }}",
-        interest: "{{ (lead.interest or '')|replace('"', '\\"') }}",
-        message: "{{ (lead.message or '')|replace('\r', ' ')|replace('\n', ' ')|replace('"', '\\"') }}",
+        name: {{ lead.name | tojson }},
+        phone: {{ (lead.phone or '') | tojson }},
+        email: {{ (lead.email or '') | tojson }},
+        interest: {{ (lead.interest or '') | tojson }},
+        message: {{ (lead.message or '') | tojson }},
         date_utc: "{{ lead.created_at.strftime('%Y-%m-%d') if lead.created_at else '' }}",
         time_utc: "{{ lead.created_at.strftime('%H:%M:%S') if lead.created_at else '' }}",
         is_deleted: {{ 'true' if lead.is_deleted else 'false' }},
@@ -96,11 +97,21 @@
           }
         },
         {
+          title: "Mobile Number",
+          field: "phone",
+          headerFilter: "input",
+          formatter: function (cell) {
+            var val = cell.getValue();
+            return val ? '<a href="tel:+' + val + '" class="mono" style="font-size:0.82rem; font-weight:600;">+' + val + '</a>' : '<span class="muted">—</span>';
+          }
+        },
+        {
           title: "Email Address",
           field: "email",
           headerFilter: "input",
           formatter: function (cell) {
-            return '<a href="mailto:' + cell.getValue() + '" class="mono" style="font-size:0.82rem;">' + cell.getValue() + '</a>';
+            var val = cell.getValue();
+            return val ? '<a href="mailto:' + val + '" class="mono" style="font-size:0.82rem;">' + val + '</a>' : '<span class="muted">—</span>';
           }
         },
         {

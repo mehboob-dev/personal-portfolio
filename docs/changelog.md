@@ -2,6 +2,15 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Mandatory Mobile Number & Optional Email in Lead Capture Form
+
+- **Mandatory Mobile Number with Country Code Validation**: Updated `app/templates/public/qr_content.html` and `app/public.py` to make the **Mobile Number** field mandatory (`required`, HTML pattern `^[0-9]{7,15}$`) and automatically validate/strip any leading `+` symbol (keeping digits only, e.g. `971501234567`).
+- **Optional Email Address**: Made the **Email Address** field optional across the lead submission engine, model, and admin template displays.
+- **Database Schema Migration**: Added Alembic migration script (`792d01e92242_make_lead_email_optional_and_add_phone_.py`) adding `phone` column to `leads` table and altering `email` to nullable `True`.
+- **Admin Leads Management UI**: Updated `app/templates/admin/leads.html` (Tabulator table columns) and `app/templates/admin/lead_detail.html` to display the formatted mobile number (`+<digits>` click-to-call link). Updated CSV exporter in `app/admin.py`.
+
+---
+
 ## 2026-08-20 — WhatsApp, Telegram Destination Support & Dynamic QR Landing Page Feature Overlays
 
 - **WhatsApp & Telegram Destinations**: Added dedicated `whatsapp` (`https://wa.me/...`) and `telegram` (`https://t.me/...`) options to the admin QR destination builder dropdown (`app/templates/admin/qr_edit.html`) and payload validator (`_valid_destination_url` in `app/admin.py`).

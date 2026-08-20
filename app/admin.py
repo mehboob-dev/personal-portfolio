@@ -729,13 +729,14 @@ def leads_csv():
 
     buf = io.StringIO()
     writer = csv.writer(buf)
-    writer.writerow(["id", "name", "email", "interest", "message", "is_deleted", "created_at"])
+    writer.writerow(["id", "name", "phone", "email", "interest", "message", "is_deleted", "created_at"])
     for lead in q.order_by(Lead.created_at.desc()).all():
         writer.writerow(
             [
                 lead.id,
                 lead.name,
-                lead.email,
+                lead.phone or "",
+                lead.email or "",
                 lead.interest or "",
                 lead.message or "",
                 "deleted" if lead.is_deleted else "active",

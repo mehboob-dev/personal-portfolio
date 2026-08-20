@@ -114,12 +114,18 @@
           </div>
 
           <div style="margin-bottom: 12px;">
-            <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Email Address *</label>
-            <input class="form-control" type="email" name="email" placeholder="john@example.com" required style="width: 100%;">
+            <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Mobile Number * (With Country Code, digits only)</label>
+            <input class="form-control mono" type="tel" name="phone" placeholder="971501234567" required pattern="^[0-9]{7,15}$" title="Please enter digits only with country code (e.g. 971501234567, no +)" style="width: 100%;">
+            <small class="muted" style="font-size: 0.75rem; display: block; margin-top: 2px;">Format: Country code + Mobile number (e.g. 971501234567, no leading +)</small>
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Email Address (Optional)</label>
+            <input class="form-control" type="email" name="email" placeholder="john@example.com" style="width: 100%;">
           </div>
 
           <div style="margin-bottom: 16px;">
-            <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Message / Phone (Optional)</label>
+            <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Message (Optional)</label>
             <textarea class="form-control" name="message" rows="2" placeholder="Hi! Nice meeting you..." style="width: 100%;"></textarea>
           </div>
 

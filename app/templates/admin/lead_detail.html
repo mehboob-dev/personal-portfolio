@@ -57,11 +57,28 @@
     <!-- Metadata Grid with split Date and Time -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; background: var(--bg-subtle); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
       <div>
+        <span class="mono muted" style="font-size: 0.75rem; text-transform: uppercase;">Mobile Number</span>
+        <div style="margin-top: 4px;">
+          {% if lead.phone %}
+          <a href="tel:+{{ lead.phone }}" class="mono" style="font-weight: 600; font-size: 0.95rem; color: var(--accent-primary);">
+            +{{ lead.phone }}
+          </a>
+          {% else %}
+          <span class="muted">— Not provided —</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div>
         <span class="mono muted" style="font-size: 0.75rem; text-transform: uppercase;">Email Address</span>
         <div style="margin-top: 4px;">
+          {% if lead.email %}
           <a href="mailto:{{ lead.email }}" class="mono" style="font-weight: 600; font-size: 0.95rem; color: var(--accent-primary);">
             {{ lead.email }}
           </a>
+          {% else %}
+          <span class="muted">— Not provided —</span>
+          {% endif %}
         </div>
       </div>
 
