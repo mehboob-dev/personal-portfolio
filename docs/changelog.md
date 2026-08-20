@@ -2,6 +2,12 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Fix JavaScript quote syntax error in campaigns admin table
+
+- **Fix JS Syntax Error in Campaigns Table**: Escaped quotes (`\'`) in inline `onsubmit="return confirm(...)"` strings inside `app/templates/admin/campaigns.html`. Unescaped single quotes inside JS single-quoted string literals were causing a JavaScript syntax error that prevented the Tabulator table from initializing and rendering.
+
+---
+
 ## 2026-08-20 — Handle duplicate campaign names & slugs gracefully
 
 - **Campaign Duplicate Validation**: Updated `app/admin.py` to check for existing campaign names and active slugs prior to creating a new campaign. Prevents database `IntegrityError` (1062 duplicate key) and returns a user-friendly error banner on `app/templates/admin/campaigns.html` instead of throwing an unhandled 500 Internal Server Error.
