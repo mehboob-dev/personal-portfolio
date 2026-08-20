@@ -2,6 +2,12 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Font Awesome Icons for GitHub and LinkedIn Links
+
+- **Social Links Icons**: Added Font Awesome brand icons (`<i class="fa-brands fa-github"></i>` and `<i class="fa-brands fa-linkedin"></i>`) to all GitHub and LinkedIn link locations across `app/templates/public/home.html` (masthead & contact section) and `app/templates/base.html` (footer).
+
+---
+
 ## 2026-08-20 — Keep Visitor on QR Landing Page Upon Lead Submission
 
 - **In-Place QR Landing Confirmation**: Updated `app/public.py`, `app/qr.py`, and `app/templates/public/qr_content.html` so submitting the lead form on a QR landing page passes `qr_slug` and redirects back to `/r/<slug>?sent=1`.

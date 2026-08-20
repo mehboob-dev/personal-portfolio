@@ -72,8 +72,8 @@
         <div class="footer-links">
           <a href="#systems">Top ↑</a>
           {% if site.identity.links %}
-          <a href="{{ site.identity.links.github }}" target="_blank" rel="noopener">GitHub ↗</a>
-          <a href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener">LinkedIn ↗</a>
+          <a href="{{ site.identity.links.github }}" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> GitHub ↗</a>
+          <a href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin"></i> LinkedIn ↗</a>
           {% endif %}
           {% if current_user.is_authenticated %}
           <a href="{{ url_for('admin.dashboard') }}">Admin</a>

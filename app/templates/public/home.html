@@ -35,10 +35,10 @@
         <div class="channel-row">
           {% if site.identity.links %}
           <a class="channel-link" href="{{ site.identity.links.github }}" target="_blank" rel="noopener">
-            <span>GitHub</span> <span>↗</span>
+            <i class="fa-brands fa-github"></i> <span>GitHub</span> <span>↗</span>
           </a>
           <a class="channel-link" href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener">
-            <span>LinkedIn</span> <span>↗</span>
+            <i class="fa-brands fa-linkedin"></i> <span>LinkedIn</span> <span>↗</span>
           </a>
           {% endif %}
           <a class="channel-link" href="{{ url_for('static', filename='resume/' + site.identity.resume) }}" download>
@@ -362,8 +362,8 @@
           <span class="channel-label">Verified Networks</span>
           <div class="tag-list" style="margin-top: 6px;">
             {% if site.identity.links %}
-            <a class="btn btn-sm" href="{{ site.identity.links.github }}" target="_blank" rel="noopener">GitHub ↗</a>
-            <a class="btn btn-sm" href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener">LinkedIn ↗</a>
+            <a class="btn btn-sm" href="{{ site.identity.links.github }}" target="_blank" rel="noopener"><i class="fa-brands fa-github"></i> GitHub ↗</a>
+            <a class="btn btn-sm" href="{{ site.identity.links.linkedin }}" target="_blank" rel="noopener"><i class="fa-brands fa-linkedin"></i> LinkedIn ↗</a>
             {% endif %}
             <a class="btn btn-sm" href="{{ url_for('static', filename='resume/' + site.identity.resume) }}" download>Full CV ↓</a>
           </div>
