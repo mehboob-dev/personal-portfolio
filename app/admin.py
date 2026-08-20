@@ -598,14 +598,12 @@ def qr_png(qid: int):
     img = qrcode.make(redirect_url)
     buf = io.BytesIO()
     img.save(buf, format="PNG")
-    buf.seek(0)
+    png_data = buf.getvalue()
     as_attachment = request.args.get("download") == "1"
-    return send_file(
-        buf,
-        mimetype="image/png",
-        as_attachment=as_attachment,
-        download_name=f"qr-{code.slug}.png",
-    )
+    response = Response(png_data, mimetype="image/png")
+    if as_attachment:
+        response.headers["Content-Disposition"] = f'attachment; filename="qr-{code.slug}.png"'
+    return response
 
 
 # --- leads -----------------------------------------------------------------

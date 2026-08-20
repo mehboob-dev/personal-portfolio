@@ -2,6 +2,12 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Replace Flask `send_file(BytesIO)` with `Response(bytes)` in `qr_png`
+
+- **Fix `qr_png` 500 error under WSGI/Passenger**: Replaced `flask.send_file(buf, ...)` in `app/admin.py` with direct `Response(buf.getvalue(), mimetype="image/png")`. Under LiteSpeed / Passenger WSGI environment, `send_file` calls `.fileno()` on the byte buffer which raises `io.UnsupportedOperation: fileno` and returns a 500 Internal Error. Direct `Response` streams the byte content reliably without invoking file descriptor operations.
+
+---
+
 ## 2026-08-20 — Fix JavaScript quote syntax error in campaigns admin table
 
 - **Fix JS Syntax Error in Campaigns Table**: Escaped quotes (`\'`) in inline `onsubmit="return confirm(...)"` strings inside `app/templates/admin/campaigns.html`. Unescaped single quotes inside JS single-quoted string literals were causing a JavaScript syntax error that prevented the Tabulator table from initializing and rendering.
