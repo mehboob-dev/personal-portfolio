@@ -2,5 +2,6 @@
 deployment:
   tasks:
     - export DEPLOYPATH=/home/itqantra/mehboob-portfolio
+    - 'cd $DEPLOYPATH && git fetch origin master && git reset --hard origin/master'
     - /bin/touch $DEPLOYPATH/tmp/restart.txt
     - echo "Deployment completed, Passenger restarted."
