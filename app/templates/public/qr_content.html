@@ -8,50 +8,60 @@
       {% if content_type == 'vcard' %}
       <div style="font-size: 3rem; margin-bottom: 12px;">🎴</div>
       <h1 style="font-size: 1.6rem; margin: 0 0 8px;">{{ label or 'Contact Card' }}</h1>
-      <p class="muted" style="margin-bottom: 24px; font-size: 0.9rem;">Scan or tap below to save contact details directly to your phone.</p>
+      <p class="muted" style="margin-bottom: 24px; font-size: 0.9rem;">Scan or tap below to save contact details to your phone.</p>
 
       <div style="background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 24px; text-align: left; font-family: var(--font-mono); font-size: 0.85rem; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto;">
 {{ text_content }}
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button id="btn-share-vcard" type="button" class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 600;">
-          📲 Add to Contacts (Native Import)
+        <button id="btn-save-contact" type="button" class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 600; font-size: 1rem; padding: 12px 20px;">
+          🎴 Save / Add to Contacts (.vcf)
         </button>
-        <a class="btn btn-mono" href="data:text/vcard;charset=utf-8,{{ text_content | urlencode }}" download="contact.vcf" style="width: 100%; justify-content: center;">
-          Save Contact File (.vcf) ↓
-        </a>
+        <div id="vcard-hint" class="muted" style="font-size: 0.78rem; line-height: 1.4; margin-top: 4px;">
+          Tap button above → Open downloaded file → Tap <strong>Save Contact</strong> in your phone.
+        </div>
       </div>
 
       <script>
         document.addEventListener('DOMContentLoaded', function () {
           var vcardRaw = {{ text_content | tojson }};
-          var btnShare = document.getElementById('btn-share-vcard');
+          var btnSave = document.getElementById('btn-save-contact');
 
-          if (btnShare) {
-            btnShare.addEventListener('click', async function () {
-              try {
-                var file = new File([vcardRaw], 'contact.vcf', { type: 'text/vcard' });
-                if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                  await navigator.share({
-                    files: [file],
-                    title: {{ (label or 'Contact Card') | tojson }},
-                    text: 'Contact details'
-                  });
-                } else {
-                  // Fallback to data URI download if Web Share API files not supported
-                  var a = document.createElement('a');
-                  a.href = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(vcardRaw);
-                  a.download = 'contact.vcf';
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                }
-              } catch (err) {
-                if (err.name !== 'AbortError') {
-                  console.error('Share error:', err);
+          function triggerVcardDownload() {
+            var blob = new Blob([vcardRaw], { type: 'text/vcard;charset=utf-8' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'contact.vcf';
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            }, 1000);
+          }
+
+          if (btnSave) {
+            btnSave.addEventListener('click', async function () {
+              // Attempt Web Share API if supported by browser for file sharing
+              if (navigator.share && navigator.canShare) {
+                try {
+                  var file = new File([vcardRaw], 'contact.vcf', { type: 'text/vcard' });
+                  if (navigator.canShare({ files: [file] })) {
+                    await navigator.share({
+                      files: [file],
+                      title: {{ (label or 'Contact Card') | tojson }}
+                    });
+                    return;
+                  }
+                } catch (err) {
+                  if (err.name === 'AbortError') return;
                 }
               }
+              // Direct Blob Download Fallback
+              triggerVcardDownload();
             });
           }
         });

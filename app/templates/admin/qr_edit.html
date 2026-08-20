@@ -309,10 +309,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const val = rawVal.trim();
 
+  function parseInitialPayload(rawVal) {
+    if (!rawVal) {
+      typeSelect.value = 'url';
+      showPanel('url');
+      return;
+    }
+
+    const val = rawVal.trim();
+
     if (val.startsWith('vcard-direct:') || val.startsWith('vcard_direct:') || val.startsWith('direct-vcard:')) {
       typeSelect.value = 'vcard-direct';
       showPanel('vcard');
-      const vcardBody = val.split(':', 1)[1] || '';
+      const vcardBody = val.slice(val.indexOf(':') + 1);
       const lines = vcardBody.split('\n');
       lines.forEach(line => {
         const trimmed = line.trim();
