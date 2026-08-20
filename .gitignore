@@ -30,3 +30,4 @@ passenger_wsgi
 passenger_wsgi.py
 stderr.log
 tmp/
+.htaccess
