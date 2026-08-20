@@ -67,12 +67,21 @@ def contact_submit():
     email = request.form.get("email", "").strip()
     interest = request.form.get("interest", "").strip()
     message = request.form.get("message", "").strip()
+    qr_slug = request.form.get("qr_slug", "").strip()
 
-    # If phone is provided, validate it has country code and digits only (no +)
+    # If phone is provided, validate it has country code and digits only (no local leading 0)
     if phone:
-        # Strip spaces, hyphens, and leading + if user typed it
-        clean_phone = phone.replace(" ", "").replace("-", "").lstrip("+")
-        if not clean_phone.isdigit() or len(clean_phone) < 7:
+        # Strip spaces, hyphens, and parentheses
+        clean_phone = phone.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+        if clean_phone.startswith("+"):
+            clean_phone = clean_phone[1:]
+        elif clean_phone.startswith("00"):
+            clean_phone = clean_phone[2:]
+
+        # Must be digits only, length 7-15, and must not start with local '0' (country codes start with 1-9)
+        if not clean_phone.isdigit() or not (7 <= len(clean_phone) <= 15) or clean_phone.startswith("0"):
+            if qr_slug:
+                return redirect(url_for("qr.redirect_slug", slug=qr_slug, error="invalid_phone"))
             return redirect(url_for("public.home", error="invalid_phone", _anchor="contact"))
         phone = clean_phone
 
@@ -85,7 +94,12 @@ def contact_submit():
             message=message or None
         ))
         db.session.commit()
+        if qr_slug:
+            return redirect(url_for("qr.redirect_slug", slug=qr_slug, sent=1))
         return redirect(url_for("public.home", sent=1, _anchor="contact"))
+
+    if qr_slug:
+        return redirect(url_for("qr.redirect_slug", slug=qr_slug))
     return redirect(url_for("public.home", _anchor="contact"))
 
 

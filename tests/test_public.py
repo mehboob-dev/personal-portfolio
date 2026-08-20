@@ -66,7 +66,7 @@ def test_projects_defaults_preprocessing(client):
 def test_contact_submit_with_phone(client, app):
     from app.models import Lead
 
-    # 1. Valid phone submit without +
+    # 1. Valid phone submit without + and without leading 0
     res = client.post(
         "/contact",
         data={"name": "Alice Tester", "phone": "971501234567", "message": "Hello"},
@@ -80,7 +80,7 @@ def test_contact_submit_with_phone(client, app):
         assert lead.phone == "971501234567"
         assert lead.email is None
 
-    # 2. Phone submit with leading + gets cleaned
+    # 2. Phone submit with leading + gets cleaned to country code
     res2 = client.post(
         "/contact",
         data={"name": "Bob Tester", "phone": "+971509998888"},
@@ -92,3 +92,14 @@ def test_contact_submit_with_phone(client, app):
         lead2 = Lead.query.filter_by(name="Bob Tester").first()
         assert lead2 is not None
         assert lead2.phone == "971509998888"
+
+    # 3. Invalid phone with leading local '0' gets rejected
+    res3 = client.post(
+        "/contact",
+        data={"name": "Charlie Invalid", "phone": "07021111528"},
+        follow_redirects=True,
+    )
+    assert res3.status_code == 200
+    with app.app_context():
+        lead3 = Lead.query.filter_by(name="Charlie Invalid").first()
+        assert lead3 is None

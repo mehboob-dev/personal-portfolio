@@ -83,3 +83,13 @@ def test_whatsapp_telegram_and_toggles(client, app, seeded):
     assert "Share Your Contact Info" in html
     assert "Call Me Direct (+971501234567)" in html
     assert "Continue to Destination" in html
+
+    # 3. Test submitting lead form from QR landing page keeps user on QR landing page
+    res_sub = client.post(
+        "/contact",
+        data={"name": "QR Guest", "phone": "971500001111", "qr_slug": "expo-card"},
+        follow_redirects=True,
+    )
+    assert res_sub.status_code == 200
+    html_sub = res_sub.get_data(as_text=True)
+    assert "Thank you! Your contact information has been shared successfully." in html_sub

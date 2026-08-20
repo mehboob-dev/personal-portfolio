@@ -46,6 +46,8 @@ def redirect_slug(slug: str):
             dest_url=dest,
             qr_code=code,
             title=code.label or "QR Destination",
+            sent=request.args.get("sent"),
+            error=request.args.get("error"),
         )
 
     # Direct 1-Tap vCard Download / Import (e.g. vcard-direct: or vcard_direct:)

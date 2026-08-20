@@ -2,6 +2,13 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Keep Visitor on QR Landing Page Upon Lead Submission
+
+- **In-Place QR Landing Confirmation**: Updated `app/public.py`, `app/qr.py`, and `app/templates/public/qr_content.html` so submitting the lead form on a QR landing page passes `qr_slug` and redirects back to `/r/<slug>?sent=1`.
+- **In-Page Success & Error Banners**: Visitors scanning a QR code now stay on `/r/<slug>` and see a confirmation banner: `"✅ Thank you! Your contact information has been shared successfully."` alongside destination action buttons.
+
+---
+
 ## 2026-08-20 — Mandatory Mobile Number & Optional Email in Lead Capture Form
 
 - **Mandatory Mobile Number with Country Code Validation**: Updated `app/templates/public/qr_content.html` and `app/public.py` to make the **Mobile Number** field mandatory (`required`, HTML pattern `^[0-9]{7,15}$`) and automatically validate/strip any leading `+` symbol (keeping digits only, e.g. `971501234567`).
