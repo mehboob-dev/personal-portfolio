@@ -2,6 +2,14 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — 1-Tap Direct vCard Download & Native Web Share Contact Import
+
+- **Native Web Share API Contact Import**: Updated `app/templates/public/qr_content.html` to add a primary **"📲 Add to Contacts (Native Import)"** button using `navigator.share({ files: [vcardFile] })`. On modern mobile devices (iOS / Android), clicking this opens the native phone contacts sheet directly.
+- **Direct 1-Tap vCard Download Mode**: Added `vcard-direct:` destination type option in `app/templates/admin/qr_edit.html` and routing in `app/qr.py`. When configured with `vcard-direct:`, scanning the QR code bypasses the webpage and directly returns a `text/vcard` HTTP stream, triggering instant contact import dialogs on Android/iOS.
+- **Table JSON Escape Fix**: Updated `app/templates/admin/qr_list.html` to serialize string parameters using Jinja2 `tojson` to prevent multi-line JS syntax errors when displaying vCard payloads.
+
+---
+
 ## 2026-08-20 — Dynamic destination type dropdown & interactive payload builder in admin QR form
 
 - **Destination Type Selector & Guided Panels**: Added a destination type `<select>` dropdown to `app/templates/admin/qr_edit.html` supporting:
@@ -31,23 +39,3 @@ All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 ## 2026-08-20 — Replace Flask `send_file(BytesIO)` with `Response(bytes)` in `qr_png`
 
 - **Fix `qr_png` 500 error under WSGI/Passenger**: Replaced `flask.send_file(buf, ...)` in `app/admin.py` with direct `Response(buf.getvalue(), mimetype="image/png")`. Under LiteSpeed / Passenger WSGI environment, `send_file` calls `.fileno()` on the byte buffer which raises `io.UnsupportedOperation: fileno` and returns a 500 Internal Error. Direct `Response` streams the byte content reliably without invoking file descriptor operations.
-
----
-
-## 2026-08-20 — Fix JavaScript quote syntax error in campaigns admin table
-
-- **Fix JS Syntax Error in Campaigns Table**: Escaped quotes (`\'`) in inline `onsubmit="return confirm(...)"` strings inside `app/templates/admin/campaigns.html`. Unescaped single quotes inside JS single-quoted string literals were causing a JavaScript syntax error that prevented the Tabulator table from initializing and rendering.
-
----
-
-## 2026-08-20 — Handle duplicate campaign names & slugs gracefully
-
-- **Campaign Duplicate Validation**: Updated `app/admin.py` to check for existing campaign names and active slugs prior to creating a new campaign. Prevents database `IntegrityError` (1062 duplicate key) and returns a user-friendly error banner on `app/templates/admin/campaigns.html` instead of throwing an unhandled 500 Internal Server Error.
-
----
-
-## 2026-08-20 — CloudLinux Python Selector UI registration & SQLAlchemy pool recovery
-
-- **CloudLinux Python Selector Registration**: Resolved issue where `mehboob-portfolio` was missing from the cPanel **Setup Python App** web UI (`python-selector.html.tt`). Updated `/home/itqantra/.cl.selector/python-selector.json` with the exact application schema for `mehboob-portfolio` matching Python 3.11, domain `mehboob.itqantrades.com`, and startup file `passenger_wsgi.py`. Confirmed listing via `cloudlinux-selector get` CLI.
-- **MySQL Idle Disconnect Recovery**: Added `pool_pre_ping=True` and `pool_recycle=280` to `SQLALCHEMY_ENGINE_OPTIONS` in `app/__init__.py` to handle dropped MySQL idle connections and eliminate `500 Internal Server Error` on `/admin/login`.
-- **Deployment Script Sync**: Updated `.cpanel.yml` to include `git fetch origin master` and `git reset --hard origin/master` prior to touching `tmp/restart.txt` to ensure cPanel's "Deploy HEAD Commit" button pulls the latest code from GitHub.

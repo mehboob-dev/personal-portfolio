@@ -5,7 +5,7 @@ GET /r/<slug>  →  record a scan  →  302 to the QR code's current destination
 The destination is mutable in the admin, so a printed QR never goes stale.
 """
 
-from flask import Blueprint, abort, redirect, render_template, request
+from flask import Blueprint, Response, abort, redirect, render_template, request
 
 from .extensions import db
 from .helpers import anonymize_ip, parse_user_agent
@@ -25,7 +25,20 @@ def redirect_slug(slug: str):
 
     dest = (code.destination_url or "").strip()
 
-    # Plain text / vCard payload rendering
+    # Direct 1-Tap vCard Download / Import (e.g. vcard-direct: or vcard_direct:)
+    if dest.startswith(("vcard-direct:", "vcard_direct:", "direct-vcard:")):
+        vcard_text = dest.split(":", 1)[1].strip()
+        filename = f"{slugify_filename(code.label or code.slug)}.vcf"
+        return Response(
+            vcard_text,
+            mimetype="text/vcard",
+            headers={
+                "Content-Disposition": f'inline; filename="{filename}"',
+                "Content-Type": "text/vcard; charset=utf-8",
+            },
+        )
+
+    # vCard payload rendering (Web Page with Web Share API + Download)
     if dest.startswith("vcard:") or dest.startswith("BEGIN:VCARD"):
         vcard_text = dest[6:].strip() if dest.startswith("vcard:") else dest
         return render_template(
@@ -49,6 +62,12 @@ def redirect_slug(slug: str):
     return redirect(dest, code=302)
 
 
+def slugify_filename(name: str) -> str:
+    """Helper to convert string into safe filename."""
+    safe = "".join(c if c.isalnum() or c in ("-", "_") else "_" for c in name.strip())
+    return safe.strip("_") or "contact"
+
+
 def _record_scan(code: QrCode) -> None:
     """Best-effort scan capture. Never raises — a broken scan shouldn't 500."""
     try:
@@ -58,7 +77,7 @@ def _record_scan(code: QrCode) -> None:
             else (request.headers.get("CF-Connecting-IP") or request.remote_addr or "")
         )
         ua = parse_user_agent(request.headers.get("User-Agent", ""))
-        
+
         # Geolocation headers (Cloudflare, Vercel, AWS CloudFront, Nginx)
         country = (
             request.headers.get("CF-IPCountry")

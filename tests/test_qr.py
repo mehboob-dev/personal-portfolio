@@ -67,7 +67,8 @@ def test_vcard_and_text_destinations(client, app, seeded):
     assert res.status_code == 200
     html = res.get_data(as_text=True)
     assert "Mehboob Meghani" in html
-    assert "Save Contact (.vcf)" in html
+    assert "Add to Contacts" in html
+    assert "contact.vcf" in html
 
     # 2. Test plain text note rendering
     with app.app_context():

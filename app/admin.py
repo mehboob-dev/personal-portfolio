@@ -56,7 +56,7 @@ def _valid_destination_url(url: str) -> bool:
     if not url:
         return False
     u = url.strip()
-    if u.startswith(("vcard:", "BEGIN:VCARD", "text:", "tel:", "mailto:", "sms:", "geo:")):
+    if u.startswith(("vcard:", "vcard-direct:", "vcard_direct:", "direct-vcard:", "BEGIN:VCARD", "text:", "tel:", "mailto:", "sms:", "geo:")):
         return True
     try:
         parts = urlparse(u)

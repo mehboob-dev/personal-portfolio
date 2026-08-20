@@ -38,7 +38,8 @@
         <label for="qr-dest-type" style="font-weight: 600; margin-bottom: 6px;">Destination Type</label>
         <select id="qr-dest-type" class="form-control" style="font-weight: 500;">
           <option value="url">🌐 Web URL (302 Redirect)</option>
-          <option value="vcard">🎴 Digital Contact Card (vCard)</option>
+          <option value="vcard">🎴 Contact Card (Interactive Page with Web Share / Import)</option>
+          <option value="vcard-direct">⚡ Direct Contact Download (Instant Native Contact Import)</option>
           <option value="text">📝 Shared Note / Plain Text</option>
           <option value="tel">📞 Phone Call (tel:)</option>
           <option value="mailto">✉️ Send Email (mailto:)</option>
@@ -259,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (type === 'url') {
       payload = fUrl.value.trim();
-    } else if (type === 'vcard') {
+    } else if (type === 'vcard' || type === 'vcard-direct') {
       const fn = fVcardFn.value.trim();
       const org = fVcardOrg.value.trim();
       const title = fVcardTitle.value.trim();
@@ -277,7 +278,8 @@ document.addEventListener('DOMContentLoaded', function () {
       if (url) lines.push('URL:' + url);
       if (note) lines.push('NOTE:' + note);
       lines.push('END:VCARD');
-      payload = 'vcard:' + lines.join('\n');
+      const prefix = type === 'vcard-direct' ? 'vcard-direct:' : 'vcard:';
+      payload = prefix + lines.join('\n');
     } else if (type === 'text') {
       payload = 'text:' + fText.value;
     } else if (type === 'tel') {
@@ -307,7 +309,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const val = rawVal.trim();
 
-    if (val.startsWith('vcard:') || val.startsWith('BEGIN:VCARD')) {
+    if (val.startsWith('vcard-direct:') || val.startsWith('vcard_direct:') || val.startsWith('direct-vcard:')) {
+      typeSelect.value = 'vcard-direct';
+      showPanel('vcard');
+      const vcardBody = val.split(':', 1)[1] || '';
+      const lines = vcardBody.split('\n');
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('FN:')) fVcardFn.value = trimmed.slice(3);
+        else if (trimmed.startsWith('ORG:')) fVcardOrg.value = trimmed.slice(4);
+        else if (trimmed.startsWith('TITLE:')) fVcardTitle.value = trimmed.slice(6);
+        else if (trimmed.startsWith('TEL:')) fVcardTel.value = trimmed.slice(4);
+        else if (trimmed.startsWith('EMAIL:')) fVcardEmail.value = trimmed.slice(6);
+        else if (trimmed.startsWith('URL:')) fVcardUrl.value = trimmed.slice(4);
+        else if (trimmed.startsWith('NOTE:')) fVcardNote.value = trimmed.slice(5);
+      });
+    } else if (val.startsWith('vcard:') || val.startsWith('BEGIN:VCARD')) {
       typeSelect.value = 'vcard';
       showPanel('vcard');
       const vcardBody = val.startsWith('vcard:') ? val.slice(6) : val;

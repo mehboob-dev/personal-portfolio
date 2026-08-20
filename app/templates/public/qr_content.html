@@ -14,9 +14,48 @@
 {{ text_content }}
       </div>
 
-      <a class="btn btn-primary" href="data:text/vcard;charset=utf-8,{{ text_content | urlencode }}" download="contact.vcf" style="width: 100%; justify-content: center;">
-        Save Contact (.vcf) ↓
-      </a>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button id="btn-share-vcard" type="button" class="btn btn-primary" style="width: 100%; justify-content: center; font-weight: 600;">
+          📲 Add to Contacts (Native Import)
+        </button>
+        <a class="btn btn-mono" href="data:text/vcard;charset=utf-8,{{ text_content | urlencode }}" download="contact.vcf" style="width: 100%; justify-content: center;">
+          Save Contact File (.vcf) ↓
+        </a>
+      </div>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          var vcardRaw = {{ text_content | tojson }};
+          var btnShare = document.getElementById('btn-share-vcard');
+
+          if (btnShare) {
+            btnShare.addEventListener('click', async function () {
+              try {
+                var file = new File([vcardRaw], 'contact.vcf', { type: 'text/vcard' });
+                if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                  await navigator.share({
+                    files: [file],
+                    title: {{ (label or 'Contact Card') | tojson }},
+                    text: 'Contact details'
+                  });
+                } else {
+                  // Fallback to data URI download if Web Share API files not supported
+                  var a = document.createElement('a');
+                  a.href = 'data:text/vcard;charset=utf-8,' + encodeURIComponent(vcardRaw);
+                  a.download = 'contact.vcf';
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                }
+              } catch (err) {
+                if (err.name !== 'AbortError') {
+                  console.error('Share error:', err);
+                }
+              }
+            });
+          }
+        });
+      </script>
 
       {% else %}
       <div style="font-size: 3rem; margin-bottom: 12px;">📝</div>
