@@ -2,6 +2,14 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — CloudLinux Python Selector UI registration & SQLAlchemy pool recovery
+
+- **CloudLinux Python Selector Registration**: Resolved issue where `mehboob-portfolio` was missing from the cPanel **Setup Python App** web UI (`python-selector.html.tt`). Updated `/home/itqantra/.cl.selector/python-selector.json` with the exact application schema for `mehboob-portfolio` matching Python 3.11, domain `mehboob.itqantrades.com`, and startup file `passenger_wsgi.py`. Confirmed listing via `cloudlinux-selector get` CLI.
+- **MySQL Idle Disconnect Recovery**: Added `pool_pre_ping=True` and `pool_recycle=280` to `SQLALCHEMY_ENGINE_OPTIONS` in `app/__init__.py` to handle dropped MySQL idle connections and eliminate `500 Internal Server Error` on `/admin/login`.
+- **Deployment Script Sync**: Updated `.cpanel.yml` to include `git fetch origin master` and `git reset --hard origin/master` prior to touching `tmp/restart.txt` to ensure cPanel's "Deploy HEAD Commit" button pulls the latest code from GitHub.
+
+---
+
 ## 2026-08-20 — Make all section copy JSON-configurable; delete unused content files and keys
 
 - **Section headings/labels/intros fully JSON-driven**: replaced every hardcoded string in `app/templates/public/home.html` with template variables. Each section now reads its label, heading, and intro from the appropriate content JSON — no literals remain in the template.
