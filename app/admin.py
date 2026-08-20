@@ -47,14 +47,19 @@ bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
 def _valid_destination_url(url: str) -> bool:
-    """A QR destination must be an absolute http(s) URL.
+    """Validate destination payload.
 
-    The /r/<slug> endpoint 302s to this value, so anything else (javascript:,
-    ftp://, a bare path, garbage) would break the printed card and is an
-    open-redirect vector.
+    Allows absolute web URLs (http/https), custom URIs (tel:, mailto:, sms:, geo:),
+    vCard contact structures (BEGIN:VCARD or vcard:), or plain text notes (text:).
+    Rejects malformed javascript: links or bare paths to prevent open-redirect vectors.
     """
+    if not url:
+        return False
+    u = url.strip()
+    if u.startswith(("vcard:", "BEGIN:VCARD", "text:", "tel:", "mailto:", "sms:", "geo:")):
+        return True
     try:
-        parts = urlparse(url)
+        parts = urlparse(u)
     except ValueError:
         return False
     return parts.scheme in ("http", "https") and bool(parts.netloc)
@@ -293,10 +298,9 @@ def qr_new():
                     "admin/qr_edit.html",
                     code=None,
                     campaigns=campaigns,
-                    error="Destination URL must be an absolute http(s) link (e.g. https://example.com).",
+                    error="Invalid destination format. Destination URL must be an absolute http(s) link (e.g. https://example.com) or custom payload (tel:, mailto:, sms:, vcard:, text:).",
                     form=request.form,
                 )
-            existing = QrCode.query.filter_by(slug=slug).first()
             existing = QrCode.query.filter_by(slug=slug).first()
             if existing and existing.is_deleted:
                 # restore and update
@@ -307,6 +311,14 @@ def qr_new():
                 existing.is_deleted = False
                 db.session.commit()
                 return redirect(url_for("admin.qr_list"))
+            elif existing and not existing.is_deleted:
+                return render_template(
+                    "admin/qr_edit.html",
+                    code=None,
+                    campaigns=campaigns,
+                    error=f"A QR code with slug '{slug}' already exists.",
+                    form=request.form,
+                )
             elif not existing:
                 code = QrCode(
                     slug=slug,
@@ -328,26 +340,23 @@ def qr_edit(qid: int):
     code = db.session.get(QrCode, qid) or abort(404)
     campaigns = Campaign.query.filter_by(is_deleted=False).order_by(Campaign.name).all()
     if request.method == "POST":
-        new_slug = slugify(request.form.get("slug", code.slug))
+        # Keep original slug for existing QRs to prevent breaking printed physical QR codes
         destination = request.form.get("destination_url", "").strip()
         if not _valid_destination_url(destination):
             return render_template(
                 "admin/qr_edit.html",
                 code=code,
                 campaigns=campaigns,
-                error="Destination URL must be an absolute http(s) link (e.g. https://example.com).",
+                error="Invalid destination format. Destination URL must be an absolute http(s) link (e.g. https://example.com) or custom payload (tel:, mailto:, sms:, vcard:, text:).",
                 form=request.form,
             )
-        clash = QrCode.query.filter(QrCode.slug == new_slug, QrCode.id != code.id).first()
-        if not clash:
-            code.slug = new_slug
-            code.label = request.form.get("label", "").strip()
-            code.destination_url = destination
-            campaign_id = request.form.get("campaign_id") or None
-            code.campaign_id = int(campaign_id) if campaign_id else None
-            code.is_active = request.form.get("is_active") == "on"
-            db.session.commit()
-            return redirect(url_for("admin.qr_list"))
+        code.label = request.form.get("label", "").strip()
+        code.destination_url = destination
+        campaign_id = request.form.get("campaign_id") or None
+        code.campaign_id = int(campaign_id) if campaign_id else None
+        code.is_active = request.form.get("is_active") == "on"
+        db.session.commit()
+        return redirect(url_for("admin.qr_list"))
     return render_template("admin/qr_edit.html", code=code, campaigns=campaigns)
 
 

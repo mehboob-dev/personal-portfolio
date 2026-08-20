@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}{{ title or 'QR Details' }}{% endblock %}
+{% block content %}
+<section class="page" style="padding-top: 40px; padding-bottom: 60px;">
+  <div class="container" style="max-width: 600px; margin: 0 auto;">
+    <div class="card" style="text-align: center; padding: 32px 24px; background: var(--bg-subtle); border: 1px solid var(--border-subtle); border-radius: var(--radius-md);">
+
+      {% if content_type == 'vcard' %}
+      <div style="font-size: 3rem; margin-bottom: 12px;">🎴</div>
+      <h1 style="font-size: 1.6rem; margin: 0 0 8px;">{{ label or 'Contact Card' }}</h1>
+      <p class="muted" style="margin-bottom: 24px; font-size: 0.9rem;">Scan or tap below to save contact details directly to your phone.</p>
+
+      <div style="background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 24px; text-align: left; font-family: var(--font-mono); font-size: 0.85rem; white-space: pre-wrap; word-break: break-all; max-height: 200px; overflow-y: auto;">
+{{ text_content }}
+      </div>
+
+      <a class="btn btn-primary" href="data:text/vcard;charset=utf-8,{{ text_content | urlencode }}" download="contact.vcf" style="width: 100%; justify-content: center;">
+        Save Contact (.vcf) ↓
+      </a>
+
+      {% else %}
+      <div style="font-size: 3rem; margin-bottom: 12px;">📝</div>
+      <h1 style="font-size: 1.6rem; margin: 0 0 8px;">{{ label or 'Note / Text' }}</h1>
+      <p class="muted" style="margin-bottom: 24px; font-size: 0.9rem;">Shared note from QR Code scan.</p>
+
+      <div style="background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 20px; margin-bottom: 24px; text-align: left; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word;">
+{{ text_content }}
+      </div>
+      {% endif %}
+
+      <div style="margin-top: 24px;">
+        <a class="btn btn-sm btn-mono" href="{{ url_for('public.home') }}">← Return to Portfolio</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

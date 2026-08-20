@@ -19,8 +19,12 @@
     <form method="post">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
       <div class="form-group">
-        <label for="qr-slug">Slug (Redirect Path: <code>/r/&lt;slug&gt;</code>)</label>
-        <input id="qr-slug" class="form-control mono" type="text" name="slug" value="{{ form.slug if form and form.slug else (code.slug if code) }}" placeholder="visiting-card-2026" required>
+        <label for="qr-slug">Slug (Redirect Path: <code>/r/&lt;slug&gt;</code>) {% if code %}<span class="badge" style="margin-left: 6px; font-size: 0.7rem;">🔒 Permanent for Prints</span>{% endif %}</label>
+        {% if code %}
+        <input id="qr-slug" class="form-control mono" type="text" name="slug" value="{{ code.slug }}" readonly style="background: var(--bg-subtle); color: var(--text-muted); cursor: not-allowed;">
+        {% else %}
+        <input id="qr-slug" class="form-control mono" type="text" name="slug" value="{{ form.slug if form and form.slug else '' }}" placeholder="visiting-card-2026" required>
+        {% endif %}
       </div>
 
       <div class="form-group">
@@ -29,8 +33,15 @@
       </div>
 
       <div class="form-group">
-        <label for="qr-dest">Destination URL (Where scans redirect to)</label>
-        <input id="qr-dest" class="form-control mono" type="url" name="destination_url" value="{{ form.destination_url if form and form.destination_url else (code.destination_url if code) }}" placeholder="https://mehboob.itqantrades.com" required>
+        <label for="qr-dest">Destination Payload / Target</label>
+        <textarea id="qr-dest" class="form-control mono" name="destination_url" rows="3" placeholder="https://google.com OR tel:+1234567890 OR mailto:user@domain.com OR vcard:BEGIN:VCARD... OR text:Your note here" required style="resize: vertical;">{{ form.destination_url if form and form.destination_url else (code.destination_url if code) }}</textarea>
+        <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
+          <strong>Supported types:</strong><br>
+          • <strong>Web URL:</strong> <code>https://google.com</code> or <code>https://yahoo.com</code><br>
+          • <strong>Call / Mail / SMS:</strong> <code>tel:+1234567890</code>, <code>mailto:user@domain.com</code>, <code>sms:+1234567890</code><br>
+          • <strong>Digital Contact Card (vCard):</strong> <code>vcard:BEGIN:VCARD...</code> or <code>BEGIN:VCARD...</code><br>
+          • <strong>Shared Note / Text:</strong> <code>text:Welcome to booth #402!</code>
+        </div>
       </div>
 
       <div class="form-group">

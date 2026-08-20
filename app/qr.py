@@ -5,7 +5,7 @@ GET /r/<slug>  →  record a scan  →  302 to the QR code's current destination
 The destination is mutable in the admin, so a printed QR never goes stale.
 """
 
-from flask import Blueprint, abort, redirect, request
+from flask import Blueprint, abort, redirect, render_template, request
 
 from .extensions import db
 from .helpers import anonymize_ip, parse_user_agent
@@ -23,8 +23,30 @@ def redirect_slug(slug: str):
     if code.is_active:
         _record_scan(code)
 
+    dest = (code.destination_url or "").strip()
+
+    # Plain text / vCard payload rendering
+    if dest.startswith("vcard:") or dest.startswith("BEGIN:VCARD"):
+        vcard_text = dest[6:].strip() if dest.startswith("vcard:") else dest
+        return render_template(
+            "public/qr_content.html",
+            content_type="vcard",
+            label=code.label,
+            text_content=vcard_text,
+            title=code.label or "Contact Card",
+        )
+    elif dest.startswith("text:"):
+        text_body = dest[5:].strip()
+        return render_template(
+            "public/qr_content.html",
+            content_type="text",
+            label=code.label,
+            text_content=text_body,
+            title=code.label or "Shared Note",
+        )
+
     # 302 (temporary) so search engines don't cache the redirect target.
-    return redirect(code.destination_url, code=302)
+    return redirect(dest, code=302)
 
 
 def _record_scan(code: QrCode) -> None:

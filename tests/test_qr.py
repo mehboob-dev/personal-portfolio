@@ -54,3 +54,28 @@ def test_destination_is_mutable(client, app, seeded):
 
     res = client.get("/r/expo-card")
     assert res.headers["Location"] == "https://example.com/portfolio"
+
+
+def test_vcard_and_text_destinations(client, app, seeded):
+    # 1. Test vCard payload rendering
+    with app.app_context():
+        code = db.session.get(QrCode, seeded)
+        code.destination_url = "vcard:BEGIN:VCARD\nFN:Mehboob Meghani\nTEL:+123456789\nEND:VCARD"
+        db.session.commit()
+
+    res = client.get("/r/expo-card")
+    assert res.status_code == 200
+    html = res.get_data(as_text=True)
+    assert "Mehboob Meghani" in html
+    assert "Save Contact (.vcf)" in html
+
+    # 2. Test plain text note rendering
+    with app.app_context():
+        code = db.session.get(QrCode, seeded)
+        code.destination_url = "text:Welcome to Dubai Expo 2026!"
+        db.session.commit()
+
+    res_text = client.get("/r/expo-card")
+    assert res_text.status_code == 200
+    html_text = res_text.get_data(as_text=True)
+    assert "Welcome to Dubai Expo 2026!" in html_text

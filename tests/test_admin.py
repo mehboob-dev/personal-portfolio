@@ -270,7 +270,7 @@ def test_qr_destination_validation_rejects_non_http(admin_client, app):
         )
         assert res.status_code == 200
         html = res.get_data(as_text=True)
-        assert "Destination URL must be an absolute http(s) link" in html
+        assert "Invalid destination format" in html
         with app.app_context():
             assert QrCode.query.filter_by(destination_url=bad).first() is None
 
