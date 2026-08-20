@@ -247,8 +247,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const fVcardNote = document.getElementById('vcard-note');
 
   function showPanel(selectedType) {
+    const targetKey = (selectedType === 'vcard-direct') ? 'vcard' : selectedType;
     Object.keys(panels).forEach(key => {
-      panels[key].style.display = (key === selectedType) ? 'block' : 'none';
+      panels[key].style.display = (key === targetKey) ? 'block' : 'none';
     });
   }
 
