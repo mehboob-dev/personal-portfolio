@@ -25,9 +25,18 @@
 					"name": ".NET",
 					"class": "badge-accent"
 				},
-				"Unmanaged C++ Interop",
-				"Memory-Mapped Files",
-				"SignalR"
+				{
+					"name": "Unmanaged C++ Interop",
+					"class": "badge-accent"
+				},
+				{
+					"name": "Memory-Mapped Files",
+					"class": "badge-accent"
+				},
+				{
+					"name": "SignalR",
+					"class": "badge-accent"
+				}
 			],
 			"context": "The trading platform required a more scalable architecture as the firm expanded its trading capabilities across Indian, Crypto, and FX markets, while large financial-data workloads created significant memory overhead.",
 			"constraints": [
@@ -113,10 +122,22 @@
 					"name": ".NET",
 					"class": "badge-accent"
 				},
-				"Low-Level Sockets",
-				"Multithreading",
-				"SignalR",
-				"WebSockets"
+				{
+					"name": "Low-Level Sockets",
+					"class": "badge-accent"
+				},
+				{
+					"name": "Multithreading",
+					"class": "badge-accent"
+				},
+				{
+					"name": "SignalR",
+					"class": "badge-accent"
+				},
+				{
+					"name": "WebSockets",
+					"class": "badge-accent"
+				}
 			],
 			"context": "Real-time stock market tick and quote data needed to be distributed reliably across a large client base while maintaining very low delivery delay.",
 			"constraints": [
@@ -185,9 +206,18 @@
 			"title": "Dynamic Cloud Trading Migration & Infrastructure Optimization",
 			"classification": "Production System · Wallstreet Algo Trading",
 			"stack": [
-				"Cloud Infrastructure",
-				"Trading Systems",
-				"Resource Optimization"
+				{
+					"name": "Cloud Infrastructure",
+					"class": "badge-accent"
+				},
+				{
+					"name": "Trading Systems",
+					"class": "badge-accent"
+				},
+				{
+					"name": "Resource Optimization",
+					"class": "badge-accent"
+				}
 			],
 			"context": "The trading infrastructure required a more efficient cloud-based operating model as the system evolved and trading workloads expanded.",
 			"constraints": [
