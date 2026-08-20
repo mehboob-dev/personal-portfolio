@@ -74,6 +74,10 @@ def create_app(config: dict | None = None) -> Flask:
     app.config["SQLALCHEMY_DATABASE_URI"] = _resolve_db_url(
         secrets.get("DATABASE_URL", "sqlite:///data/app.db")
     )
+    app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
+        "pool_pre_ping": True,
+        "pool_recycle": 280,
+    }
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["SEED_ADMIN"] = secrets
 
