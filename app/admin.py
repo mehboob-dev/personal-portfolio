@@ -149,6 +149,7 @@ def _column_counts(column):
 @bp.route("/campaigns", methods=["GET", "POST"])
 @login_required
 def campaigns():
+    error = None
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         slug = request.form.get("slug", "").strip() or slugify(name)
@@ -158,9 +159,15 @@ def campaigns():
                 existing.name = name
                 existing.is_deleted = False
                 db.session.commit()
-            elif not existing:
-                db.session.add(Campaign(name=name, slug=slug))
-                db.session.commit()
+            elif existing and not existing.is_deleted:
+                error = f"A campaign with the slug '{slug}' already exists."
+            else:
+                existing_name = Campaign.query.filter_by(name=name).first()
+                if existing_name:
+                    error = f"A campaign with the name '{name}' already exists."
+                else:
+                    db.session.add(Campaign(name=name, slug=slug))
+                    db.session.commit()
 
     show = request.args.get("show", "active")  # 'active', 'deleted', 'all'
     q = Campaign.query
@@ -183,6 +190,7 @@ def campaigns():
         active_count=active_count,
         deleted_count=deleted_count,
         all_count=all_count,
+        error=error,
     )
 
 

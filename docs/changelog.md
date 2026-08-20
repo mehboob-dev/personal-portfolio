@@ -2,6 +2,12 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — Handle duplicate campaign names & slugs gracefully
+
+- **Campaign Duplicate Validation**: Updated `app/admin.py` to check for existing campaign names and active slugs prior to creating a new campaign. Prevents database `IntegrityError` (1062 duplicate key) and returns a user-friendly error banner on `app/templates/admin/campaigns.html` instead of throwing an unhandled 500 Internal Server Error.
+
+---
+
 ## 2026-08-20 — CloudLinux Python Selector UI registration & SQLAlchemy pool recovery
 
 - **CloudLinux Python Selector Registration**: Resolved issue where `mehboob-portfolio` was missing from the cPanel **Setup Python App** web UI (`python-selector.html.tt`). Updated `/home/itqantra/.cl.selector/python-selector.json` with the exact application schema for `mehboob-portfolio` matching Python 3.11, domain `mehboob.itqantrades.com`, and startup file `passenger_wsgi.py`. Confirmed listing via `cloudlinux-selector get` CLI.
