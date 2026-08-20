@@ -24,3 +24,9 @@ htmlcov/
 Thumbs.db
 .idea/
 .vscode/
+
+# cPanel / Passenger server-specific files
+passenger_wsgi
+passenger_wsgi.py
+stderr.log
+tmp/

@@ -1,0 +1,6 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/itqantra/mehboob-portfolio
+    - /bin/touch $DEPLOYPATH/tmp/restart.txt
+    - echo "Deployment completed, Passenger restarted."
