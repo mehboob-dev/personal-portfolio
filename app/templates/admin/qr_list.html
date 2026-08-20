@@ -84,25 +84,25 @@
       {% for code in codes %}
       {
         id: {{ code.id }},
-        slug: "{{ code.slug }}",
-        label: "{{ (code.label or '')|replace('"', '\\"') }}",
-        campaign: "{{ (code.campaign.name if code.campaign else '')|replace('"', '\\"') }}",
-        destination_url: "{{ code.destination_url|replace('"', '\\"') }}",
+        slug: {{ code.slug | tojson }},
+        label: {{ (code.label or '') | tojson }},
+        campaign: {{ (code.campaign.name if code.campaign else '') | tojson }},
+        destination_url: {{ (code.destination_url or '') | tojson }},
         date_utc: "{{ code.created_at.strftime('%Y-%m-%d') if code.created_at else '' }}",
         time_utc: "{{ code.created_at.strftime('%H:%M:%S') if code.created_at else '' }}",
         is_active: {{ 'true' if code.is_active else 'false' }},
         is_paused: {{ 'true' if not code.is_active else 'false' }},
         is_deleted: {{ 'true' if code.is_deleted else 'false' }},
         scans_count: {{ code.scans.count() }},
-        png_url: "{{ url_for('admin.qr_png', qid=code.id) }}",
-        download_url: "{{ url_for('admin.qr_png', qid=code.id, download=1) }}",
-        stats_url: "{{ url_for('admin.qr_stats', qid=code.id) }}",
-        edit_url: "{{ url_for('admin.qr_edit', qid=code.id) }}",
-        delete_url: "{{ url_for('admin.qr_delete', qid=code.id) }}",
-        restore_url: "{{ url_for('admin.qr_restore', qid=code.id) }}",
-        purge_url: "{{ url_for('admin.qr_purge', qid=code.id) }}",
-        redirect_test_url: "{{ url_for('qr.redirect_slug', slug=code.slug) }}",
-        host_url: "{{ request.host_url }}"
+        png_url: {{ url_for('admin.qr_png', qid=code.id) | tojson }},
+        download_url: {{ url_for('admin.qr_png', qid=code.id, download=1) | tojson }},
+        stats_url: {{ url_for('admin.qr_stats', qid=code.id) | tojson }},
+        edit_url: {{ url_for('admin.qr_edit', qid=code.id) | tojson }},
+        delete_url: {{ url_for('admin.qr_delete', qid=code.id) | tojson }},
+        restore_url: {{ url_for('admin.qr_restore', qid=code.id) | tojson }},
+        purge_url: {{ url_for('admin.qr_purge', qid=code.id) | tojson }},
+        redirect_test_url: {{ url_for('qr.redirect_slug', slug=code.slug) | tojson }},
+        host_url: {{ request.host_url | tojson }}
       }{% if not loop.last %},{% endif %}
       {% endfor %}
     ];
