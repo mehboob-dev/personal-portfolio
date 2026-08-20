@@ -49,14 +49,17 @@ bp = Blueprint("admin", __name__, url_prefix="/admin")
 def _valid_destination_url(url: str) -> bool:
     """Validate destination payload.
 
-    Allows absolute web URLs (http/https), custom URIs (tel:, mailto:, sms:, geo:),
+    Allows absolute web URLs (http/https), custom URIs (tel:, mailto:, sms:, geo:, whatsapp:, wa.me, tg:, t.me),
     vCard contact structures (BEGIN:VCARD or vcard:), or plain text notes (text:).
     Rejects malformed javascript: links or bare paths to prevent open-redirect vectors.
     """
     if not url:
         return False
     u = url.strip()
-    if u.startswith(("vcard:", "vcard-direct:", "vcard_direct:", "direct-vcard:", "BEGIN:VCARD", "text:", "tel:", "mailto:", "sms:", "geo:")):
+    if u.startswith((
+        "vcard:", "vcard-direct:", "vcard_direct:", "direct-vcard:", "BEGIN:VCARD",
+        "text:", "tel:", "mailto:", "sms:", "geo:", "whatsapp:", "wa.me:", "tg:", "t.me:"
+    )):
         return True
     try:
         parts = urlparse(u)
@@ -292,13 +295,17 @@ def qr_new():
         label = request.form.get("label", "").strip()
         destination = request.form.get("destination_url", "").strip()
         campaign_id = request.form.get("campaign_id") or None
+        show_lead_form = request.form.get("show_lead_form") == "on"
+        show_call_button = request.form.get("show_call_button") == "on"
+        call_phone_number = request.form.get("call_phone_number", "").strip() or None
+
         if slug and destination:
             if not _valid_destination_url(destination):
                 return render_template(
                     "admin/qr_edit.html",
                     code=None,
                     campaigns=campaigns,
-                    error="Invalid destination format. Destination URL must be an absolute http(s) link (e.g. https://example.com) or custom payload (tel:, mailto:, sms:, vcard:, text:).",
+                    error="Invalid destination format. Destination URL must be an absolute http(s) link (e.g. https://example.com) or custom payload (tel:, mailto:, sms:, vcard:, text:, whatsapp:, telegram:).",
                     form=request.form,
                 )
             existing = QrCode.query.filter_by(slug=slug).first()
@@ -307,6 +314,9 @@ def qr_new():
                 existing.label = label
                 existing.destination_url = destination
                 existing.campaign_id = int(campaign_id) if campaign_id else None
+                existing.show_lead_form = show_lead_form
+                existing.show_call_button = show_call_button
+                existing.call_phone_number = call_phone_number
                 existing.is_active = request.form.get("is_active") == "on"
                 existing.is_deleted = False
                 db.session.commit()
@@ -325,6 +335,9 @@ def qr_new():
                     label=label,
                     destination_url=destination,
                     campaign_id=int(campaign_id) if campaign_id else None,
+                    show_lead_form=show_lead_form,
+                    show_call_button=show_call_button,
+                    call_phone_number=call_phone_number,
                     is_active=request.form.get("is_active") == "on",
                     is_deleted=False,
                 )
@@ -347,13 +360,16 @@ def qr_edit(qid: int):
                 "admin/qr_edit.html",
                 code=code,
                 campaigns=campaigns,
-                error="Invalid destination format. Destination URL must be an absolute http(s) link (e.g. https://example.com) or custom payload (tel:, mailto:, sms:, vcard:, text:).",
+                error="Invalid destination format. Destination URL must be an absolute http(s) link (e.g. https://example.com) or custom payload (tel:, mailto:, sms:, vcard:, text:, whatsapp:, telegram:).",
                 form=request.form,
             )
         code.label = request.form.get("label", "").strip()
         code.destination_url = destination
         campaign_id = request.form.get("campaign_id") or None
         code.campaign_id = int(campaign_id) if campaign_id else None
+        code.show_lead_form = request.form.get("show_lead_form") == "on"
+        code.show_call_button = request.form.get("show_call_button") == "on"
+        code.call_phone_number = request.form.get("call_phone_number", "").strip() or None
         code.is_active = request.form.get("is_active") == "on"
         db.session.commit()
         return redirect(url_for("admin.qr_list"))

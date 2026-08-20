@@ -25,6 +25,29 @@ def redirect_slug(slug: str):
 
     dest = (code.destination_url or "").strip()
 
+    # If landing page features (lead capture form or direct call button) are enabled AND dest is not direct vcard, render interactive landing page
+    if (code.show_lead_form or code.show_call_button) and not dest.startswith(("vcard-direct:", "vcard_direct:", "direct-vcard:")):
+        vcard_text = None
+        text_body = None
+        content_type = "landing"
+
+        if dest.startswith("vcard:") or dest.startswith("BEGIN:VCARD"):
+            vcard_text = dest[6:].strip() if dest.startswith("vcard:") else dest
+            content_type = "vcard"
+        elif dest.startswith("text:"):
+            text_body = dest[5:].strip()
+            content_type = "text"
+
+        return render_template(
+            "public/qr_content.html",
+            content_type=content_type,
+            label=code.label,
+            text_content=vcard_text or text_body,
+            dest_url=dest,
+            qr_code=code,
+            title=code.label or "QR Destination",
+        )
+
     # Direct 1-Tap vCard Download / Import (e.g. vcard-direct: or vcard_direct:)
     if dest.startswith(("vcard-direct:", "vcard_direct:", "direct-vcard:")):
         vcard_text = dest.split(":", 1)[1].strip()
@@ -46,6 +69,8 @@ def redirect_slug(slug: str):
             content_type="vcard",
             label=code.label,
             text_content=vcard_text,
+            dest_url=dest,
+            qr_code=code,
             title=code.label or "Contact Card",
         )
     elif dest.startswith("text:"):
@@ -55,6 +80,8 @@ def redirect_slug(slug: str):
             content_type="text",
             label=code.label,
             text_content=text_body,
+            dest_url=dest,
+            qr_code=code,
             title=code.label or "Shared Note",
         )
 

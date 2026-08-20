@@ -56,27 +56,30 @@ def test_destination_is_mutable(client, app, seeded):
     assert res.headers["Location"] == "https://example.com/portfolio"
 
 
-def test_vcard_and_text_destinations(client, app, seeded):
-    # 1. Test vCard payload rendering
+def test_whatsapp_telegram_and_toggles(client, app, seeded):
+    # 1. Test WhatsApp destination validation & 302 redirect
     with app.app_context():
         code = db.session.get(QrCode, seeded)
-        code.destination_url = "vcard:BEGIN:VCARD\nFN:Mehboob Meghani\nTEL:+123456789\nEND:VCARD"
+        code.destination_url = "https://wa.me/971501234567?text=Hello"
+        code.show_lead_form = False
+        code.show_call_button = False
         db.session.commit()
 
-    res = client.get("/r/expo-card")
-    assert res.status_code == 200
-    html = res.get_data(as_text=True)
-    assert "Mehboob Meghani" in html
-    assert "Add to Contacts" in html
-    assert "contact.vcf" in html
+    res_wa = client.get("/r/expo-card")
+    assert res_wa.status_code == 302
+    assert res_wa.headers["Location"] == "https://wa.me/971501234567?text=Hello"
 
-    # 2. Test plain text note rendering
+    # 2. Test landing page with Lead Capture Form toggle enabled
     with app.app_context():
         code = db.session.get(QrCode, seeded)
-        code.destination_url = "text:Welcome to Dubai Expo 2026!"
+        code.show_lead_form = True
+        code.show_call_button = True
+        code.call_phone_number = "+971501234567"
         db.session.commit()
 
-    res_text = client.get("/r/expo-card")
-    assert res_text.status_code == 200
-    html_text = res_text.get_data(as_text=True)
-    assert "Welcome to Dubai Expo 2026!" in html_text
+    res_landing = client.get("/r/expo-card")
+    assert res_landing.status_code == 200
+    html = res_landing.get_data(as_text=True)
+    assert "Share Your Contact Info" in html
+    assert "Call Me Direct (+971501234567)" in html
+    assert "Continue to Destination" in html

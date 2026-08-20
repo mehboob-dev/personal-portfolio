@@ -36,6 +36,10 @@ class QrCode(db.Model):
     label = db.Column(db.String(200), nullable=False, default="")
     # The mutable destination — this is what makes the printed card reusable.
     destination_url = db.Column(db.String(2000), nullable=False)
+    # Landing page options / overlays
+    show_lead_form = db.Column(db.Boolean, nullable=False, default=False)
+    show_call_button = db.Column(db.Boolean, nullable=False, default=False)
+    call_phone_number = db.Column(db.String(50), nullable=True)
     is_active = db.Column(db.Boolean, nullable=False, default=True)
     is_deleted = db.Column(db.Boolean, nullable=False, default=False)
     created_at = db.Column(db.DateTime, default=_utcnow)

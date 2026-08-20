@@ -45,7 +45,6 @@
 
           if (btnSave) {
             btnSave.addEventListener('click', async function () {
-              // Attempt Web Share API if supported by browser for file sharing
               if (navigator.share && navigator.canShare) {
                 try {
                   var file = new File([vcardRaw], 'contact.vcf', { type: 'text/vcard' });
@@ -60,20 +59,74 @@
                   if (err.name === 'AbortError') return;
                 }
               }
-              // Direct Blob Download Fallback
               triggerVcardDownload();
             });
           }
         });
       </script>
 
-      {% else %}
+      {% elif content_type == 'text' %}
       <div style="font-size: 3rem; margin-bottom: 12px;">📝</div>
       <h1 style="font-size: 1.6rem; margin: 0 0 8px;">{{ label or 'Note / Text' }}</h1>
       <p class="muted" style="margin-bottom: 24px; font-size: 0.9rem;">Shared note from QR Code scan.</p>
 
       <div style="background: var(--bg-main); border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); padding: 20px; margin-bottom: 24px; text-align: left; font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; word-break: break-word;">
 {{ text_content }}
+      </div>
+
+      {% else %}
+      <!-- General Landing Content -->
+      <div style="font-size: 3rem; margin-bottom: 12px;">🔗</div>
+      <h1 style="font-size: 1.6rem; margin: 0 0 8px;">{{ label or 'QR Destination' }}</h1>
+      <p class="muted" style="margin-bottom: 24px; font-size: 0.9rem;">Interactive destination portal.</p>
+
+      {% if dest_url %}
+      <div style="margin-bottom: 24px;">
+        <a class="btn btn-primary" href="{{ dest_url }}" target="_blank" style="width: 100%; justify-content: center; font-size: 1.05rem; padding: 12px 20px;">
+          🚀 Continue to Destination
+        </a>
+      </div>
+      {% endif %}
+      {% endif %}
+
+      <!-- Feature Overlay 1: Direct Call / Call Me Button -->
+      {% if qr_code and qr_code.show_call_button and qr_code.call_phone_number %}
+      <div style="margin-top: 24px; padding-top: 20px; border-top: 1px dashed var(--border-subtle);">
+        <a class="btn btn-primary" href="tel:{{ qr_code.call_phone_number }}" style="width: 100%; justify-content: center; background: #16a34a; border-color: #16a34a; font-weight: 600; font-size: 1rem; padding: 12px 20px;">
+          📞 Call Me Direct ({{ qr_code.call_phone_number }})
+        </a>
+      </div>
+      {% endif %}
+
+      <!-- Feature Overlay 2: Lead Capture / Contact Exchange Form -->
+      {% if qr_code and qr_code.show_lead_form %}
+      <div style="margin-top: 28px; padding-top: 20px; border-top: 1px dashed var(--border-subtle); text-align: left;">
+        <h3 style="font-size: 1.1rem; margin: 0 0 4px; text-align: center;">💬 Share Your Contact Info</h3>
+        <p class="muted" style="font-size: 0.82rem; text-align: center; margin-bottom: 16px;">Leave your contact details so I can get in touch with you.</p>
+
+        <form action="{{ url_for('public.contact_submit') }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="hidden" name="interest" value="QR Scan Exchange ({{ qr_code.slug }})">
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Your Name *</label>
+            <input class="form-control" type="text" name="name" placeholder="John Doe" required style="width: 100%;">
+          </div>
+
+          <div style="margin-bottom: 12px;">
+            <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Email Address *</label>
+            <input class="form-control" type="email" name="email" placeholder="john@example.com" required style="width: 100%;">
+          </div>
+
+          <div style="margin-bottom: 16px;">
+            <label style="font-size: 0.82rem; font-weight: 600; display: block; margin-bottom: 4px;">Message / Phone (Optional)</label>
+            <textarea class="form-control" name="message" rows="2" placeholder="Hi! Nice meeting you..." style="width: 100%;"></textarea>
+          </div>
+
+          <button class="btn btn-primary" type="submit" style="width: 100%; justify-content: center;">
+            ✉️ Submit Contact Info
+          </button>
+        </form>
       </div>
       {% endif %}
 

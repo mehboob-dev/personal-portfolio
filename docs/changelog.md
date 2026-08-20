@@ -2,6 +2,16 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
+## 2026-08-20 — WhatsApp, Telegram Destination Support & Dynamic QR Landing Page Feature Overlays
+
+- **WhatsApp & Telegram Destinations**: Added dedicated `whatsapp` (`https://wa.me/...`) and `telegram` (`https://t.me/...`) options to the admin QR destination builder dropdown (`app/templates/admin/qr_edit.html`) and payload validator (`_valid_destination_url` in `app/admin.py`).
+- **Optional QR Landing Page Overlays**:
+  - **Lead Capture / Contact Exchange Form (Approach 1)**: Added `show_lead_form` database toggle on `QrCode` model allowing visitors scanning any QR code destination (URL, WhatsApp, Telegram, etc.) to optionally leave their contact details.
+  - **Direct Call / Call Me Button (Approach 2)**: Added `show_call_button` & `call_phone_number` database toggles on `QrCode` model allowing admins to display an instant green "Call Me Direct" button on the QR destination landing page (`app/templates/public/qr_content.html`).
+- **Database Schema Migration**: Added Alembic migration script (`b33147b1af14_add_qr_landing_toggles.py`) adding `show_lead_form`, `show_call_button`, and `call_phone_number` columns to `qr_codes`.
+
+---
+
 ## 2026-08-20 — 1-Tap Direct vCard Download & Native Web Share Contact Import
 
 - **Native Web Share API Contact Import**: Updated `app/templates/public/qr_content.html` to add a primary **"📲 Add to Contacts (Native Import)"** button using `navigator.share({ files: [vcardFile] })`. On modern mobile devices (iOS / Android), clicking this opens the native phone contacts sheet directly.

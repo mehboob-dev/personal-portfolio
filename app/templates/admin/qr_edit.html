@@ -40,6 +40,8 @@
           <option value="url">🌐 Web URL (302 Redirect)</option>
           <option value="vcard">🎴 Contact Card (Interactive Page with Web Share / Import)</option>
           <option value="vcard-direct">⚡ Direct Contact Download (Instant Native Contact Import)</option>
+          <option value="whatsapp">💬 WhatsApp Chat (https://wa.me/...)</option>
+          <option value="telegram">✈️ Telegram Direct (https://t.me/...)</option>
           <option value="text">📝 Shared Note / Plain Text</option>
           <option value="tel">📞 Phone Call (tel:)</option>
           <option value="mailto">✉️ Send Email (mailto:)</option>
@@ -145,6 +147,28 @@
           <small class="muted" style="display: block; margin-top: 4px;">Scanners will open their SMS messaging app with this recipient and message.</small>
         </div>
 
+        <!-- 6b. WhatsApp Panel -->
+        <div id="panel-whatsapp" class="dest-panel" style="display: none;">
+          <div class="form-group">
+            <label for="field-wa-num">WhatsApp Phone Number (With Country Code, digits only)</label>
+            <input id="field-wa-num" class="form-control mono" type="tel" placeholder="971501234567">
+          </div>
+          <div class="form-group">
+            <label for="field-wa-msg">Pre-filled Message (Optional)</label>
+            <input id="field-wa-msg" class="form-control" type="text" placeholder="Hi Mehboob, I scanned your QR code and would like to chat.">
+          </div>
+          <small class="muted" style="display: block; margin-top: 4px;">Scanners will be redirected straight into WhatsApp chat (https://wa.me/...).</small>
+        </div>
+
+        <!-- 6c. Telegram Panel -->
+        <div id="panel-telegram" class="dest-panel" style="display: none;">
+          <div class="form-group">
+            <label for="field-tg-user">Telegram Username or Channel (Without @)</label>
+            <input id="field-tg-user" class="form-control mono" type="text" placeholder="mehboob_meghani">
+            <small class="muted" style="display: block; margin-top: 4px;">Scanners will open Telegram app/web at https://t.me/username.</small>
+          </div>
+        </div>
+
         <!-- 7. Custom / Raw Panel -->
         <div id="panel-custom" class="dest-panel" style="display: none;">
           <small class="muted" style="display: block;">Enter any custom or raw URI payload directly into the target field below.</small>
@@ -168,6 +192,33 @@
           <option value="{{ c.id }}" {% if (form and form.campaign_id and c.id|string == form.campaign_id) or (not form and code and code.campaign_id == c.id) %}selected{% endif %}>{{ c.name }}</option>
           {% endfor %}
         </select>
+      </div>
+
+      <!-- Landing Page Feature Overlays / Action Toggles -->
+      <div class="form-group" style="background: var(--bg-subtle); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 20px;">
+        <label style="font-weight: 600; margin-bottom: 8px; display: block;">QR Landing Page Features (Optional Overlays)</label>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <input id="qr-lead-form" type="checkbox" name="show_lead_form" {% if (form and form.get('show_lead_form') == 'on') or (not form and code and code.show_lead_form) %}checked{% endif %}>
+            <label for="qr-lead-form" style="cursor: pointer; margin: 0; font-weight: 500;">
+              📋 Show Lead Capture / Contact Exchange Form (Approach 1)
+            </label>
+          </div>
+          <small class="muted" style="margin-left: 24px; display: block;">Allows visitors to submit their Name, Email, and Message back to you when scanning this QR.</small>
+
+          <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
+            <input id="qr-call-btn" type="checkbox" name="show_call_button" {% if (form and form.get('show_call_button') == 'on') or (not form and code and code.show_call_button) %}checked{% endif %}>
+            <label for="qr-call-btn" style="cursor: pointer; margin: 0; font-weight: 500;">
+              📞 Show Direct Call Button (Approach 2)
+            </label>
+          </div>
+
+          <div id="call-num-group" style="margin-left: 24px; display: {% if (form and form.get('show_call_button') == 'on') or (not form and code and code.show_call_button) %}block{% else %}none{% endif %}; margin-top: 4px;">
+            <label for="qr-call-num" style="font-size: 0.82rem; margin-bottom: 4px; display: block;">Call Me Phone Number</label>
+            <input id="qr-call-num" class="form-control mono" type="tel" name="call_phone_number" value="{{ form.call_phone_number if form and form.call_phone_number else (code.call_phone_number if code and code.call_phone_number else '') }}" placeholder="+971501234567" style="max-width: 300px;">
+          </div>
+        </div>
       </div>
 
       <div class="form-group" style="flex-direction: row; align-items: center; gap: 8px; margin-top: 8px;">
@@ -223,6 +274,8 @@ document.addEventListener('DOMContentLoaded', function () {
     tel: document.getElementById('panel-tel'),
     mailto: document.getElementById('panel-mailto'),
     sms: document.getElementById('panel-sms'),
+    whatsapp: document.getElementById('panel-whatsapp'),
+    telegram: document.getElementById('panel-telegram'),
     custom: document.getElementById('panel-custom')
   };
 
@@ -238,6 +291,11 @@ document.addEventListener('DOMContentLoaded', function () {
   const fSmsNum = document.getElementById('field-sms-num');
   const fSmsBody = document.getElementById('field-sms-body');
 
+  const fWaNum = document.getElementById('field-wa-num');
+  const fWaMsg = document.getElementById('field-wa-msg');
+
+  const fTgUser = document.getElementById('field-tg-user');
+
   const fVcardFn = document.getElementById('vcard-fn');
   const fVcardOrg = document.getElementById('vcard-org');
   const fVcardTitle = document.getElementById('vcard-title');
@@ -245,6 +303,15 @@ document.addEventListener('DOMContentLoaded', function () {
   const fVcardEmail = document.getElementById('vcard-email');
   const fVcardUrl = document.getElementById('vcard-url');
   const fVcardNote = document.getElementById('vcard-note');
+
+  const chkCallBtn = document.getElementById('qr-call-btn');
+  const groupCallNum = document.getElementById('call-num-group');
+
+  if (chkCallBtn && groupCallNum) {
+    chkCallBtn.addEventListener('change', function () {
+      groupCallNum.style.display = this.checked ? 'block' : 'none';
+    });
+  }
 
   function showPanel(selectedType) {
     const targetKey = (selectedType === 'vcard-direct') ? 'vcard' : selectedType;
@@ -294,6 +361,13 @@ document.addEventListener('DOMContentLoaded', function () {
     } else if (type === 'sms') {
       payload = 'sms:' + fSmsNum.value.trim();
       if (fSmsBody.value.trim()) payload += '?body=' + encodeURIComponent(fSmsBody.value.trim());
+    } else if (type === 'whatsapp') {
+      const cleanNum = fWaNum.value.replace(/[^0-9]/g, '');
+      payload = 'https://wa.me/' + cleanNum;
+      if (fWaMsg.value.trim()) payload += '?text=' + encodeURIComponent(fWaMsg.value.trim());
+    } else if (type === 'telegram') {
+      const cleanUser = fTgUser.value.trim().replace(/^@/, '');
+      payload = 'https://t.me/' + cleanUser;
     } else if (type === 'custom') {
       payload = destTextarea.value;
     }
@@ -366,6 +440,25 @@ document.addEventListener('DOMContentLoaded', function () {
       if (parts[1]) {
         const query = new URLSearchParams(parts[1]);
         if (query.has('body')) fSmsBody.value = query.get('body');
+      }
+    } else if (val.includes('wa.me/') || val.startsWith('whatsapp:')) {
+      typeSelect.value = 'whatsapp';
+      showPanel('whatsapp');
+      if (val.includes('wa.me/')) {
+        const afterDomain = val.split('wa.me/')[1] || '';
+        const parts = afterDomain.split('?');
+        fWaNum.value = parts[0] || '';
+        if (parts[1]) {
+          const query = new URLSearchParams(parts[1]);
+          if (query.has('text')) fWaMsg.value = query.get('text');
+        }
+      }
+    } else if (val.includes('t.me/') || val.startsWith('tg:')) {
+      typeSelect.value = 'telegram';
+      showPanel('telegram');
+      if (val.includes('t.me/')) {
+        const user = val.split('t.me/')[1] || '';
+        fTgUser.value = user.replace(/^@/, '');
       }
     } else if (val.startsWith('http://') || val.startsWith('https://')) {
       typeSelect.value = 'url';
