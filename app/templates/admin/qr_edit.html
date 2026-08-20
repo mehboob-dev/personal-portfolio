@@ -310,15 +310,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const val = rawVal.trim();
 
-  function parseInitialPayload(rawVal) {
-    if (!rawVal) {
-      typeSelect.value = 'url';
-      showPanel('url');
-      return;
-    }
-
-    const val = rawVal.trim();
-
     if (val.startsWith('vcard-direct:') || val.startsWith('vcard_direct:') || val.startsWith('direct-vcard:')) {
       typeSelect.value = 'vcard-direct';
       showPanel('vcard');
