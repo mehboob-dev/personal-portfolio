@@ -16,8 +16,9 @@
     </div>
     {% endif %}
 
-    <form method="post">
+    <form method="post" id="qr-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
       <div class="form-group">
         <label for="qr-slug">Slug (Redirect Path: <code>/r/&lt;slug&gt;</code>) {% if code %}<span class="badge" style="margin-left: 6px; font-size: 0.7rem;">🔒 Permanent for Prints</span>{% endif %}</label>
         {% if code %}
@@ -32,16 +33,130 @@
         <input id="qr-label" class="form-control" type="text" name="label" value="{{ form.label if form and form.label else (code.label if code) }}" placeholder="Visiting Card — Front Side">
       </div>
 
-      <div class="form-group">
-        <label for="qr-dest">Destination Payload / Target</label>
-        <textarea id="qr-dest" class="form-control mono" name="destination_url" rows="3" placeholder="https://google.com OR tel:+1234567890 OR mailto:user@domain.com OR vcard:BEGIN:VCARD... OR text:Your note here" required style="resize: vertical;">{{ form.destination_url if form and form.destination_url else (code.destination_url if code) }}</textarea>
-        <div style="font-size: 0.76rem; color: var(--text-muted); margin-top: 4px; line-height: 1.4;">
-          <strong>Supported types:</strong><br>
-          • <strong>Web URL:</strong> <code>https://google.com</code> or <code>https://yahoo.com</code><br>
-          • <strong>Call / Mail / SMS:</strong> <code>tel:+1234567890</code>, <code>mailto:user@domain.com</code>, <code>sms:+1234567890</code><br>
-          • <strong>Digital Contact Card (vCard):</strong> <code>vcard:BEGIN:VCARD...</code> or <code>BEGIN:VCARD...</code><br>
-          • <strong>Shared Note / Text:</strong> <code>text:Welcome to booth #402!</code>
+      <!-- Destination Type Selection -->
+      <div class="form-group" style="background: var(--bg-subtle); padding: 14px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 20px;">
+        <label for="qr-dest-type" style="font-weight: 600; margin-bottom: 6px;">Destination Type</label>
+        <select id="qr-dest-type" class="form-control" style="font-weight: 500;">
+          <option value="url">🌐 Web URL (302 Redirect)</option>
+          <option value="vcard">🎴 Digital Contact Card (vCard)</option>
+          <option value="text">📝 Shared Note / Plain Text</option>
+          <option value="tel">📞 Phone Call (tel:)</option>
+          <option value="mailto">✉️ Send Email (mailto:)</option>
+          <option value="sms">💬 Send SMS (sms:)</option>
+          <option value="custom">⚙️ Custom / Raw Payload</option>
+        </select>
+      </div>
+
+      <!-- Panels for Supported Fields -->
+      <div id="dest-panels" style="margin-bottom: 20px;">
+
+        <!-- 1. Web URL Panel -->
+        <div id="panel-url" class="dest-panel">
+          <div class="form-group">
+            <label for="field-url">Web URL / Target Address</label>
+            <input id="field-url" class="form-control mono" type="url" placeholder="https://example.com/my-page">
+            <small class="muted" style="display: block; margin-top: 4px;">Scanners will be automatically redirected to this URL.</small>
+          </div>
         </div>
+
+        <!-- 2. vCard Panel -->
+        <div id="panel-vcard" class="dest-panel" style="display: none;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="vcard-fn">Full Name</label>
+              <input id="vcard-fn" class="form-control" type="text" placeholder="Mehboob Meghani">
+            </div>
+            <div class="form-group">
+              <label for="vcard-org">Company / Organization</label>
+              <input id="vcard-org" class="form-control" type="text" placeholder="Itqan Trades">
+            </div>
+            <div class="form-group">
+              <label for="vcard-title">Job Title</label>
+              <input id="vcard-title" class="form-control" type="text" placeholder="Quant Developer">
+            </div>
+            <div class="form-group">
+              <label for="vcard-tel">Phone Number</label>
+              <input id="vcard-tel" class="form-control mono" type="tel" placeholder="+971 50 123 4567">
+            </div>
+            <div class="form-group">
+              <label for="vcard-email">Email Address</label>
+              <input id="vcard-email" class="form-control mono" type="email" placeholder="mehboob@example.com">
+            </div>
+            <div class="form-group">
+              <label for="vcard-url">Website</label>
+              <input id="vcard-url" class="form-control mono" type="url" placeholder="https://mehboob.itqantrades.com">
+            </div>
+          </div>
+          <div class="form-group" style="margin-top: 8px;">
+            <label for="vcard-note">Notes / Bio</label>
+            <textarea id="vcard-note" class="form-control" rows="2" placeholder="Specializing in C#, .NET & High Frequency Trading"></textarea>
+          </div>
+          <small class="muted" style="display: block; margin-top: 4px;">Scanners will see an interactive mobile card with a "Save Contact (.vcf)" button.</small>
+        </div>
+
+        <!-- 3. Shared Note / Text Panel -->
+        <div id="panel-text" class="dest-panel" style="display: none;">
+          <div class="form-group">
+            <label for="field-text-body">Note Content</label>
+            <textarea id="field-text-body" class="form-control" rows="4" placeholder="Welcome to booth #402! Here is our 2026 presentation info..."></textarea>
+            <small class="muted" style="display: block; margin-top: 4px;">Scanners will view a mobile-optimized page rendering this note.</small>
+          </div>
+        </div>
+
+        <!-- 4. Phone Call Panel -->
+        <div id="panel-tel" class="dest-panel" style="display: none;">
+          <div class="form-group">
+            <label for="field-tel-num">Phone Number (with Country Code)</label>
+            <input id="field-tel-num" class="form-control mono" type="tel" placeholder="+971501234567">
+            <small class="muted" style="display: block; margin-top: 4px;">Scanners will open their native phone dialer with this number.</small>
+          </div>
+        </div>
+
+        <!-- 5. Email Panel -->
+        <div id="panel-mailto" class="dest-panel" style="display: none;">
+          <div class="form-group">
+            <label for="field-email-to">Recipient Email Address</label>
+            <input id="field-email-to" class="form-control mono" type="email" placeholder="contact@itqantrades.com">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+            <div class="form-group">
+              <label for="field-email-sub">Subject (Optional)</label>
+              <input id="field-email-sub" class="form-control" type="text" placeholder="Inquiry from QR Scan">
+            </div>
+            <div class="form-group">
+              <label for="field-email-body">Body Message (Optional)</label>
+              <textarea id="field-email-body" class="form-control" rows="2" placeholder="Hello Mehboob, I scanned your business card and..."></textarea>
+            </div>
+          </div>
+          <small class="muted" style="display: block; margin-top: 4px;">Scanners will open their mail client pre-filled with this draft.</small>
+        </div>
+
+        <!-- 6. SMS Panel -->
+        <div id="panel-sms" class="dest-panel" style="display: none;">
+          <div class="form-group">
+            <label for="field-sms-num">Phone Number</label>
+            <input id="field-sms-num" class="form-control mono" type="tel" placeholder="+971501234567">
+          </div>
+          <div class="form-group">
+            <label for="field-sms-body">Preset Message Body (Optional)</label>
+            <input id="field-sms-body" class="form-control" type="text" placeholder="Hi Mehboob, let's connect regarding software development.">
+          </div>
+          <small class="muted" style="display: block; margin-top: 4px;">Scanners will open their SMS messaging app with this recipient and message.</small>
+        </div>
+
+        <!-- 7. Custom / Raw Panel -->
+        <div id="panel-custom" class="dest-panel" style="display: none;">
+          <small class="muted" style="display: block;">Enter any custom or raw URI payload directly into the target field below.</small>
+        </div>
+      </div>
+
+      <!-- Real Compiled Payload Field (Submitted with form) -->
+      <div class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+          <label for="qr-dest" style="margin: 0; font-size: 0.85rem; color: var(--text-muted);">Compiled Payload String (Sent to Backend)</label>
+          <button type="button" id="btn-toggle-raw" class="btn btn-sm btn-mono" style="font-size: 0.72rem; padding: 2px 8px;">Toggle Raw Edit</button>
+        </div>
+        <textarea id="qr-dest" class="form-control mono" name="destination_url" rows="2" required style="resize: vertical; font-size: 0.82rem; background: var(--bg-subtle);" readonly>{{ form.destination_url if form and form.destination_url else (code.destination_url if code) }}</textarea>
       </div>
 
       <div class="form-group">
@@ -73,7 +188,7 @@
     <div style="background: #ffffff; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm);">
       <img src="{{ url_for('admin.qr_png', qid=code.id) }}" alt="QR Code Preview for {{ code.slug }}" width="180" height="180" style="display: block;">
     </div>
-    
+
     <div style="display: flex; flex-direction: column; gap: 4px;">
       <span class="mono" style="font-size: 0.8rem; color: var(--text-muted);">Redirect Target:</span>
       <span class="mono" style="font-size: 0.85rem; font-weight: 600; color: var(--accent-primary); word-break: break-all;">
@@ -92,4 +207,187 @@
   </div>
   {% endif %}
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const typeSelect = document.getElementById('qr-dest-type');
+  const destTextarea = document.getElementById('qr-dest');
+  const toggleRawBtn = document.getElementById('btn-toggle-raw');
+  let isRawEdit = false;
+
+  const panels = {
+    url: document.getElementById('panel-url'),
+    vcard: document.getElementById('panel-vcard'),
+    text: document.getElementById('panel-text'),
+    tel: document.getElementById('panel-tel'),
+    mailto: document.getElementById('panel-mailto'),
+    sms: document.getElementById('panel-sms'),
+    custom: document.getElementById('panel-custom')
+  };
+
+  // Field references
+  const fUrl = document.getElementById('field-url');
+  const fText = document.getElementById('field-text-body');
+  const fTel = document.getElementById('field-tel-num');
+
+  const fMailTo = document.getElementById('field-email-to');
+  const fMailSub = document.getElementById('field-email-sub');
+  const fMailBody = document.getElementById('field-email-body');
+
+  const fSmsNum = document.getElementById('field-sms-num');
+  const fSmsBody = document.getElementById('field-sms-body');
+
+  const fVcardFn = document.getElementById('vcard-fn');
+  const fVcardOrg = document.getElementById('vcard-org');
+  const fVcardTitle = document.getElementById('vcard-title');
+  const fVcardTel = document.getElementById('vcard-tel');
+  const fVcardEmail = document.getElementById('vcard-email');
+  const fVcardUrl = document.getElementById('vcard-url');
+  const fVcardNote = document.getElementById('vcard-note');
+
+  function showPanel(selectedType) {
+    Object.keys(panels).forEach(key => {
+      panels[key].style.display = (key === selectedType) ? 'block' : 'none';
+    });
+  }
+
+  function compilePayload() {
+    if (isRawEdit) return;
+
+    const type = typeSelect.value;
+    let payload = '';
+
+    if (type === 'url') {
+      payload = fUrl.value.trim();
+    } else if (type === 'vcard') {
+      const fn = fVcardFn.value.trim();
+      const org = fVcardOrg.value.trim();
+      const title = fVcardTitle.value.trim();
+      const tel = fVcardTel.value.trim();
+      const email = fVcardEmail.value.trim();
+      const url = fVcardUrl.value.trim();
+      const note = fVcardNote.value.trim();
+
+      const lines = ['BEGIN:VCARD', 'VERSION:3.0'];
+      if (fn) lines.push('FN:' + fn);
+      if (org) lines.push('ORG:' + org);
+      if (title) lines.push('TITLE:' + title);
+      if (tel) lines.push('TEL:' + tel);
+      if (email) lines.push('EMAIL:' + email);
+      if (url) lines.push('URL:' + url);
+      if (note) lines.push('NOTE:' + note);
+      lines.push('END:VCARD');
+      payload = 'vcard:' + lines.join('\n');
+    } else if (type === 'text') {
+      payload = 'text:' + fText.value;
+    } else if (type === 'tel') {
+      payload = 'tel:' + fTel.value.trim();
+    } else if (type === 'mailto') {
+      payload = 'mailto:' + fMailTo.value.trim();
+      const params = [];
+      if (fMailSub.value.trim()) params.push('subject=' + encodeURIComponent(fMailSub.value.trim()));
+      if (fMailBody.value.trim()) params.push('body=' + encodeURIComponent(fMailBody.value.trim()));
+      if (params.length > 0) payload += '?' + params.join('&');
+    } else if (type === 'sms') {
+      payload = 'sms:' + fSmsNum.value.trim();
+      if (fSmsBody.value.trim()) payload += '?body=' + encodeURIComponent(fSmsBody.value.trim());
+    } else if (type === 'custom') {
+      payload = destTextarea.value;
+    }
+
+    destTextarea.value = payload;
+  }
+
+  function parseInitialPayload(rawVal) {
+    if (!rawVal) {
+      typeSelect.value = 'url';
+      showPanel('url');
+      return;
+    }
+
+    const val = rawVal.trim();
+
+    if (val.startsWith('vcard:') || val.startsWith('BEGIN:VCARD')) {
+      typeSelect.value = 'vcard';
+      showPanel('vcard');
+      const vcardBody = val.startsWith('vcard:') ? val.slice(6) : val;
+      const lines = vcardBody.split('\n');
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('FN:')) fVcardFn.value = trimmed.slice(3);
+        else if (trimmed.startsWith('ORG:')) fVcardOrg.value = trimmed.slice(4);
+        else if (trimmed.startsWith('TITLE:')) fVcardTitle.value = trimmed.slice(6);
+        else if (trimmed.startsWith('TEL:')) fVcardTel.value = trimmed.slice(4);
+        else if (trimmed.startsWith('EMAIL:')) fVcardEmail.value = trimmed.slice(6);
+        else if (trimmed.startsWith('URL:')) fVcardUrl.value = trimmed.slice(4);
+        else if (trimmed.startsWith('NOTE:')) fVcardNote.value = trimmed.slice(5);
+      });
+    } else if (val.startsWith('text:')) {
+      typeSelect.value = 'text';
+      showPanel('text');
+      fText.value = val.slice(5);
+    } else if (val.startsWith('tel:')) {
+      typeSelect.value = 'tel';
+      showPanel('tel');
+      fTel.value = val.slice(4);
+    } else if (val.startsWith('mailto:')) {
+      typeSelect.value = 'mailto';
+      showPanel('mailto');
+      const parts = val.slice(7).split('?');
+      fMailTo.value = parts[0] || '';
+      if (parts[1]) {
+        const query = new URLSearchParams(parts[1]);
+        if (query.has('subject')) fMailSub.value = query.get('subject');
+        if (query.has('body')) fMailBody.value = query.get('body');
+      }
+    } else if (val.startsWith('sms:')) {
+      typeSelect.value = 'sms';
+      showPanel('sms');
+      const parts = val.slice(4).split('?');
+      fSmsNum.value = parts[0] || '';
+      if (parts[1]) {
+        const query = new URLSearchParams(parts[1]);
+        if (query.has('body')) fSmsBody.value = query.get('body');
+      }
+    } else if (val.startsWith('http://') || val.startsWith('https://')) {
+      typeSelect.value = 'url';
+      showPanel('url');
+      fUrl.value = val;
+    } else {
+      typeSelect.value = 'custom';
+      showPanel('custom');
+    }
+  }
+
+  // Attach event listeners to type select and panel inputs
+  typeSelect.addEventListener('change', function () {
+    showPanel(this.value);
+    compilePayload();
+  });
+
+  const allInputs = document.querySelectorAll('#dest-panels input, #dest-panels textarea');
+  allInputs.forEach(input => {
+    input.addEventListener('input', compilePayload);
+  });
+
+  toggleRawBtn.addEventListener('click', function () {
+    isRawEdit = !isRawEdit;
+    if (isRawEdit) {
+      destTextarea.removeAttribute('readonly');
+      destTextarea.style.background = 'var(--bg-main)';
+      toggleRawBtn.innerText = 'Lock & Compile';
+      toggleRawBtn.classList.add('btn-primary');
+    } else {
+      destTextarea.setAttribute('readonly', true);
+      destTextarea.style.background = 'var(--bg-subtle)';
+      toggleRawBtn.innerText = 'Toggle Raw Edit';
+      toggleRawBtn.classList.remove('btn-primary');
+      parseInitialPayload(destTextarea.value);
+    }
+  });
+
+  // Initialize on page load
+  parseInitialPayload(destTextarea.value);
+});
+</script>
 {% endblock %}
