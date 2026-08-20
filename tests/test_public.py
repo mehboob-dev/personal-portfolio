@@ -24,7 +24,7 @@ def test_legacy_paths_redirect_to_anchors(client):
 
 def test_home_shows_benchmark(client):
     html = client.get("/").get_data(as_text=True)
-    assert "SYMBOLS" in html or "Symbols" in html
+    assert "Market Domains" in html or "Memory Reduction" in html
 
 
 def test_home_shows_sections(client):

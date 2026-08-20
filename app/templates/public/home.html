@@ -1,5 +1,10 @@
 {% extends "base.html" %}
 
+{% block extra_head %}
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+{% endblock %}
+
 {% block content %}
 
 <!-- ==========================================================================
@@ -281,9 +286,9 @@
       <p class="section-intro">{{ content.projects.artifacts_intro }}</p>
     </div>
 
-    <div class="artifacts-grid">
+    <div class="owl-carousel artifacts-carousel">
       {% for artifact in content.projects.secondary_artifacts %}
-      <article class="artifact-card" data-gsap-reveal>
+      <div class="artifact-card">
         <div class="artifact-head">
           <h3>{{ artifact.name }}</h3>
           <span class="badge {{ artifact.classification_class }}">{{ artifact.classification }}</span>
@@ -305,7 +310,7 @@
           </a>
         </div>
         {% endif %}
-      </article>
+      </div>
       {% endfor %}
     </div>
   </div>
@@ -402,4 +407,27 @@
   </div>
 </section>
 
+{% endblock %}
+
+{% block extra_scripts %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script>
+  $(function () {
+    $('.artifacts-carousel').owlCarousel({
+      loop: true,
+      margin: 16,
+      nav: false,
+      dots: true,
+      autoplay: true,
+      autoplayTimeout: 4000,
+      autoplayHoverPause: true,
+      responsive: {
+        0:    { items: 1 },
+        600:  { items: 2 },
+        1024: { items: 3 }
+      }
+    });
+  });
+</script>
 {% endblock %}
