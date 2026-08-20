@@ -1,52 +1,55 @@
 {
-  "heading": "Systems Architecture & Engineering Decisions",
-  "intro": "Architectural mechanisms, trade-offs, and design boundaries implemented across production trading and distribution systems.",
-  "systems_architecture": [
-    {
-      "concept": "Zero-Copy Memory-Mapped Files & Blittable Value Types",
-      "system": "High-Throughput Strategy & Backtesting Engine",
-      "problem": "Processing 50 instruments across 3 years of 1-minute OHLCV candles (millions of data points) in managed heap objects triggered severe Garbage Collector gen-2 collection pauses and memory bloat.",
-      "mechanism": "Directly maps multi-gigabyte historical market datasets into the virtual address space using sequential blittable value structs without allocating objects on the .NET managed heap.",
-      "tradeoff": "Requires strict byte alignment, deterministic unmanaged boundary handling, and bounds checking in place of runtime GC safety.",
-      "result": "~80% reduction in process memory footprint and full 50-symbol pipeline backtest execution in <3 minutes."
-    },
-    {
-      "concept": "Deterministic Managed (.NET) / Unmanaged (C++) Interop Boundary",
-      "system": "Production Strategy & Model Execution Core",
-      "problem": "Translating high-frequency quantitative mathematical models into real-time execution required high computational speed while preserving modular strategy orchestration in C#.",
-      "mechanism": "Engineered P/Invoke interfaces passing pinned memory buffers and blittable pointers between C++ numerical routines and the .NET runtime.",
-      "tradeoff": "Eliminated runtime marshalling overhead and memory copies at the cost of requiring explicit lifecycle management for pinned memory blocks.",
-      "result": "Near-native execution speed for vector operations while retaining flexible C# strategy composition."
-    },
-    {
-      "concept": "Lock-Free Ring Buffering & Fan-Out Streaming Pipeline",
-      "system": "Low-Latency Market Data Distribution Pipeline",
-      "problem": "Handling sudden exchange market volatility spikes without dropping price packets or blocking the primary ingestion socket thread during concurrent client fan-out.",
-      "mechanism": "Kernel TCP socket listener writes incoming tick and quote packets into an in-memory lock-free ring buffer, which worker threads dequeue and broadcast via SignalR hubs and WebSockets.",
-      "tradeoff": "Fixed-size circular ring buffers prevent memory spikes during network stalls, requiring deterministic overflow policies under extreme backpressure.",
-      "result": "Verified sub-10ms distribution latency across hundreds of concurrent client endpoints with zero thread contention."
-    },
-    {
-      "concept": "Dynamic Session-Aware Cloud Resource Scheduling",
-      "system": "Distributed Cloud Trading Infrastructure",
-      "problem": "Static, always-on multi-asset cloud server provisioning resulted in high infrastructure costs and idle compute during off-market hours.",
-      "mechanism": "Designed a dynamic migration and provisioning scheduler that scales cloud resources up or down based on active market session hours (Indian, FX, Crypto) and strategy compute intensity.",
-      "tradeoff": "Added scheduling orchestration logic and session warm-up phases in exchange for dramatic reduction in idle runtime cost.",
-      "result": "98.8% operational cost reduction while maintaining high execution reliability and support responsiveness."
-    }
-  ],
-  "skills": [
-    {
-      "category": "Languages & Core Runtimes",
-      "items": ["C# (.NET)", "C++ (Unmanaged Interop)", "Python", "C", "SQL"]
-    },
-    {
-      "category": "Systems & Distribution",
-      "items": ["Memory-Mapped Files", "Blittable Structs", "Multithreading", "TCP Sockets", "SignalR", "Apache Kafka"]
-    },
-    {
-      "category": "Architecture & Engineering",
-      "items": ["Real-Time Systems", "Code Profiling & GC Tuning", "Backtesting Pipelines", "Risk Modeling", "API Design"]
-    }
-  ]
+	"section_label": "[02] Systems Architecture",
+	"heading": "Systems Architecture & Engineering Decisions",
+	"intro": "Architectural mechanisms, trade-offs, and design decisions applied across quantitative research, trading systems, real-time market data, and cloud infrastructure.",
+	"systems_architecture": [
+		{
+			"concept": "Multi-Source Financial Data Pipeline & Validation",
+			"system": "Historical Market Data Infrastructure",
+			"problem": "Trading research depended on reliable historical datasets across multiple financial data types, making data consistency and validation essential before analysis.",
+			"mechanism": "Built pipelines to download, verify, clean, and process tick, quote, fundamentals, EOD, minute, ETF, and daily market data.",
+			"tradeoff": "Added dedicated validation and reporting stages to improve data quality before it reached downstream research and strategy workflows.",
+			"result": "Created reusable data pipelines with automated verification reports for accuracy and consistency."
+		},
+		{
+			"concept": "Unified Live & Historical Strategy Execution",
+			"system": "Algorithmic Strategy & Backtesting Infrastructure",
+			"problem": "Strategy development needed to work across both live trading and historical analysis without maintaining completely separate workflows.",
+			"mechanism": "Developed trading strategies and supporting pipelines for live and backtesting environments, alongside Python-based analysis, visualization, and market-scanning tools.",
+			"tradeoff": "Required common data and strategy workflows across different execution environments in exchange for a more consistent research-to-production process.",
+			"result": "Supported strategy development across live trading, backtesting, market analysis, and scanning workflows."
+		},
+		{
+			"concept": "Memory-Mapped Files & Blittable Structs",
+			"system": "Trading Infrastructure & Data Processing",
+			"problem": "Financial data workloads created significant memory overhead when large datasets were processed through conventional managed-memory structures.",
+			"mechanism": "Engineered memory-mapped files and blittable structs to handle financial data more efficiently while reducing managed-memory overhead.",
+			"tradeoff": "Introduced more explicit memory and data-layout handling in exchange for substantially lower resource consumption.",
+			"result": "~80% reduction in memory usage across the system."
+		},
+		{
+			"concept": "C# / C++ Interoperability",
+			"system": "Production Trading & Quantitative Models",
+			"problem": "Performance-sensitive quantitative components needed efficient execution while the broader trading platform remained flexible within the .NET ecosystem.",
+			"mechanism": "Integrated unmanaged C++ components with C#/.NET trading infrastructure to support performance-critical workloads.",
+			"tradeoff": "Added complexity at the managed and unmanaged boundary in exchange for greater control over performance-critical components.",
+			"result": "Combined C#/.NET strategy architecture with native C++ performance capabilities."
+		},
+		{
+			"concept": "Low-Level Socket-Based Market Data Streaming",
+			"system": "Real-Time Market Data Distribution Pipeline",
+			"problem": "Real-time tick and quote data needed to reach a large client base with minimal delivery delay.",
+			"mechanism": "Built a low-level socket-based streaming architecture for real-time stock market tick and quote distribution.",
+			"tradeoff": "Required lower-level network programming and explicit data-flow handling in exchange for tighter control over the streaming path.",
+			"result": "Delivered real-time market data to hundreds of clients with <10ms delay."
+		},
+		{
+			"concept": "Dynamic Cloud Trading Migration",
+			"system": "Cloud-Based Trading Infrastructure",
+			"problem": "Trading infrastructure required a more dynamic cloud approach to improve operational efficiency and support migration.",
+			"mechanism": "Developed and deployed a dynamic system for cloud-based trading migration adapted to operational requirements.",
+			"tradeoff": "Introduced additional migration and deployment orchestration in exchange for substantially lower infrastructure costs.",
+			"result": "Reduced operational costs by 98.8% while improving support efficiency."
+		}
+	]
 }

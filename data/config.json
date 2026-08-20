@@ -17,6 +17,10 @@
 			"linkedin": "https://www.linkedin.com/in/m-mehboob-meghani-91813b138"
 		}
 	},
+	"benchmarks_panel": {
+		"label": "// Calibrated System & Performance Benchmarks",
+		"subtitle": "Verified Production & Replay Specs"
+	},
 	"benchmarks": [
 		{
 			"value": "< 10 ms",

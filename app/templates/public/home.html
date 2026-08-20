@@ -45,8 +45,8 @@
       <!-- Calibrated Engineering Evidence Benchmarks Panel -->
       <div class="benchmarks-spec-panel" data-gsap-reveal="up">
         <div class="benchmarks-spec-header">
-          <span>// Calibrated System & Performance Benchmarks</span>
-          <span>Verified Production & Replay Specs</span>
+          <span>{{ site.benchmarks_panel.label }}</span>
+          <span>{{ site.benchmarks_panel.subtitle }}</span>
         </div>
         <div class="benchmarks-spec-grid">
           {% for b in site.benchmarks %}
@@ -78,9 +78,9 @@
   <div id="projects"></div>
   <div class="container">
     <div class="section-head" data-gsap-reveal>
-      <div class="section-label">[01] Flagship Systems</div>
-      <h2 class="section-title" data-anim-text>Production Trading Infrastructure & Case Studies</h2>
-      <p class="section-intro">Detailed technical breakdowns of core execution engines, data distribution pipelines, and architectural optimization work.</p>
+      <div class="section-label">{{ content.projects.flagship_label }}</div>
+      <h2 class="section-title" data-anim-text>{{ content.projects.flagship_heading }}</h2>
+      <p class="section-intro">{{ content.projects.flagship_intro }}</p>
     </div>
 
     <div class="flagship-list">
@@ -185,9 +185,9 @@
   <div id="skills"></div>
   <div class="container">
     <div class="section-head" data-gsap-reveal>
-      <div class="section-label">[02] Systems Architecture</div>
-      <h2 class="section-title" data-anim-text>Architectural Mechanisms & Trade-offs</h2>
-      <p class="section-intro">Core engineering decisions, memory boundaries, and execution models connected to the concrete systems where they operate.</p>
+      <div class="section-label">{{ content.about.section_label }}</div>
+      <h2 class="section-title" data-anim-text>{{ content.about.heading }}</h2>
+      <p class="section-intro">{{ content.about.intro }}</p>
     </div>
 
     <!-- Systems Architecture Dossier List -->
@@ -230,9 +230,9 @@
   <div id="education"></div>
   <div class="container">
     <div class="section-head" data-gsap-reveal>
-      <div class="section-label">[03] Chronology & Foundations</div>
-      <h2 class="section-title" data-anim-text>Production Engineering History</h2>
-      <p class="section-intro">Six years at Wallstreet Algo Trading developing infrastructure from low-level socket streaming to complete multi-asset strategy rewrites.</p>
+      <div class="section-label">{{ content.experience.section_label }}</div>
+      <h2 class="section-title" data-anim-text>{{ content.experience.heading }}</h2>
+      <p class="section-intro">{{ content.experience.intro }}</p>
     </div>
 
     <div class="chronology-list">
@@ -252,8 +252,8 @@
 
     <!-- Integrated Technical Foundation (Embedded Context) -->
     <div class="foundation-panel" data-gsap-reveal>
-      <div class="case-block-title">Academic & Technical Foundation</div>
-      <p class="muted" style="margin-bottom: 0; font-size: 0.85rem;">Formal engineering training in telecommunications, signal protocols, and hardware-conscious computer engineering.</p>
+      <div class="case-block-title">{{ content.education.heading }}</div>
+      <p class="muted" style="margin-bottom: 0; font-size: 0.85rem;">{{ content.education.intro }}</p>
       
       <div class="foundation-grid">
         {% for edu in content.education['items'] %}
@@ -276,9 +276,9 @@
 <section id="artifacts" class="section">
   <div class="container">
     <div class="section-head" data-gsap-reveal>
-      <div class="section-label">[04] Secondary Artifacts</div>
-      <h2 class="section-title" data-anim-text>Tools & Engineering Utilities</h2>
-      <p class="section-intro">Supporting open-source tooling, data extraction scrapers, and internal infrastructure utilities.</p>
+      <div class="section-label">{{ content.projects.artifacts_label }}</div>
+      <h2 class="section-title" data-anim-text>{{ content.projects.artifacts_heading }}</h2>
+      <p class="section-intro">{{ content.projects.artifacts_intro }}</p>
     </div>
 
     <div class="artifacts-grid">
@@ -317,8 +317,8 @@
 <section id="contact" class="section">
   <div class="container">
     <div class="section-head" data-gsap-reveal>
-      <div class="section-label">[05] Direct Contact</div>
-      <h2 class="section-title" data-anim-text>Direct Inquiries & Technical Inquiries</h2>
+      <div class="section-label">{{ content.contact.section_label }}</div>
+      <h2 class="section-title" data-anim-text>{{ content.contact.heading }}</h2>
       <p class="section-intro">{{ content.contact.lead }}</p>
     </div>
 

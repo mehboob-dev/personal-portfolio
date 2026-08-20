@@ -1,48 +1,63 @@
 {
-  "heading": "Production Chronology",
-  "intro": "Six-year engineering progression at Wallstreet Algo Trading, from data verification pipelines to full multi-asset trading engine rewrites.",
-  "roles": [
-    {
-      "title": "Quantitative Developer",
-      "org": "Wallstreet Algo Trading Private Limited",
-      "period": "Nov 2023 – Present",
-      "system": "Multi-Asset Trading Engine & Low-Latency Core",
-      "contribution": "Led the architectural rewrite of the firm’s core trading stack to support multi-asset expansion into Indian, Crypto, and FX markets. Engineered memory-mapped file buffers and blittable structs in C# and unmanaged C++, reducing memory usage by ~80%. Integrated SignalR streaming for real-time dashboard data broadcast."
-    },
-    {
-      "title": "Stock Market Analyst for Strategies",
-      "org": "Wallstreet Algo Trading Private Limited",
-      "period": "Jul 2022 – Nov 2023",
-      "system": "Quantitative Strategy Research & Analytics",
-      "contribution": "Developed automated time-feature extraction and pivot modeling pipelines comparing symbols against benchmark indices to support quantitative strategy research and pattern detection."
-    },
-    {
-      "title": "Cloud Architect Engineer",
-      "org": "Wallstreet Algo Trading Private Limited",
-      "period": "May 2022 – Jul 2022",
-      "system": "Dynamic Cloud Trading Infrastructure",
-      "contribution": "Designed and deployed a dynamic migration system for cloud-based trading execution, reducing operational infrastructure costs by 98.8% while improving support efficiency and deployment reliability."
-    },
-    {
-      "title": "Market Data Streamer",
-      "org": "Wallstreet Algo Trading Private Limited",
-      "period": "Mar 2022 – Apr 2022",
-      "system": "Low-Latency Market Data Distribution Pipeline",
-      "contribution": "Engineered low-level socket streaming infrastructure delivering real-time stock market tick and quote feeds to hundreds of client endpoints with verified <10ms delay."
-    },
-    {
-      "title": "Software Engineer & Developer",
-      "org": "Wallstreet Algo Trading Private Limited",
-      "period": "May 2020 – Jan 2022",
-      "system": "Market Scanning & Historical Data Ingestion",
-      "contribution": "Constructed automated pipelines to download, verify, clean, and validate historical datasets (tick, quotes, fundamentals, EOD, minute, ETF) and developed Python/C# market scanners with complex multi-condition filters for NYSE equities."
-    },
-    {
-      "title": "Engineering Intern",
-      "org": "Wallstreet Algo Trading Private Limited",
-      "period": "Nov 2019 – May 2020",
-      "system": "Internal Tooling & Code Profiling",
-      "contribution": "Assisted in the development, profiling, and debugging of in-house quantitative trading tools and data parsing utilities in C# and Python."
-    }
-  ]
+	"section_label": "[03] Chronology & Foundations",
+	"heading": "Production Chronology",
+	"intro": "Six-year engineering progression at Wallstreet Algo Trading, evolving from internal tooling and financial data engineering into quantitative development and production trading infrastructure.",
+	"roles": [
+		{
+			"title": "Quantitative Developer",
+			"org": "Wallstreet Algo Trading Private Limited",
+			"period": "Nov 2023 – Present",
+			"system": "Trading Infrastructure & Quantitative Systems",
+			"contribution": "Focused on building and evolving performance-oriented trading infrastructure and quantitative systems across the firm's expanding market footprint.\n\n• Designed and evolved trading infrastructure using C#, .NET, and unmanaged C++ interoperability.\n• Led a major rewrite of the trading stack to improve scalability and support expansion into Indian, Crypto, and FX markets.\n• Engineered memory-mapped files and blittable structs, reducing memory usage by ~80%.\n• Developed financial models and quantitative components for strategy and risk-management workflows.\n• Integrated SignalR to stream real-time market data to web-based dashboards."
+		},
+		{
+			"title": "Stock Market Analyst for Strategies",
+			"org": "Wallstreet Algo Trading Private Limited",
+			"period": "Jul 2022 – Nov 2023",
+			"system": "Strategy Research & Market Analysis",
+			"contribution": "Worked closely with market data and strategy research, turning structured observations into datasets and analytical insights for systematic strategy development.\n\n• Conducted daily analysis using progressive and non-progressive time features.\n• Generated pivot-based insights for comparing individual symbols against benchmark indices.\n• Curated datasets to support strategy development and market research.\n• Identified recurring market patterns through structured data analysis.\n• Contributed analytical findings that supported the development and refinement of trading strategies."
+		},
+		{
+			"title": "Cloud Architect Engineer",
+			"org": "Wallstreet Algo Trading Private Limited",
+			"period": "May 2022 – Jul 2022",
+			"system": "Cloud-Based Trading Migration",
+			"contribution": "Focused on improving the operational model of the firm's trading infrastructure through a dynamic cloud migration approach.\n\n• Developed a dynamic system for cloud-based trading migration.\n• Designed the solution around the operational requirements of trading infrastructure.\n• Improved the efficiency of supporting cloud-based trading workloads.\n• Reduced operational infrastructure costs by 98.8%.\n• Improved support efficiency as part of the migration effort."
+		},
+		{
+			"title": "Market Data Streamer",
+			"org": "Wallstreet Algo Trading Private Limited",
+			"period": "Mar 2022 – Apr 2022",
+			"system": "Real-Time Market Data Distribution",
+			"contribution": "Built infrastructure for distributing real-time market information to a broad client base, with an emphasis on delivery speed and reliable data flow.\n\n• Published real-time stock market tick and quote data.\n• Implemented the streaming layer using low-level socket programming.\n• Designed the distribution system for concurrent downstream consumption.\n• Served real-time market data to hundreds of clients.\n• Achieved delivery delay of less than 10ms."
+		},
+		{
+			"title": "Stock Scanner & Screener",
+			"org": "Wallstreet Algo Trading Private Limited",
+			"period": "Jan 2022 – Mar 2022",
+			"system": "Market Scanning & Screening",
+			"contribution": "Contributed to the development of a market-scanning system designed to process results and surface structured insights for further analysis.\n\n• Mentored in the development of a stock scanner tool.\n• Worked with market results and feature-selection-based analysis.\n• Supported the generation of pivots from selected market features.\n• Helped structure scanner outputs for easier analysis.\n• Contributed to tooling used for systematic market screening."
+		},
+		{
+			"title": "Software Engineer",
+			"org": "Wallstreet Algo Trading Private Limited",
+			"period": "May 2021 – Jan 2022",
+			"system": "Trading Strategies & Analysis Tools",
+			"contribution": "Moved deeper into trading-system development, combining strategy implementation with analytical tooling for both live and historical workflows.\n\n• Developed trading strategies for live and backtesting environments.\n• Built supporting pipelines for strategy execution and analysis.\n• Developed Python-based visualization tools for market scanning.\n• Created analysis utilities for exploring market behavior and strategy results.\n• Built scanners with complex filters for NYSE stocks."
+		},
+		{
+			"title": "Software Developer",
+			"org": "Wallstreet Algo Trading Private Limited",
+			"period": "May 2020 – Mar 2021",
+			"system": "Financial Data Engineering",
+			"contribution": "Focused on building reliable data-processing workflows for large financial datasets, establishing the data engineering foundation for later trading and quantitative development work.\n\n• Developed Python and C# projects for large-scale financial datasets.\n• Built pipelines to download historical market data from multiple sources.\n• Processed tick, quotes, fundamentals, EOD, minute, ETF, and daily datasets.\n• Added verification and cleaning stages to improve data quality.\n• Automated verification reports for monitoring data accuracy and consistency."
+		},
+		{
+			"title": "Intern",
+			"org": "Wallstreet Algo Trading Private Limited",
+			"period": "Nov 2019 – May 2020",
+			"system": "Internal Tools & Development",
+			"contribution": "Established the initial foundation in professional software development through hands-on work with internal tools, debugging, and core programming concepts.\n\n• Developed foundational skills in C# and Python.\n• Applied object-oriented programming through project-based development.\n• Assisted with the development of internal tools.\n• Supported debugging and troubleshooting of existing applications.\n• Built practical experience working within an in-house engineering environment."
+		}
+	]
 }

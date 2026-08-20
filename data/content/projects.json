@@ -1,189 +1,287 @@
 {
-  "heading": "Flagship Engineering Systems",
-  "intro": "Production trading infrastructure, low-latency distribution pipelines, and architectural case studies.",
-  "defaults": {
-    "tech_badge_class": "badge-accent",
-    "cta_label": "GitHub Repository",
-    "project_icon": "fa-brands fa-github"
-  },
-  "flagship_systems": [
-    {
-      "id": "trading-engine",
-      "number": "01",
-      "title": "High-Throughput Algorithmic Trading & Backtesting Engine",
-      "classification": "Internal Production · Live Demo Available",
-      "stack": [
-        { "name": "C#", "class": "badge-accent" },
-        { "name": ".NET", "class": "badge-accent" },
-        "Unmanaged C++ Interop",
-        "Memory-Mapped Files",
-        "SignalR"
-      ],
-      "context": "Backtesting multi-strategy models across 50 instruments over 3 years of 1-minute OHLCV data created severe memory overhead and Garbage Collector allocation pauses in traditional object-oriented pipeline designs.",
-      "constraints": [
-        "Eliminating .NET Garbage Collector pauses under sustained multi-million candle workloads",
-        "Zero-copy sharing of historical price feeds across concurrent strategy instances",
-        "Maintaining a deterministic unmanaged interop bridge between C++ and .NET runtimes"
-      ],
-      "architecture_summary": "Engineered a zero-copy data pipeline using memory-mapped files and blittable value types. Shared technical indicators compute once on a vector bus and stream into concurrent strategy evaluation pipelines with modular exit rules.",
-      "decisions": [
-        {
-          "title": "Memory-Mapped File Storage",
-          "detail": "Directly maps multi-gigabyte historical market datasets into process memory without loading entire arrays into the managed heap."
-        },
-        {
-          "title": "Blittable Struct Memory Layout",
-          "detail": "Sequential memory representations for price ticks and order events, eliminating boxing/unboxing overhead and reducing RAM footprint by ~80%."
-        },
-        {
-          "title": "Shared Indicator Computation Bus",
-          "detail": "Vectorized calculation of indicators (ATR, moving averages, volatility bands) executed once and reused across all active strategy instances."
-        }
-      ],
-      "diagram": {
-        "title": "Data & Execution Pipeline",
-        "nodes": [
-          { "step": "01", "name": "Historical / Live Data", "type": "50 Symbols (1m OHLCV)", "annotation": "Memory-Mapped File Buffer" },
-          { "step": "02", "name": "Blittable Struct Bus", "type": "Zero-Copy Layout", "annotation": "C# / C++ Interop Layer" },
-          { "step": "03", "name": "Shared Indicator Engine", "type": "Vectorized Cache", "annotation": "Single-Pass Computation" },
-          { "step": "04", "name": "Strategy & Modular Exits", "type": "Multi-Model Evaluation", "annotation": "Concurrent Execution" },
-          { "step": "05", "name": "Risk & Order Routing", "type": "Execution Engine", "annotation": "Real-Time Dispatch" }
-        ]
-      },
-      "evidence": {
-        "metric": "< 3 min",
-        "label": "50 symbols × 3 years × 1-minute OHLCV full pipeline backtest completed in under 3 minutes.",
-        "link": {
-          "label": "Explore Interactive Engine Replay",
-          "url": "https://itqantrades.com/expo",
-          "icon": "fa-solid fa-up-right-from-square"
-        }
-      }
-    },
-    {
-      "id": "market-data-streamer",
-      "number": "02",
-      "title": "Low-Latency Market Data Distribution Pipeline",
-      "classification": "Production System · Wallstreet Algo Trading",
-      "stack": [
-        { "name": "C#", "class": "badge-accent" },
-        { "name": ".NET", "class": "badge-accent" },
-        "Sockets",
-        "Multithreading",
-        "SignalR",
-        "WebSockets"
-      ],
-      "context": "Real-time distribution of high-frequency tick and quote market feeds to hundreds of distributed client applications with sub-10ms delivery requirements.",
-      "constraints": [
-        "Preventing network buffer congestion under sudden market volatility bursts",
-        "Managing hundreds of concurrent client connections with minimal serialization overhead",
-        "Providing a deterministic bridge from low-level TCP sockets to web dashboard consumers"
-      ],
-      "architecture_summary": "Engineered a low-level multi-threaded socket listener with custom binary packet framing feeding an in-memory ring buffer. Decoupled socket ingestion from client broadcasting via dedicated SignalR hubs.",
-      "decisions": [
-        {
-          "title": "Low-Level Socket Programming",
-          "detail": "Direct TCP socket management bypassing heavy framework abstractions to ensure deterministic packet handling."
-        },
-        {
-          "title": "Producer-Consumer Ring Buffer",
-          "detail": "Lock-free memory ring buffer decouples network ingress from client fan-out broadcasting."
-        },
-        {
-          "title": "SignalR Web Distribution Bridge",
-          "detail": "Streams normalized market tick and quote updates to web dashboards with low transport latency."
-        }
-      ],
-      "diagram": {
-        "title": "Streaming Distribution Flow",
-        "nodes": [
-          { "step": "01", "name": "Exchange Market Feed", "type": "Tick & Quote Stream", "annotation": "Raw Ingress" },
-          { "step": "02", "name": "Low-Level Socket Listener", "type": "Binary Packet Framer", "annotation": "Kernel Socket Loop" },
-          { "step": "03", "name": "Lock-Free Ring Buffer", "type": "Producer-Consumer", "annotation": "Thread-Safe Memory Queue" },
-          { "step": "04", "name": "SignalR Broadcast Layer", "type": "WebSockets / SignalR", "annotation": "Fan-Out Distribution" },
-          { "step": "05", "name": "Client Dashboards", "type": "Hundreds of Consumers", "annotation": "<10ms Delivery" }
-        ]
-      },
-      "evidence": {
-        "metric": "< 10 ms",
-        "label": "Tick and quote market data published to hundreds of clients with sub-10ms delivery delay."
-      }
-    },
-    {
-      "id": "cloud-migration",
-      "number": "03",
-      "title": "Dynamic Cloud Trading Migration & Infrastructure Optimization",
-      "classification": "Production System · Wallstreet Algo Trading",
-      "stack": ["Cloud Infrastructure", "Distributed Systems", "Resource Profiling"],
-      "context": "Legacy cloud-based trading execution infrastructure faced escalating operating costs and operational overhead as multi-asset strategies expanded.",
-      "constraints": [
-        "Zero downtime or trade execution disruption during infrastructure transition",
-        "Maintaining strict low-latency execution guarantees while eliminating idle provisioning waste"
-      ],
-      "architecture_summary": "Designed and deployed a dynamic migration system tailoring compute allocation to strategy volatility and trading session hours.",
-      "decisions": [
-        {
-          "title": "Dynamic Resource Scheduling",
-          "detail": "Automated scaling aligned with global market sessions and strategy compute intensity."
-        },
-        {
-          "title": "Resource & Memory Profiling",
-          "detail": "Eliminated idle cloud resource wastage, resulting in a verified 98.8% operational cost reduction while improving support efficiency."
-        }
-      ],
-      "evidence": {
-        "metric": "98.8%",
-        "label": "Operational cost reduction achieved while improving support efficiency and deployment reliability."
-      }
-    }
-  ],
-  "secondary_artifacts": [
-    {
-      "name": "Dynamic QR & Lead Analytics Platform",
-      "classification": "Production · This Site",
-      "description": "Generic QR redirect engine with mutable destinations, SHA-256 IP anonymization, campaign analytics, and lead capture. Built so physical business cards never go stale.",
-      "stack": ["Flask", "SQLAlchemy", "SQLite / MySQL", "Vanilla JS"],
-      "link": {
-        "label": "Architecture Overview",
-        "url": "#architecture",
-        "icon": "fa-solid fa-sitemap"
-      }
-    },
-    {
-      "name": "GitHub Trend Recorder & Historical API",
-      "classification": "Open Source",
-      "description": "Web scraper and FastAPI service tracking daily trending GitHub repositories with filters for spoken language, programming language, and historical date ranges.",
-      "stack": ["FastAPI", "Flask", "Python", "Scraping"],
-      "link": {
-        "url": "https://github.com/mehboob-dev/Github-Trend-Recorder-API"
-      }
-    },
-    {
-      "name": "UrbanDB",
-      "classification": "Open Source",
-      "description": "REST API built with Flask providing structured CRUD operations using Google Sheets as a lightweight backend.",
-      "stack": ["Flask", "REST API", "Google Sheets API"],
-      "link": {
-        "url": "https://github.com/mehboob-dev/UrbanDB"
-      }
-    },
-    {
-      "name": "SBEUIA Voice Assistant",
-      "classification": "Open Source",
-      "description": "Voice-command-based intelligent assistant capable of autonomous task execution and speech processing.",
-      "stack": ["Python", "Speech Recognition", "Automation"],
-      "link": {
-        "url": "https://github.com/mehboob-dev/SBEUIA"
-      }
-    }
-  ],
-  "projects": [
-    {
-      "name": "Algorithmic Trading Engine",
-      "status": "Live — own use",
-      "description": "High-performance backtesting + live trading engine. 50 symbols × 3 years × 1-minute OHLCV, multiple strategies with modular exits, full pipeline in under 3 minutes.",
-      "tags": ["C#", ".NET", "Memory-mapped data", "Backtesting", "Performance"],
-      "links": [{ "label": "Live demo", "url": "https://itqantrades.com/expo" }]
-    }
-  ]
+	"flagship_label": "[01] Flagship Systems",
+	"flagship_heading": "Production Trading Infrastructure & Case Studies",
+	"flagship_intro": "Selected engineering work spanning quantitative trading infrastructure, real-time market data, performance optimization, and cloud-based trading systems.",
+	"artifacts_label": "[04] Secondary Artifacts",
+	"artifacts_heading": "Tools & Engineering Utilities",
+	"artifacts_intro": "Supporting projects and engineering utilities built across APIs, data extraction, automation, and developer tooling.",
+	"defaults": {
+		"tech_badge_class": "badge-accent",
+		"cta_label": "GitHub Repository",
+		"project_icon": "fa-brands fa-github"
+	},
+	"flagship_systems": [
+		{
+			"id": "trading-engine",
+			"number": "01",
+			"title": "High-Performance Algorithmic Trading & Backtesting Infrastructure",
+			"classification": "Internal Production · Trading Systems",
+			"stack": [
+				{
+					"name": "C#",
+					"class": "badge-accent"
+				},
+				{
+					"name": ".NET",
+					"class": "badge-accent"
+				},
+				"Unmanaged C++ Interop",
+				"Memory-Mapped Files",
+				"SignalR"
+			],
+			"context": "The trading platform required a more scalable architecture as the firm expanded its trading capabilities across Indian, Crypto, and FX markets, while large financial-data workloads created significant memory overhead.",
+			"constraints": [
+				"Improving scalability of the existing trading stack",
+				"Reducing memory overhead in data-intensive workloads",
+				"Maintaining a modular quantitative architecture while introducing performance-oriented components"
+			],
+			"architecture_summary": "Led a major rewrite of the trading stack using C#, .NET, and unmanaged C++ interoperability. Introduced memory-mapped files and blittable structs for more efficient data handling and integrated SignalR for real-time market data streaming to web dashboards.",
+			"decisions": [
+				{
+					"title": "Memory-Mapped Data Handling",
+					"detail": "Used memory-mapped files to work with large financial datasets more efficiently and reduce conventional managed-memory overhead."
+				},
+				{
+					"title": "Blittable Structs",
+					"detail": "Applied compact value-type data structures to improve memory efficiency and reduce unnecessary allocation overhead."
+				},
+				{
+					"title": "Managed / Unmanaged Interoperability",
+					"detail": "Integrated unmanaged C++ components with the C#/.NET architecture where lower-level performance capabilities were required."
+				},
+				{
+					"title": "Real-Time Dashboard Integration",
+					"detail": "Integrated SignalR to stream market data from the trading infrastructure into web-based dashboards."
+				}
+			],
+			"diagram": {
+				"title": "Trading Infrastructure Flow",
+				"nodes": [
+					{
+						"step": "01",
+						"name": "Market & Historical Data",
+						"type": "Financial Data",
+						"annotation": "Data Processing"
+					},
+					{
+						"step": "02",
+						"name": "Data Infrastructure",
+						"type": "Memory-Mapped Files",
+						"annotation": "Efficient Data Handling"
+					},
+					{
+						"step": "03",
+						"name": "Quantitative Components",
+						"type": "C# / C++ Interop",
+						"annotation": "Performance-Critical Processing"
+					},
+					{
+						"step": "04",
+						"name": "Strategy Infrastructure",
+						"type": "Trading & Backtesting",
+						"annotation": "Quantitative Workflows"
+					},
+					{
+						"step": "05",
+						"name": "Web Distribution",
+						"type": "SignalR",
+						"annotation": "Real-Time Dashboard Data"
+					}
+				]
+			},
+			"evidence": {
+				"metric": "~ 80%",
+				"label": "Memory usage reduced by approximately 80% through memory-mapped files and blittable structs.",
+				"link": {
+					"label": "Explore Interactive Engine Replay",
+					"url": "https://itqantrades.com/expo",
+					"icon": "fa-solid fa-up-right-from-square"
+				}
+			}
+		},
+		{
+			"id": "market-data-streamer",
+			"number": "02",
+			"title": "Real-Time Market Data Distribution Pipeline",
+			"classification": "Production System · Wallstreet Algo Trading",
+			"stack": [
+				{
+					"name": "C#",
+					"class": "badge-accent"
+				},
+				{
+					"name": ".NET",
+					"class": "badge-accent"
+				},
+				"Low-Level Sockets",
+				"Multithreading",
+				"SignalR",
+				"WebSockets"
+			],
+			"context": "Real-time stock market tick and quote data needed to be distributed reliably across a large client base while maintaining very low delivery delay.",
+			"constraints": [
+				"Handling real-time market data flow with minimal delay",
+				"Supporting distribution to hundreds of downstream clients",
+				"Maintaining reliable communication across the streaming pipeline"
+			],
+			"architecture_summary": "Built real-time market data streaming infrastructure using low-level socket programming and distributed the resulting tick and quote data to client applications and web-based consumers.",
+			"decisions": [
+				{
+					"title": "Low-Level Socket Programming",
+					"detail": "Used low-level socket programming to provide direct control over real-time market-data communication."
+				},
+				{
+					"title": "Real-Time Data Distribution",
+					"detail": "Designed the streaming flow to publish live tick and quote information to a broad set of downstream consumers."
+				},
+				{
+					"title": "Web Dashboard Integration",
+					"detail": "Connected real-time market data infrastructure with web-facing distribution through SignalR and related streaming components."
+				}
+			],
+			"diagram": {
+				"title": "Market Data Distribution Flow",
+				"nodes": [
+					{
+						"step": "01",
+						"name": "Market Data",
+						"type": "Tick & Quote Data",
+						"annotation": "Real-Time Ingress"
+					},
+					{
+						"step": "02",
+						"name": "Socket Layer",
+						"type": "Low-Level Networking",
+						"annotation": "Data Reception"
+					},
+					{
+						"step": "03",
+						"name": "Processing Layer",
+						"type": "Market Data Processing",
+						"annotation": "Data Handling"
+					},
+					{
+						"step": "04",
+						"name": "Distribution Layer",
+						"type": "Real-Time Streaming",
+						"annotation": "Client Broadcast"
+					},
+					{
+						"step": "05",
+						"name": "Client Applications",
+						"type": "Hundreds of Clients",
+						"annotation": "<10ms Delay"
+					}
+				]
+			},
+			"evidence": {
+				"metric": "< 10 ms",
+				"label": "Real-time stock market tick and quote data delivered to hundreds of clients with less than 10ms delay."
+			}
+		},
+		{
+			"id": "cloud-migration",
+			"number": "03",
+			"title": "Dynamic Cloud Trading Migration & Infrastructure Optimization",
+			"classification": "Production System · Wallstreet Algo Trading",
+			"stack": [
+				"Cloud Infrastructure",
+				"Trading Systems",
+				"Resource Optimization"
+			],
+			"context": "The trading infrastructure required a more efficient cloud-based operating model as the system evolved and trading workloads expanded.",
+			"constraints": [
+				"Reducing ongoing infrastructure costs",
+				"Supporting migration of trading workloads into a cloud environment",
+				"Improving operational efficiency without compromising trading-system support"
+			],
+			"architecture_summary": "Developed and deployed a dynamic system for cloud-based trading migration, focusing on more efficient infrastructure utilization and operational support.",
+			"decisions": [
+				{
+					"title": "Dynamic Cloud Migration",
+					"detail": "Designed a migration approach that adapted cloud infrastructure to the operational requirements of the trading environment."
+				},
+				{
+					"title": "Infrastructure Optimization",
+					"detail": "Focused on reducing unnecessary infrastructure expenditure while improving the efficiency of supporting trading workloads."
+				},
+				{
+					"title": "Operational Efficiency",
+					"detail": "Improved the operational support model alongside the infrastructure migration."
+				}
+			],
+			"evidence": {
+				"metric": "98.8%",
+				"label": "Operational costs reduced by 98.8% while improving support efficiency."
+			}
+		}
+	],
+	"secondary_artifacts": [
+		{
+			"name": "Personal Portfolio",
+			"classification": "Open Source · Current",
+			"description": "Personal engineering portfolio presenting quantitative development experience, production systems, architecture decisions, technical projects, and engineering capabilities.",
+			"stack": [
+				"HTML",
+				"CSS",
+				"JavaScript"
+			],
+			"link": {
+				"url": "https://github.com/mehboob-dev/personal-portfolio"
+			}
+		},
+		{
+			"name": "KQCMM Web",
+			"classification": "Open Source · Web Application",
+			"description": "Web-based implementation of KQCMM, extending the project into an accessible browser experience with a JavaScript-driven frontend.",
+			"stack": [
+				"JavaScript",
+				"HTML",
+				"CSS"
+			],
+			"link": {
+				"url": "https://github.com/mehboob-dev/kqcmm-web"
+			}
+		},
+		{
+			"name": "GitHub Trend Recorder & Historical API",
+			"classification": "Open Source",
+			"description": "Web scraper and API for recording GitHub repository trends and providing historical and filtered repository data.",
+			"stack": [
+				"FastAPI",
+				"Flask",
+				"Python",
+				"Web Scraping"
+			],
+			"link": {
+				"url": "https://github.com/mehboob-dev/Github-Trend-Recorder-API"
+			}
+		},
+		{
+			"name": "UrbanDB",
+			"classification": "Open Source",
+			"description": "Flask-based REST API providing structured data operations using Google Sheets as a lightweight backend.",
+			"stack": [
+				"Flask",
+				"REST API",
+				"Google Sheets API"
+			],
+			"link": {
+				"url": "https://github.com/mehboob-dev/UrbanDB"
+			}
+		},
+		{
+			"name": "SBEUIA Voice Assistant",
+			"classification": "Open Source",
+			"description": "Voice-command-based intelligent assistant designed to interpret spoken commands and perform automated tasks.",
+			"stack": [
+				"Python",
+				"Speech Recognition",
+				"Automation"
+			],
+			"link": {
+				"url": "https://github.com/mehboob-dev/SBEUIA"
+			}
+		}
+	]
 }

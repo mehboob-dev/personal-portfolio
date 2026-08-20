@@ -1,8 +1,0 @@
-{
-  "heading": "The Engine",
-  "sub": "A complete algorithmic trading pipeline, engineered to be fast and resource-efficient.",
-  "benchmark_note": "50 symbols · 3 years · 1-minute OHLCV · multiple strategies · multiple exits · full engine in under 3 minutes.",
-  "architecture_title": "Why it's fast",
-  "architecture_blurb": "Performance comes from architecture, not from throwing CPU at the problem.",
-  "pipeline_note": "The same logic runs against historical data for backtesting and against real-time data."
-}

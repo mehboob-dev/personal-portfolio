@@ -2,7 +2,24 @@
 
 All notable changes, newest first. Format: `YYYY-MM-DD — summary (commit)`.
 
-## 2026-08-20 — Remove template fallback literals and inline defaults
+## 2026-08-20 — Make all section copy JSON-configurable; delete unused content files and keys
+
+- **Section headings/labels/intros fully JSON-driven**: replaced every hardcoded string in `app/templates/public/home.html` with template variables. Each section now reads its label, heading, and intro from the appropriate content JSON — no literals remain in the template.
+  - Benchmarks panel header/subtitle → `site.benchmarks_panel.label` / `site.benchmarks_panel.subtitle` (new keys in `data/config.json`)
+  - Section [01] Flagship Systems → `content.projects.flagship_label`, `content.projects.flagship_heading`, `content.projects.flagship_intro`
+  - Section [02] Systems Architecture → `content.about.section_label`, `content.about.heading`, `content.about.intro`
+  - Section [03] Chronology & Foundations → `content.experience.section_label`, `content.experience.heading`, `content.experience.intro`
+  - Foundation panel → `content.education.heading`, `content.education.intro`
+  - Section [04] Secondary Artifacts → `content.projects.artifacts_label`, `content.projects.artifacts_heading`, `content.projects.artifacts_intro`
+  - Section [05] Direct Contact → `content.contact.section_label`, `content.contact.heading`
+- **Deleted unused JSON keys**: removed `skills[]` from `data/content/about.json`; removed the stale `projects[]` array and the generic `heading`/`intro` from `data/content/projects.json` (replaced by section-specific keys); all remaining keys in every content file are now rendered.
+- **Deleted unused content files**: removed `data/content/home.json` and `data/content/trading_systems.json` — none of their keys were loaded or rendered in any template.
+- **`data/content/projects.json` restructured**: split the single `heading`/`intro` pair into two sets — `flagship_label`/`flagship_heading`/`flagship_intro` for section 01 and `artifacts_label`/`artifacts_heading`/`artifacts_intro` for section 04, since `projects.json` drives two distinct sections.
+- **`data/content/contact.json`**, **`about.json`**, **`experience.json`**: each gained a `section_label` key containing the numbered label (e.g. `[02] Systems Architecture`) that was previously hardcoded in the template.
+
+---
+
+
 
 - **Template Fallback Literal Cleanup**: removed inline default string literals and conditional existence guards (`if site and site.identity else ...`, `else '...'`, etc.) in `app/templates/base.html` and `app/templates/public/home.html`. Template variables for `site` and `content` are now accessed directly, aligning with the "config over code" principle so that missing or misconfigured keys fail loudly.
 - **Independent Page Title Configuration**: corrected the typo `"Mehboob Meghaniaaaaaaaaaaa"` to `"Mehboob Meghani"` in `data/config.json`. Removed the redundant `{% block title %}` override from `app/templates/public/home.html` so that the homepage title uses the `site.site.title` configuration value dynamically, separating browser tab title configuration from the displayed hero name (`site.identity.name`).
