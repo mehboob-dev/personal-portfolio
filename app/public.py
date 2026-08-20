@@ -71,3 +71,9 @@ def contact_submit():
         db.session.commit()
         return redirect(url_for("public.home", sent=1, _anchor="contact"))
     return redirect(url_for("public.home", _anchor="contact"))
+
+
+@bp.get("/_deploy_test")
+def deploy_test():
+    """Sentinel route used to verify push→deploy workflow. Safe to remove later."""
+    return "deploy_ok", 200
